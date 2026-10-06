@@ -79,7 +79,8 @@ components/
   ScoresView.tsx   Tiles, "focus next", strength by module (bars), midterm trend, attempt history
   RecordStrip.tsx  Best/last score line used on several pages
   NotesReader.tsx  Notes: part tabs (1.1 · 1.2 · 1.3), one part shown at a time, numbered sections,
-                   sticky "you are here" bar + outline (phones/narrow), outline rail in the left margin (≥1320px),
+                   sticky "you are here" bar + outline (<860px), outline column on the left (≥860px; page widens
+                   to 1180px), sections already read get a ✓,
                    card groups (.check/.areas with 3+ cards) become swipe rows on phones (≤700px)
   Flashcards.tsx
 lib/
@@ -112,6 +113,8 @@ Everything is committed and pushed; `npm run build` passes.
 **Decided for consistency:** every module test includes case scenarios. Module 2 sets without their own get the Set 4 scenario section (`withScenarios` in `lib/tests.ts`), so Module 2 sets are now 34–81 points.
 
 **Notes reader (added after the owner said the notes felt like an endless wall of text):** verified at 880px (sticky bar tracks section and progress, Outline popover jumps between parts and sections), 375px (swipe rows with "n / N" counter, no sideways page scroll), and 1440px dark (rail highlights the current section). Deep links still work: `#p-2-1` opens that part, `#a-bsc` opens the part containing it. The notes body is memoized (`PartBody`) so scroll updates don't re-render the HTML; keep it that way or the swipe rows get wiped.
+
+**Owner preference (notes):** related items side by side, not stacked — definitions, term cards (`.check`), and term-vs-term comparisons (`.compare`) use auto-fit grids; names in definition/comparison cards are headings (bigger, ink color). Cards containing diagrams/tables stay full width.
 
 **Still worth checking:**
 - Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)

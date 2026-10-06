@@ -176,8 +176,8 @@ export default function NotesReader({ parts, moduleNum, children }: { parts: Not
             <ol className="ol-secs">
               {p.sections.map((s, j) => (
                 <li key={s.id}>
-                  <button className={j === si ? "on" : ""} onClick={() => goPart(i, s.id)} aria-current={j === si ? "location" : undefined}>
-                    <span>{j + 1}</span>{plain(s.title)}
+                  <button className={j === si ? "on" : j < si ? "done" : ""} onClick={() => goPart(i, s.id)} aria-current={j === si ? "location" : undefined}>
+                    <span>{j < si ? "✓" : j + 1}</span>{plain(s.title)}
                   </button>
                 </li>
               ))}
