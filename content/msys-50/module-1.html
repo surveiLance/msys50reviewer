@@ -1,0 +1,225 @@
+<nav class="partnav" aria-label="Jump to part"><a href="#p-1-1"><span>1.1</span>Overview of EA</a><a href="#p-1-2"><span>1.2</span>EA Drivers</a><a href="#p-1-3"><span>1.3</span>The Complexity of EA</a></nav>    <h2 id="p-1-1"><span class="tag">PART 1.1</span>Overview of EA</h2>
+    <div class="note" style="font-size:14.5px"><b>The one idea to hold onto:</b> EA is a <b>holistic, integrated view of business and IT</b>. It's a practice (with principles, documents, and models) that describes where the organization is now and where it wants to be, so business and IT can plan together.</div>
+
+    <h3>Three definitions</h3>
+    <div class="areas">
+      <article class="area">
+        <div class="area-k">Lankhorst</div>
+        <p>"A coherent whole of <b>principles, methods, and models</b> that are used in the design and realisation of an enterprise's organisational structure, business processes, information systems, and infrastructure."</p>
+        <p class="ea"><b>Key words:</b> principles, methods, models · design and realisation</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Kotusev</div>
+        <p>"A collection of special documents (<b>artifacts</b>) describing various aspects of an organization from an integrated business and IT perspective intended to <b>bridge the communication gap</b> between business and IT stakeholders, facilitate information systems planning and thereby improve business and IT alignment."</p>
+        <p class="ea"><b>Key words:</b> artifacts · communication gap · IS planning · alignment</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Bernard</div>
+        <p>"The analysis and documentation of an enterprise in its <b>current and future states</b> from an integrated <b>strategy, business, and technology</b> perspective."</p>
+        <p class="ea"><b>Key words:</b> current and future states · strategy, business, technology</p>
+      </article>
+    </div>
+    <p class="muted" style="font-size:14px"><b>Common standpoint (slide 8):</b> holistic · integrated · business · IS/IT · perspective · principles · practice · documents.</p>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Reading the definitions:</b> Lankhorst is about capturing requirements from both the business and IT side. Bernard goes further and captures requirements for the <b>future</b> state too ("what does the organization want to be?"), across <b>short-, medium-, and long-term</b> timelines.</p><p><b>Common standpoint, explained:</b> <i>perspective</i>: there are many different ones · <i>holistic</i>: deals with the entire organization · <i>documents</i>: the many outputs EA produces, called <b>artifacts</b>.</p></div>
+
+    <h3>Analogies</h3>
+    <div class="compare">
+      <div><b>Enterprise without EA</b><span>= a house without blueprints</span></div>
+      <div><b>Enterprise architecture</b><span>is analogous to <b>city planning</b>: both are evolving and dynamic (explained in 1.3)</span></div>
+    </div>
+
+    <h3>Additional characteristics of EA</h3>
+    <div class="check">
+      <div><b>Inherent complexity</b><span>There's a lot to describe.</span></div>
+      <div><b>Need for structure</b><span>Complexity needs organizing.</span></div>
+      <div><b>Current and future state</b><span>As-is and to-be.</span></div>
+      <div><b>Continuously evolves</b><span>Never finished.</span></div>
+      <div><b>Requires involvement of whole enterprise</b><span>Not just IT.</span></div>
+      <div><b>Mutual understanding of diverse perspectives</b><span>Each group sees it differently.</span></div>
+      <div><b>Communication is key</b><span>Ties everything together.</span></div>
+    </div>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Requires involvement of the whole enterprise</b> = a bird's-eye view. <b>Mutual understanding of diverse perspectives</b> = getting the message across (especially with clients) and hearing everyone's perspective, from developers to the business side.</p></div>
+    <h3>The architecture process is a lifecycle</h3>
+    <p>Architecture is a <b>process as well as a product</b>. It goes from idea → operational system → modify/replace, so it's more of a <b>lifecycle</b> (Lankhorst).</p>
+    <figure class="dg"><svg viewBox="0 0 448 160" role="img" aria-label="Architecture process lifecycle: Idea, Design, Use, Management, then back to Idea"><defs><marker id="ar-f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="4" y="48" width="98" height="36" rx="6" class="bx"/><text x="53" y="71" text-anchor="middle" class="t">Idea</text><text x="53" y="104" text-anchor="middle" class="s">Napkin,</text><text x="53" y="118" text-anchor="middle" class="s">whiteboard,</text><text x="53" y="132" text-anchor="middle" class="s">PowerPoint</text><rect x="118" y="48" width="98" height="36" rx="6" class="hi"/><text x="167" y="71" text-anchor="middle" class="t">Design</text><text x="167" y="104" text-anchor="middle" class="s">Formal models,</text><text x="167" y="118" text-anchor="middle" class="s">analysis</text><rect x="232" y="48" width="98" height="36" rx="6" class="bx"/><text x="281" y="71" text-anchor="middle" class="t">Use</text><text x="281" y="104" text-anchor="middle" class="s">Visualisation for</text><text x="281" y="118" text-anchor="middle" class="s">stakeholders;</text><text x="281" y="132" text-anchor="middle" class="s">link with</text><text x="281" y="146" text-anchor="middle" class="s">implementation</text><rect x="346" y="48" width="98" height="36" rx="6" class="bx"/><text x="395" y="71" text-anchor="middle" class="t">Management</text><text x="395" y="104" text-anchor="middle" class="s">Maintenance,</text><text x="395" y="118" text-anchor="middle" class="s">version control</text><line x1="102" y1="66" x2="116" y2="66" class="ln" marker-end="url(#ar-f1)"/><line x1="216" y1="66" x2="230" y2="66" class="ln" marker-end="url(#ar-f1)"/><line x1="330" y1="66" x2="344" y2="66" class="ln" marker-end="url(#ar-f1)"/><path d="M395,46 V22 H53 V44" class="la" marker-end="url(#aa-f1)"/><text x="224" y="16" text-anchor="middle" class="s">loops back: modify or replace</text></svg><figcaption>The architecture process from slide 12 (Lankhorst). It never ends: after Management, new ideas modify or replace the architecture, which is why it's called a lifecycle.</figcaption></figure>
+    <p class="muted" style="font-size:13.5px">Management loops back to a new Idea, so the cycle never ends.</p>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>The architecture is produced in the form of <b>artifacts and models</b>. The process is <b>not linear</b>: you can start anywhere in the cycle, and it repeats (iterative).</p></div>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">An architect sketches a new student portal on a whiteboard. Months later, she maintains its models and keeps version control. Which two phases are these?</span></summary><div class="scn-a"><span class="scn-ans">Idea, then Management</span><span class="scn-why">Whiteboard and napkin sketches are the Idea phase; maintenance and version control are Management (1.1 slide 12).</span></div></details></div>
+    <h3>Major actors in EA</h3>
+    <div class="tbl"><table><thead><tr><th>Actor</th><th>Who they are (from class)</th></tr></thead><tbody><tr><td><b>Business executives</b></td><td>Higher ranks overseeing all departments</td></tr><tr><td><b>Business unit managers</b></td><td>Department managers, supervisor level</td></tr><tr><td><b>IT executives</b></td><td>CTOs, IT/IS department managers</td></tr><tr><td><b>IT project teams</b></td><td>The teams that build and implement IT projects (the "construction teams" in 1.3)</td></tr><tr><td><b>Architects</b></td><td>Make sure all perspectives are considered</td></tr><tr><td><b>Third-party (external)</b></td><td>Consultants, suppliers</td></tr></tbody></table></div>
+
+    <h3>EA is NOT…</h3>
+    <div class="check">
+      <div><b>One-size-fits-all</b></div><div><b>One-time planning</b></div>
+      <div><b>Purely technical planning</b></div><div><b>Technology-specific</b></div>
+      <div><b>About the artifacts</b></div><div><b>About implementing frameworks</b></div>
+      <div><b>Able to transform incompetent decisions/actions</b></div><div><b>Enterprise modeling/engineering</b></div>
+    </div>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Not one-size-fits-all:</b> every organization is different, and its EA has to serve that organization's own business goals.</p></div>
+
+    <h3>Guide questions</h3>
+    <div class="qa-group"><button class="qa-all" type="button">Show all answers</button><details class="qa"><summary>How do you understand EA based on the different definitions?</summary><div class="qa-a"><p>All three share a common standpoint: EA is a <b>holistic, integrated</b> view of the business and IS/IT. Lankhorst stresses principles, methods, and models for designing the enterprise. Kotusev stresses documents (artifacts) that bridge the communication gap between business and IT and improve alignment. Bernard stresses documenting the <b>current and future states</b> from a strategy, business, and technology perspective.</p></div></details>
+    <details class="qa"><summary>Why is city planning an accurate analog of EA?</summary><div class="qa-a"><p>Both are complex, multifaceted practices. Cities and organizations can't be perfectly planned in every detail, keep running while they evolve, change only through incremental modifications, and never stop evolving. The roles also match: business executives ↔ city governors, IT project teams ↔ construction teams, architects ↔ city planners.</p></div></details>
+    <details class="qa"><summary>Why is effective communication a critical aspect of EA?</summary><div class="qa-a"><p>EA requires involvement of the whole enterprise and mutual understanding of diverse perspectives. Each domain is developed by different stakeholders with their own concerns and language. Kotusev's definition says EA exists to bridge the communication gap between business and IT, and architects act as intermediaries between stakeholders.</p></div></details>
+    <details class="qa"><summary>What are EA architects?</summary><div class="qa-a"><p>The chief IT planners and owners of EA artifacts. They know both business and IT but have an IT-centric background, and they are effective communicators, team players, and innovators (1.3).</p></div></details>
+    <details class="qa"><summary>What is a stakeholder?</summary><div class="qa-a"><p>A person or group with an interest (concern) in the enterprise and its architecture, such as the major actors listed above. In 3.2, the stakeholder is the "viewer" whose interests and background shape how they see the enterprise. Stakeholders can be individuals or groups (e.g., one business manager, or all of business management).</p><p class="muted" style="font-size:13px">The 1.1 slides list the actors but don't define "stakeholder"; this combines the general meaning with 3.2.</p></div></details>
+    <details class="qa"><summary>Why is it more appropriate to call the architecture process a life cycle?</summary><div class="qa-a"><p>Because architecture is a process as well as a product. It moves from an idea, to design, to use, to management, and then changes lead to new ideas that modify or replace it. It is never finished, which matches EA's characteristic that it continuously evolves.</p></div></details>
+
+    </div>
+<h2 id="p-1-2"><span class="tag">PART 1.2</span>EA Drivers</h2>
+    <div class="note" style="font-size:14.5px"><b>The one idea to hold onto:</b> Organizations feel pressure from <b>inside</b> (internal drivers, mainly the need for alignment) and from <b>outside</b> (external drivers like regulations). Good architectural practice becomes indispensable as the organization grows and becomes complex.</div>
+
+    <div class="duo">
+      <div class="area" style="padding:14px">
+        <div class="area-k">Internal drivers</div>
+        <p><b>Pressures within the organization.</b></p>
+        <p>Main one: <b>organizational alignment</b>, the well-orchestrated interaction of organizational components (hard and soft). <b>Business-IT alignment</b> is especially crucial.</p>
+      </div>
+      <div class="area" style="padding:14px">
+        <div class="area-k">External drivers</div>
+        <p><b>Pressures outside the organization.</b></p>
+        <p>May trigger a push for <b>adoption of an EA practice</b>. External regulations generate substantial impact.</p>
+      </div>
+    </div>
+
+    <h3>Hard vs. soft organizational components</h3>
+    <div class="compare"><div><b>Hard</b><span>Well documented and formally disseminated; gives structure (e.g., job descriptions).</span></div><div><b>Soft</b><span>Word of mouth and the work environment; hard to measure (culture, friendships between employees, attitude).</span></div></div>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>Good architectural practice means creating a <b>roadmap</b> that helps the organization with its future growth. External driver example: <b>disaster preparedness</b>, like schools during the pandemic.</p></div>
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The central bank requires all banks to report transactions digitally. A bank starts an EA practice to cope. What kind of driver is this?</span></summary><div class="scn-a"><span class="scn-ans">External driver</span><span class="scn-why">It comes from outside the organization, and external regulations generate substantial impact and can push an organization to adopt EA (1.2 slide 11).</span></div></details></div>
+    <h3>Strategic Alignment Model (Henderson &amp; Venkatraman, 1993)</h3>
+    <p>Distinguishes business strategy and organizational infrastructure from IT strategy and IT infrastructure. Gives <b>four dominant perspectives</b> used for alignment.</p>
+    <figure class="dg"><svg viewBox="0 0 440 300" role="img" aria-label="Strategic Alignment Model: business strategy, IT strategy, organisational infrastructure and processes, IT infrastructure and processes, linked by strategic fit and functional integration"><defs><marker id="ar-f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="90" y="30" width="140" height="80" rx="6" class="bx"/><text x="160" y="67" text-anchor="middle" class="t">Business</text><text x="160" y="83" text-anchor="middle" class="t">strategy</text><rect x="270" y="30" width="140" height="80" rx="6" class="bx"/><text x="340" y="75" text-anchor="middle" class="t">IT strategy</text><rect x="90" y="170" width="140" height="80" rx="6" class="bx"/><text x="160" y="198" text-anchor="middle" class="t">Organisational</text><text x="160" y="214" text-anchor="middle" class="t">infrastructure</text><text x="160" y="230" text-anchor="middle" class="t">and processes</text><rect x="270" y="170" width="140" height="80" rx="6" class="bx"/><text x="340" y="207" text-anchor="middle" class="t">IT infrastructure</text><text x="340" y="223" text-anchor="middle" class="t">and processes</text><line x1="234" y1="70" x2="266" y2="70" class="la" marker-start="url(#aa-f2)" marker-end="url(#aa-f2)"/><line x1="234" y1="210" x2="266" y2="210" class="la" marker-start="url(#aa-f2)" marker-end="url(#aa-f2)"/><line x1="160" y1="114" x2="160" y2="166" class="ln" marker-start="url(#ar-f2)" marker-end="url(#ar-f2)"/><line x1="340" y1="114" x2="340" y2="166" class="ln" marker-start="url(#ar-f2)" marker-end="url(#ar-f2)"/><line x1="238" y1="122" x2="262" y2="158" class="ln" marker-start="url(#ar-f2)" marker-end="url(#ar-f2)"/><line x1="262" y1="122" x2="238" y2="158" class="ln" marker-start="url(#ar-f2)" marker-end="url(#ar-f2)"/><text x="24" y="70" text-anchor="middle" class="m" transform="rotate(-90 24 70)">EXTERNAL</text><text x="24" y="210" text-anchor="middle" class="m" transform="rotate(-90 24 210)">INTERNAL</text><text x="55" y="136" text-anchor="middle" class="m">STRATEGIC</text><text x="55" y="149" text-anchor="middle" class="m">FIT</text><text x="160" y="268" text-anchor="middle" class="m">BUSINESS</text><text x="340" y="268" text-anchor="middle" class="m">INFORMATION TECHNOLOGY</text><text x="250" y="290" text-anchor="middle" class="m" style="fill:var(--accent-ink)">FUNCTIONAL INTEGRATION</text></svg><figcaption>Henderson and Venkatraman's Strategic Alignment Model (slide 6). Vertical arrows are <b>strategic fit</b> (external strategy ↔ internal infrastructure). Horizontal arrows, in amber, are <b>functional integration</b> (business ↔ IT).</figcaption></figure>
+    <div class="compare">
+      <div><b>Strategic fit</b><span>The <b>vertical</b> link: external (strategy) ↔ internal (infrastructure and processes).</span></div>
+      <div><b>Functional integration</b><span>The <b>horizontal</b> link: business ↔ IT.</span></div>
+    </div>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Functional integration</b> mixes the business side and the IT side. <b>Strategic fit</b> means the internal side must be able to support the strategy on every side.</p></div>
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The business strategy is about growing online sales, but the IT strategy is only about cutting hardware costs. Which SAM link is weak?</span></summary><div class="scn-a"><span class="scn-ans">Functional integration</span><span class="scn-why">The mismatch is between the business side and the IT side at the strategy level: the horizontal link.</span></div></details><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">IT plans to move to cloud services, but the current IT infrastructure can't support it. Which SAM link is broken?</span></summary><div class="scn-a"><span class="scn-ans">Strategic fit</span><span class="scn-why">The mismatch is between a strategy (external) and its infrastructure (internal): the vertical link.</span></div></details></div>
+    <h3>Two more alignment models</h3>
+    <div class="duo">
+      <div class="area" style="padding:14px">
+        <div class="area-k">Nadler et al. (1992)</div>
+        <h4 style="margin-top:6px">Alignment components</h4>
+        <p>Work · People · Formal organization · Informal organization</p>
+      </div>
+      <div class="area" style="padding:14px">
+        <div class="area-k">Labovitz &amp; Rosansky (1997)</div>
+        <h4 style="margin-top:6px">Organizational alignment</h4>
+        <p><b>Vertical:</b> top strategy ↔ people at the bottom (are they in touch with each other?).<br><b>Horizontal:</b> internal processes ↔ external customers.</p>
+      </div>
+    </div>
+    <figure class="dg"><svg viewBox="0 0 440 190" role="img" aria-label="Vertical alignment links top strategy and people at the bottom; horizontal alignment links internal processes and external customers"><defs><marker id="ar-f4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><text x="100" y="18" text-anchor="middle" class="m">VERTICAL</text><rect x="20" y="28" width="160" height="30" rx="6" class="bx"/><text x="100" y="48" text-anchor="middle" class="t">Top strategy</text><line x1="100" y1="62" x2="100" y2="136" class="la" marker-start="url(#aa-f4)" marker-end="url(#aa-f4)"/><rect x="20" y="140" width="160" height="30" rx="6" class="bx"/><text x="100" y="160" text-anchor="middle" class="t">People at the bottom</text><text x="330" y="18" text-anchor="middle" class="m">HORIZONTAL</text><rect x="230" y="84" width="90" height="40" rx="6" class="bx"/><text x="275" y="101" text-anchor="middle" class="t">Internal</text><text x="275" y="116" text-anchor="middle" class="t">processes</text><rect x="344" y="84" width="90" height="40" rx="6" class="bx"/><text x="389" y="101" text-anchor="middle" class="t">External</text><text x="389" y="116" text-anchor="middle" class="t">customers</text><line x1="322" y1="104" x2="342" y2="104" class="la" marker-start="url(#aa-f4)" marker-end="url(#aa-f4)"/></svg><figcaption>Labovitz and Rosansky's two directions of organizational alignment (slide 8).</figcaption></figure>
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The CEO and the frontline staff describe the company's goals completely differently.</span></summary><div class="scn-a"><span class="scn-ans">Weak vertical alignment</span><span class="scn-why">Vertical alignment connects top strategy with the people at the bottom (Labovitz & Rosansky).</span></div></details><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">A hospital's internal processes don't match what its patients actually need.</span></summary><div class="scn-a"><span class="scn-ans">Weak horizontal alignment</span><span class="scn-why">Horizontal alignment connects internal processes with external customers.</span></div></details></div>
+    <p class="note" style="font-size:14px"><b>Don't mix up:</b> in the SAM, the <i>vertical</i> link is called strategic fit. In Labovitz &amp; Rosansky, <i>vertical</i> alignment is strategy ↔ people. Different models, different meanings.</p>
+
+    <h3>EA as a management instrument</h3>
+    <p>EA is positioned within the context of managing the enterprise. <b>Architecture is not a static asset.</b></p>
+    <figure class="dg"><svg viewBox="0 0 440 330" role="img" aria-label="EA as a management instrument: pyramid of mission, vision, strategy, goals, actions including enterprise architecture, and operations"><defs><marker id="ar-f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><polygon points="180.0,10 260.0,10 283.0,52 157.0,52" class="bx"/><polygon points="157.0,52 283.0,52 306.1,94 133.9,94" class="bx"/><polygon points="133.9,94 306.1,94 329.1,136 110.9,136" class="bx"/><polygon points="110.9,136 329.1,136 357.6,188 82.4,188" class="bx"/><polygon points="82.4,188 357.6,188 398.2,262 41.8,262" class="bx"/><polygon points="41.8,262 398.2,262 430.0,320 10.0,320" class="bx"/><text x="220" y="36" text-anchor="middle" class="t">Mission</text><text x="220" y="78" text-anchor="middle" class="t">Vision</text><text x="220" y="120" text-anchor="middle" class="t">Strategy</text><text x="220" y="150" text-anchor="middle" class="m">GOALS</text><rect x="132" y="156" width="58" height="24" rx="4" class="bx"/><text x="161" y="172" text-anchor="middle" class="s">as is</text><rect x="250" y="156" width="58" height="24" rx="4" class="bx"/><text x="279" y="172" text-anchor="middle" class="s">to be</text><line x1="194" y1="168" x2="246" y2="168" class="ln" marker-end="url(#ar-f3)"/><text x="220" y="201" text-anchor="middle" class="m">ACTIONS</text><rect x="84" y="207" width="124" height="52" rx="5" class="hi"/><text x="146" y="224" text-anchor="middle" class="t">Enterprise</text><text x="146" y="239" text-anchor="middle" class="t">architecture</text><text x="146" y="253" text-anchor="middle" class="s">(domain/aspect)</text><rect x="232" y="208" width="124" height="48" rx="5" class="bx"/><text x="294" y="229" text-anchor="middle" class="t">Culture</text><text x="294" y="246" text-anchor="middle" class="s">leadership, people</text><text x="220" y="282" text-anchor="middle" class="m">OPERATIONS</text><text x="220" y="304" text-anchor="middle" class="s">products · processes · people · IT</text></svg><figcaption>EA as a management instrument (slide 9, Lankhorst). EA sits at the <b>Actions</b> level: it's how the organization moves from its as-is goals to its to-be goals, which is why architecture is not a static asset.</figcaption></figure>
+
+    <div class="compare"><div><b>Mission</b><span>Why the organization exists</span></div><div><b>Vision</b><span>Where it wants to be in the future</span></div><div><b>Strategy</b><span>How to get there</span></div><div><b>Goals</b><span>Milestones to achieve: as-is (current state) → to-be (desired future state)</span></div><div><b>Actions</b><span>EA provides the roadmap that identifies the goals</span></div></div>
+    <h3>EA role (Ross et al., 2006)</h3>
+    <p>Successful organizations employ an <b>operating model</b> (Coordination, Unification, Diversification, Replication; see Module 2). EA serves as the <b>organizing logic for business processes and IT infrastructure</b>, and must reflect the integration and standardization requirements.</p>
+
+    <h3>Guide questions</h3>
+    <div class="qa-group"><button class="qa-all" type="button">Show all answers</button><details class="qa"><summary>What does organizational alignment mean?</summary><div class="qa-a"><p>The well-orchestrated interaction of organizational components, both hard and soft (e.g., Nadler's work, people, formal and informal organization). It can be vertical (strategy to people) or horizontal (processes to customers). Business-IT alignment is especially crucial.</p></div></details>
+    <details class="qa"><summary>Differentiate internal and external drivers.</summary><div class="qa-a"><p>Internal drivers are pressures within the organization, mainly the need for organizational and business-IT alignment. External drivers are pressures outside the organization, such as regulations, which generate substantial impact and may push the organization to adopt an EA practice.</p></div></details>
+    <details class="qa"><summary>What is the Strategic Alignment Model of Henderson and Venkatraman?</summary><div class="qa-a"><p>A 1993 model that distinguishes business strategy, organizational infrastructure, IT strategy, and IT infrastructure. It aligns them through strategic fit (external strategy ↔ internal infrastructure) and functional integration (business ↔ IT), giving four dominant perspectives for alignment.</p></div></details>
+    <details class="qa"><summary>Why is architecture not a static asset?</summary><div class="qa-a"><p>EA sits inside the management of the enterprise: it is one of the actions that move the organization from its as-is to its to-be goals. Since strategy, goals, and operations keep changing, the architecture has to keep changing with them. EA continuously evolves.</p></div></details>
+
+    </div>
+<div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Operating model:</b> the structure for how an organization operates; an organization probably belongs in one of the quadrants. <b>Process standardization</b> = how similar the processes are. <b>Data integration</b> = how accessible data is across business units and how well it's used in each department's outputs.</p></div>
+
+    <h2 id="p-1-3"><span class="tag">PART 1.3</span>The Complexity of EA</h2>
+    <div class="note" style="font-size:14.5px"><b>The one idea to hold onto:</b> An organization is a <b>living system</b>, not a building. You can't design it once and build it. Like a city, it keeps running while it changes, so EA works like <b>city planning</b>.</div>
+
+    <h3>Understanding organizational complexity</h3>
+    <ul>
+      <li>EA is <b>unlike building architecture</b>.</li>
+      <li>Organizations are <b>dynamic socio-technical systems</b>: they cannot be engineered then built. They are complex, organic, living entities that gradually evolve over time.</li>
+      <li>Successful organizations are <b>well-managed evolutions</b> (well-organized).</li>
+    </ul>
+
+    <h3>EA and city planning</h3>
+    <div class="compare">
+      <div><b>Business executives</b><span>↔ City governors</span></div>
+      <div><b>IT project teams</b><span>↔ Construction teams</span></div>
+      <div><b>Architects</b><span>↔ City planners</span></div>
+    </div>
+    <p><b>What organizations and cities have in common (slides 9–10):</b></p>
+    <ul>
+      <li>Cannot be perfectly planned in every detail</li>
+      <li>Future needs can be anticipated but not described in detail</li>
+      <li>Running and evolving at the same time</li>
+      <li>Cannot be changed entirely, only through incremental modifications</li>
+      <li>Major changes do not happen overnight</li>
+      <li>Poor planning decisions can significantly hinder further development</li>
+      <li>Evolution is endless</li>
+      <li>No single best way to evolve</li>
+      <li>Planning must consider multiple concerns</li>
+    </ul>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">A company wants to redesign every department at once, overnight. Using the city-planning view, why won't this work?</span></summary><div class="scn-a"><span class="scn-ans">Organizations change through incremental modifications</span><span class="scn-why">Like cities, organizations keep running while they evolve; they can't be changed entirely, and major changes don't happen overnight (1.3 slide 9).</span></div></details></div>
+    <h3>EA architects</h3>
+    <div class="duo">
+      <div class="area" style="padding:14px">
+        <div class="area-k">Who they are</div>
+        <ul style="margin:.3em 0;padding-left:1.1em"><li>Chief IT planners and owners of EA artifacts</li><li>Knowledgeable in business and IT, but IT-centric background</li><li>Effective communicators</li><li>Team players</li><li>Innovators</li></ul>
+      </div>
+      <div class="area" style="padding:14px">
+        <div class="area-k">What they do</div>
+        <ul style="margin:.3em 0;padding-left:1.1em"><li>Intermediaries between diverse stakeholders</li><li>Develop, update, peer-review, and approve EA artifacts</li><li>Create and maintain the repository of EA artifacts</li><li>Set up software tools for EA</li><li>Establish, run, and optimize EA processes</li></ul>
+      </div>
+    </div>
+
+    <h3>Major considerations</h3>
+    <ul>
+      <li><b>Communication</b></li>
+      <li><b>Problem of alignment:</b> a major challenge because each domain is developed by distinct stakeholders with their own concerns and language. It needs a <b>bottom-up process</b>.</li>
+      <li><b>Integration of architectural domains</b></li>
+    </ul>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">Each department models its own area in its own terms, and the models don't line up. Which major consideration is this?</span></summary><div class="scn-a"><span class="scn-ans">The problem of alignment</span><span class="scn-why">Each domain is developed by distinct stakeholders with their own concerns and language, so alignment needs a bottom-up process (1.3 slide 11).</span></div></details></div>
+    <h3>Architectural domains</h3>
+    <p>Kotusev: various organizational aspects important for business and IT. Bernard: sub-architectures that describe distinct functional areas. Integration is often a challenge.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Kotusev (6)</th><th>Bernard (5)</th><th>Lankhorst (sample)</th></tr></thead>
+      <tbody>
+        <tr><td>Business</td><td>Strategic goals</td><td>Product architecture</td></tr>
+        <tr><td>Applications</td><td>Workflows</td><td>Process architecture</td></tr>
+        <tr><td>Data</td><td>Dataflows</td><td>Information architecture</td></tr>
+        <tr><td>Integration</td><td>Systems</td><td>Application architecture</td></tr>
+        <tr><td>Infrastructure</td><td>Infrastructure</td><td>Technical architecture</td></tr>
+        <tr><td>Security</td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+
+    <figure class="dg"><svg viewBox="0 0 460 236" role="img" aria-label="Lankhorst's sample architectural domains with open questions between them"><rect x="20" y="20" width="130" height="44" rx="6" class="bx"/><text x="85" y="47" text-anchor="middle" class="t">Information arch.</text><rect x="165" y="80" width="130" height="44" rx="6" class="bx"/><text x="230" y="107" text-anchor="middle" class="t">Process arch.</text><rect x="310" y="20" width="130" height="44" rx="6" class="bx"/><text x="375" y="47" text-anchor="middle" class="t">Product arch.</text><rect x="20" y="170" width="130" height="44" rx="6" class="bx"/><text x="85" y="197" text-anchor="middle" class="t">Application arch.</text><rect x="310" y="170" width="130" height="44" rx="6" class="bx"/><text x="375" y="197" text-anchor="middle" class="t">Technical arch.</text><line x1="150" y1="42" x2="190" y2="80" class="ln"/><circle cx="170.0" cy="61.0" r="10" class="q"/><text x="170.0" y="65.0" text-anchor="middle" class="t">?</text><line x1="270" y1="80" x2="310" y2="42" class="ln"/><circle cx="290.0" cy="61.0" r="10" class="q"/><text x="290.0" y="65.0" text-anchor="middle" class="t">?</text><line x1="85" y1="64" x2="85" y2="170" class="ln"/><circle cx="85.0" cy="117.0" r="10" class="q"/><text x="85.0" y="121.0" text-anchor="middle" class="t">?</text><line x1="150" y1="178" x2="195" y2="124" class="ln"/><circle cx="172.5" cy="151.0" r="10" class="q"/><text x="172.5" y="155.0" text-anchor="middle" class="t">?</text><line x1="150" y1="192" x2="310" y2="192" class="ln"/><circle cx="230.0" cy="192.0" r="10" class="q"/><text x="230.0" y="196.0" text-anchor="middle" class="t">?</text></svg><figcaption>Lankhorst's sample domains (slide 13). Each <b>?</b> marks an open question: how does an element in one domain relate to an element in another? That's why integration of domains is a major consideration.</figcaption></figure>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>Domains <b>depend on the organization</b>. You have to talk to them to see what their specific domains are.</p></div>
+    <h3>Common language, models, and frameworks</h3>
+    <div class="areas">
+      <article class="area">
+        <div class="area-k">Common language</div>
+        <p>Use of a common language is <b>crucial</b>. No need to start from scratch: it's better to <b>use existing elements</b> when possible.</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Models as representation</div>
+        <p>Models provide <b>abstract, unambiguous definitions</b>; they are formal and come in many types. They help capture the <b>essence</b> of EA. <b>Only the core of each domain</b> should be included, and <b>multiple models</b> are usually needed.</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Architectural frameworks</div>
+        <p>Integrate different elements; many are available for EA. Ask: <i>Is it applicable and/or useful to the organization? Is it worth adopting one? If not, what is the alternative?</i></p>
+        <p class="ex"><b>From class:</b> a framework is a template or guide. There are also <b>non-framework</b> approaches (Kotusev). See Module 4.1.</p>
+      </article>
+    </div>
+
+    <h3>Guide questions</h3>
+    <div class="qa-group"><button class="qa-all" type="button">Show all answers</button><details class="qa"><summary>Why must EA architects be effective communicators and team players?</summary><div class="qa-a"><p>They are intermediaries between diverse stakeholders, each with their own concerns and language. EA needs the whole enterprise involved and mutual understanding of diverse perspectives, so architects must translate between groups and work with them, not alone.</p></div></details>
+    <details class="qa"><summary>Explain how organizations and cities go through never-ending evolution.</summary><div class="qa-a"><p>Both keep running and evolving at the same time. They can't be changed entirely, only through incremental modifications, and major changes don't happen overnight. Future needs can be anticipated but not described in detail, there's no single best way to evolve, and the evolution is endless.</p></div></details>
+    <details class="qa"><summary>Why is the bottom-up approach an effective alignment strategy?</summary><div class="qa-a"><p>Each domain is developed by distinct stakeholders with their own concerns and language. Starting from those domains and stakeholders builds shared understanding from the ground up, instead of forcing one view from the top that the domain owners don't recognize. The slide states alignment "needs bottom-up process."</p></div></details>
+    <details class="qa"><summary>In your opinion, which domains may be present in many EA practices?</summary><div class="qa-a"><p>Infrastructure appears in both Kotusev and Bernard. Business/process, data/information, and applications/systems also show up in all three lists under different names (Business ≈ Workflows ≈ Process; Data ≈ Dataflows ≈ Information; Applications ≈ Systems ≈ Application; Infrastructure ≈ Technical).</p></div></details>
+    <details class="qa"><summary>Why include just the core elements of each domain in EA models?</summary><div class="qa-a"><p>EA covers the whole enterprise, so full detail would make models unmanageable and hard for diverse stakeholders to understand. The essence of each domain is of more value to EA, and the focus should be on the relations between domains (3.2).</p></div></details>
+</div>

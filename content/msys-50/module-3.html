@@ -1,0 +1,187 @@
+<nav class="partnav" aria-label="Jump to part"><a href="#p-3-1"><span>3.1</span>Architectural Complexity and Domains</a><a href="#p-3-2"><span>3.2</span>Describing Enterprise Architectures</a></nav>    <h2 id="p-3-1"><span class="tag">PART 3.1</span>Architectural Complexity and Domains</h2>
+    <div class="note" style="font-size:14.5px"><b>The one idea to hold onto:</b> EA is complex because it spans many <b>domains</b> that are all connected. You deal with it by supporting every phase of the life cycle, breaking the system into parts and their relations (<b>compositionality</b>), and <b>integrating</b> the domains.</div>
+
+    <h3>Support needed at each phase of the architecture life cycle</h3>
+    <p class="muted">These are the capabilities an EA practice needs for high-level success.</p>
+    <div class="areas">
+      <article class="area">
+        <div class="area-k">Design</div>
+        <ul style="margin:.3em 0;padding-left:1.1em">
+          <li>Use of a <b>common, well-defined vocabulary</b>. It doesn't focus on a single domain; it allows integration of architectures from different domains. It builds on the everyday language colleagues use, plus technical terms known in the organization or key domains.</li>
+          <li>Compilation of organization-wide <b>guidelines, best practices, and other standards</b></li>
+          <li>Support for <b>tracking architectural changes and decisions</b></li>
+        </ul>
+        <p class="ex"><b>Class note:</b> tracking works like a changelog. Architects log major decisions so they can backtrack and pinpoint the source of a problem.</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Communication</div>
+        <ul style="margin:.3em 0;padding-left:1.1em">
+          <li>Architecture is shared with stakeholders from <b>within and outside</b> the organization.</li>
+          <li>Need to <b>visualize relevant aspects</b> for a particular group of stakeholders.</li>
+          <li>Very important to emphasize <b>relations (connections and dependencies)</b> among different domains.</li>
+        </ul>
+        <p class="ex"><b>Class note:</b> architects must <i>filter</i> information. Each group only cares about its own concerns, and overloading them leads to confusion.</p>
+      </article>
+      <article class="area">
+        <div class="area-k">Realization</div>
+        <ul style="margin:.3em 0;padding-left:1.1em">
+          <li>For better implementation, design considerations must go on a <b>more detailed level</b>, with seamless transitioning between levels.</li>
+          <li><b>Integration between different design tools</b> should be provided.</li>
+        </ul>
+      </article>
+      <article class="area">
+        <div class="area-k">Change</div>
+        <ul style="margin:.3em 0;padding-left:1.1em">
+          <li>A change in one architecture <b>may affect others in different domains</b>.</li>
+          <li><b>Assess the consequences</b> of such a change. Changes can <b>snowball</b>.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The architect shows the finance team only the parts relevant to them and leaves out technical detail.</span></summary><div class="scn-a"><span class="scn-ans">Communication support</span><span class="scn-why">Visualize relevant aspects for a particular stakeholder group, and filter information (3.1 slide 6).</span></div></details><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">Switching the database vendor broke three business processes nobody checked.</span></summary><div class="scn-a"><span class="scn-ans">Change support was missing</span><span class="scn-why">A change in one architecture may affect other domains; the consequences must be assessed. In class: changes can snowball.</span></div></details></div>
+    <h3>Compositionality</h3>
+    <p>The standard way of dealing with complexity is a <b>compositional approach</b>. It distinguishes the different <b>parts</b> of a system as well as the <b>relations</b> between parts.</p>
+    <figure class="dg"><svg viewBox="0 0 496 170" role="img" aria-label="Compositionality: a car as a whole made of parts such as engine, transmission, wheels and brakes, plus the relations between them"><defs><marker id="ar-f15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="188" y="10" width="120" height="34" rx="6" class="hi"/><text x="248" y="32" text-anchor="middle" class="t">Car (the whole)</text><line x1="248" y1="44" x2="56" y2="104" class="dl"/><rect x="4" y="104" width="104" height="34" rx="6" class="bx"/><text x="56" y="126" text-anchor="middle" class="t">Engine</text><line x1="248" y1="44" x2="184" y2="104" class="dl"/><rect x="132" y="104" width="104" height="34" rx="6" class="bx"/><text x="184" y="126" text-anchor="middle" class="t">Transmission</text><line x1="248" y1="44" x2="312" y2="104" class="dl"/><rect x="260" y="104" width="104" height="34" rx="6" class="bx"/><text x="312" y="126" text-anchor="middle" class="t">Wheels</text><line x1="248" y1="44" x2="440" y2="104" class="dl"/><rect x="388" y="104" width="104" height="34" rx="6" class="bx"/><text x="440" y="126" text-anchor="middle" class="t">Brakes</text><line x1="110" y1="121" x2="129" y2="121" class="la" marker-end="url(#aa-f15)"/><text x="120" y="158" text-anchor="middle" class="s">drives</text><line x1="238" y1="121" x2="257" y2="121" class="la" marker-end="url(#aa-f15)"/><text x="248" y="158" text-anchor="middle" class="s">turns</text><line x1="386" y1="121" x2="367" y2="121" class="la" marker-end="url(#aa-f15)"/><text x="376" y="158" text-anchor="middle" class="s">slow</text><text x="4" y="22" text-anchor="start" class="s">dashed = part of</text><text x="4" y="36" text-anchor="start" class="s">amber = relation</text></svg><figcaption>Compositionality, using the slide's car example. You understand a complex system by naming its <b>parts</b> and the <b>relations</b> between them. (The specific parts and verbs are an illustration.)</figcaption></figure>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>In EA, compositionality means breaking the enterprise down into more manageable parts first: the <b>architectural domains</b>.</p></div>
+    <h3>Integration of architectural domains</h3>
+    <p>One way to deal with EA complexity, and it gives insight to those who deal with architectures. But <b>some integration problems cannot be solved</b>, and integration problems <b>cannot be eliminated</b>: concepts and tools only make them easier to deal with.</p>
+    <figure class="dg"><svg viewBox="0 0 460 236" role="img" aria-label="Five architecture domains, each drawn in its own notation, with question marks on every link"><rect x="20" y="20" width="130" height="44" rx="6" class="bx"/><text x="85" y="47" text-anchor="middle" class="t">Information arch.</text><rect x="165" y="80" width="130" height="44" rx="6" class="bx"/><text x="230" y="107" text-anchor="middle" class="t">Process arch.</text><rect x="310" y="20" width="130" height="44" rx="6" class="bx"/><text x="375" y="47" text-anchor="middle" class="t">Product arch.</text><rect x="20" y="170" width="130" height="44" rx="6" class="bx"/><text x="85" y="197" text-anchor="middle" class="t">Application arch.</text><rect x="310" y="170" width="130" height="44" rx="6" class="bx"/><text x="375" y="197" text-anchor="middle" class="t">Technical arch.</text><line x1="150" y1="42" x2="190" y2="80" class="ln"/><circle cx="170.0" cy="61.0" r="10" class="q"/><text x="170.0" y="65.0" text-anchor="middle" class="t">?</text><line x1="270" y1="80" x2="310" y2="42" class="ln"/><circle cx="290.0" cy="61.0" r="10" class="q"/><text x="290.0" y="65.0" text-anchor="middle" class="t">?</text><line x1="85" y1="64" x2="85" y2="170" class="ln"/><circle cx="85.0" cy="117.0" r="10" class="q"/><text x="85.0" y="121.0" text-anchor="middle" class="t">?</text><line x1="150" y1="178" x2="195" y2="124" class="ln"/><circle cx="172.5" cy="151.0" r="10" class="q"/><text x="172.5" y="155.0" text-anchor="middle" class="t">?</text><line x1="150" y1="192" x2="310" y2="192" class="ln"/><circle cx="230.0" cy="192.0" r="10" class="q"/><text x="230.0" y="196.0" text-anchor="middle" class="t">?</text></svg><figcaption>Slide 12: aligning elements across domains is problematic when each domain uses its own notation (e.g., UML for applications, BPMN for processes). Every <b>?</b> is a mapping someone has to work out.</figcaption></figure>
+    <div class="duo">
+      <div class="area" style="padding:14px">
+        <div class="area-k">Problem #1</div>
+        <h4 style="margin-top:6px">Different modeling languages</h4>
+        <p>Each domain uses different standards and languages (e.g., <b>UML, BPMN</b>), and each domain's view is developed by distinct stakeholders with their own concerns. One-to-one mapping (alignment) of model elements across domains is a challenge.</p>
+        <p class="ex"><b>Example:</b> different notations even within IT: entities and relations vs. classes and objects.</p>
+      </div>
+      <div class="area" style="padding:14px">
+        <div class="area-k">Problem #2</div>
+        <h4 style="margin-top:6px">Structural vs. behavioral models</h4>
+        <p>Integrating <b>structural</b> models (what the parts are) with <b>behavioral</b> models (how things operate over time).</p>
+        <p class="ex"><b>Examples:</b> How are software components related to application functions? ERD and DFD: how are they related?</p>
+        <p class="ex"><b>Class note:</b> faucet analogy. Structural = the faucet's parts and dimensions. Behavioral = how water flows through it. You must also show how they affect each other.</p>
+      </div>
+    </div>
+
+    <figure class="dg"><svg viewBox="0 0 440 160" role="img" aria-label="Integration problem two: how does a structural model relate to a behavioral model"><defs><marker id="ar-f17" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f17" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="10" y="20" width="170" height="104" rx="6" class="bx"/><text x="95" y="44" text-anchor="middle" class="t">Structural model</text><text x="95" y="62" text-anchor="middle" class="s">what it is made of</text><text x="95" y="90" text-anchor="middle" class="s">ERD</text><text x="95" y="104" text-anchor="middle" class="s">software components</text><rect x="260" y="20" width="170" height="104" rx="6" class="bx"/><text x="345" y="44" text-anchor="middle" class="t">Behavioral model</text><text x="345" y="62" text-anchor="middle" class="s">how it operates over time</text><text x="345" y="90" text-anchor="middle" class="s">DFD</text><text x="345" y="104" text-anchor="middle" class="s">application functions</text><line x1="184" y1="72" x2="256" y2="72" class="la" marker-start="url(#aa-f17)" marker-end="url(#aa-f17)"/><circle cx="220" cy="72" r="11" class="q"/><text x="220" y="76" text-anchor="middle" class="t">?</text><text x="220" y="148" text-anchor="middle" class="s">How are they related?</text></svg><figcaption>Integration problem #2 (slide 13): linking structural and behavioral models. In class, the faucet: its parts are structural, the water flow is behavioral, and you must show how one affects the other.</figcaption></figure>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Structural models</b> show the fundamental components of a system. <b>Behavioral models</b> show how things react to and operate on those components. <b>Both affect each other:</b> changing the water pressure can break the faucet, and the faucet's structure affects the water pressure that comes out.</p></div>
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The process team models in BPMN, the app team in UML, and no one can map a process step to an application component.</span></summary><div class="scn-a"><span class="scn-ans">Integration problem #1</span><span class="scn-why">Different modeling standards per domain make one-to-one mapping of elements a challenge.</span></div></details><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The team has an ERD of the data and a DFD of the processes but can't explain how they relate.</span></summary><div class="scn-a"><span class="scn-ans">Integration problem #2</span><span class="scn-why">Linking structural models (ERD) with behavioral models (DFD).</span></div></details></div>
+    <h3>Choosing architectural domains</h3>
+    <ul>
+      <li><b>Domain:</b> an area of knowledge, influence, or ownership</li>
+      <li>Domains are <b>framework-dependent</b></li>
+      <li>Traditional vs. modern (i.e., cloud)</li>
+      <li>Could start with <b>Business and IT</b>, then possibly break down further</li>
+    </ul>
+    <p><b>Questions to ask when deciding on domains:</b></p>
+    <ol class="flow">
+      <li><span>Who are the major stakeholders? What would each one want to focus on?</span></li>
+      <li><span>What are the priority areas of the organization?</span></li>
+      <li><span>What are the capabilities of the organization? Its strengths and weaknesses?</span></li>
+      <li><span>Is the preferred architectural approach flexible enough to freely allow choice of domains?</span></li>
+      <li><span>How easy is it to integrate the different chosen domains?</span></li>
+    </ol>
+
+    <h3>Guide questions</h3>
+    <div class="qa-group"><button class="qa-all" type="button">Show all answers</button><details class="qa"><summary>What is important to emphasize when integrating architectures from different domains?</summary><div class="qa-a"><p>The <b>relations</b>, meaning the connections and dependencies, among the domains. A common, well-defined vocabulary that spans domains also makes integration possible.</p></div></details>
+    <details class="qa"><summary>Why must architectural changes within a specific domain be carefully considered?</summary><div class="qa-a"><p>A change in one architecture may affect others in different domains, so the consequences of the change must be assessed before making it.</p></div></details>
+    <details class="qa"><summary>What is the concept of compositionality?</summary><div class="qa-a"><p>The standard way of dealing with complexity: break a system into its parts and identify the relations between those parts, like understanding a car's parts and how they work together as a whole.</p></div></details>
+    <details class="qa"><summary>Give an example of a typical problem in architectural domain integration.</summary><div class="qa-a"><p>Different domains use different modeling languages (e.g., UML for applications, BPMN for processes), so mapping elements one-to-one across domains is hard. Another: relating structural and behavioral models, like how an ERD relates to a DFD.</p></div></details>
+
+    </div>
+<h2 id="p-3-2"><span class="tag">PART 3.2</span>Describing Enterprise Architectures</h2>
+    <div class="note" style="font-size:14.5px"><b>The one idea to hold onto:</b> No one sees the whole enterprise. Each stakeholder sees a part from their own viewpoint, so the architecture is described with <b>several partial models</b> that capture only the essence, and these fit together into a whole.</div>
+
+    <h3>Capturing the essence</h3>
+    <p>The <b>essence</b> of each domain is of more value to EA. Focus on the <b>relations and interactions between domains</b>. The use of models is <b>indispensable</b>.</p>
+
+    <h3>Model: a definition</h3>
+    <ul>
+      <li>An <b>abstract and unambiguous conception</b> of something in the real world</li>
+      <li>Uses a <b>formalized graphical or textual language</b></li>
+      <li>A model's rigor requires architects to be more <b>meticulous</b></li>
+      <li>Difficult to capture everyone's needs in a <b>single model</b></li>
+    </ul>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Why unambiguous?</b> To minimize miscommunication: you're sending a message to stakeholders, so it must have one meaning. Keep the number of symbols low so stakeholders aren't overwhelmed and can understand the model.</p></div>
+
+    <h3>Observing the universe</h3>
+    <p>The <b>enterprise</b> is compared to the <b>universe</b>. A viewer (the <b>stakeholder</b>) articulates a conception of the universe. That conception <b>is the architecture</b>. Its representation is the <b>architecture description</b>: models and textual descriptions.</p>
+    <p class="ex muted"><b>Class note:</b> the universe comparison stresses that the scope is the whole organization, not one business unit.</p>
+    <figure class="dg"><svg viewBox="0 0 440 280" role="img" aria-label="The stakeholder observes the enterprise, articulates a conception called the architecture, which is represented by the architecture description"><defs><marker id="ar-f18" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f18" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><polygon points="220,40 50,226 390,226" class="tri-o"/><line x1="220" y1="164" x2="220" y2="44" class="ln" marker-end="url(#ar-f18)"/><line x1="174" y1="174" x2="56" y2="222" class="ln" marker-end="url(#ar-f18)"/><line x1="266" y1="174" x2="384" y2="222" class="ln" marker-end="url(#ar-f18)"/><rect x="166" y="150" width="108" height="30" rx="6" class="hi"/><text x="220" y="170" text-anchor="middle" class="t">Stakeholder</text><text x="228" y="108" text-anchor="start" class="s">articulates</text><text x="96" y="184" text-anchor="middle" class="s">observes</text><text x="346" y="184" text-anchor="middle" class="s">represents</text><text x="220" y="20" text-anchor="middle" class="t">Architecture</text><text x="220" y="34" text-anchor="middle" class="s">the conception</text><text x="8" y="248" text-anchor="start" class="t">Enterprise</text><text x="8" y="262" text-anchor="start" class="s">the “universe”</text><text x="432" y="248" text-anchor="end" class="t">Architecture description</text><text x="432" y="262" text-anchor="end" class="s">models, textual descriptions</text></svg><figcaption>Observing the universe (slide 6, Lankhorst). The stakeholder observes the enterprise, articulates a conception of it (the <b>architecture</b>), and represents that conception in an <b>architecture description</b>.</figcaption></figure>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>Comparing the enterprise to the universe establishes the context of the organization. The <b>architecture (conception)</b> is each stakeholder group's <b>intangible, undocumented</b> understanding of their part of the organization. Example: as ADMU students, your ideas of what ADMU is. The <b>architecture description</b> is the <b>tangible</b> representation of that understanding in artifacts (models, textual descriptions).</p></div>
+    <h3>Concerns: what shapes a stakeholder's conception</h3>
+    <ul>
+      <li>The stakeholder's <b>interests</b> influence how they conceive a part of the enterprise.</li>
+      <li>Stakeholders can be <b>individual or aggregated</b> (one business manager, or all of business management).</li>
+      <li>Their <b>preconceptions</b> also matter: <b>social, cultural, educational, professional</b> background.</li>
+      <li>So assume models are created from a <b>certain perspective</b>.</li>
+    </ul>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">A nurse and the CFO describe the same hospital very differently.</span></summary><div class="scn-a"><span class="scn-ans">Stakeholder concerns and preconceptions</span><span class="scn-why">Each stakeholder's interests and social, cultural, educational, and professional background shape their conception, so models come from a certain perspective.</span></div></details></div>
+    <h3>Observing domains</h3>
+    <div class="compare">
+      <div><b>Domain</b><span>A subset of the conception of the universe</span></div>
+      <div><b>Model</b><span>An abstracted and unambiguous conception of a domain</span></div>
+      <div><b>Modeling</b><span>The act of abstracting a model from a part of the universe; uses some language and medium</span></div>
+    </div>
+
+    <h3>Views and viewpoints</h3>
+    <ul>
+      <li>Most stakeholders are <b>not interested in the full scope</b> of the architecture, except <b>architects</b>.</li>
+      <li>Stakeholders require specific <b>views</b>. A view is specified through a <b>viewpoint</b>, and the visible elements depend on the stakeholder.</li>
+    </ul>
+    <div class="compare">
+      <div><b>View</b><span><b>What one sees</b></span></div>
+      <div><b>Viewpoint</b><span><b>Where one is looking from</b></span></div>
+    </div>
+    <figure class="dg"><svg viewBox="0 0 460 224" role="img" aria-label="A student viewpoint sees grades, scheduling, and campus culture, but not curriculum development or faculty admin processes"><rect x="150" y="12" width="300" height="200" rx="10" class="frame"/><text x="164" y="32" text-anchor="start" class="m">ENTERPRISE</text><text x="50" y="82" text-anchor="middle" class="m">VIEWPOINT</text><rect x="10" y="90" width="80" height="40" rx="6" class="hi"/><text x="50" y="115" text-anchor="middle" class="t">Student</text><line x1="90" y1="110" x2="178" y2="63" class="la"/><rect x="178" y="48" width="120" height="30" rx="6" class="hi"/><text x="238" y="68" text-anchor="middle" class="t">Grades</text><line x1="90" y1="110" x2="178" y2="111" class="la"/><rect x="178" y="96" width="120" height="30" rx="6" class="hi"/><text x="238" y="116" text-anchor="middle" class="t">Scheduling</text><line x1="90" y1="110" x2="178" y2="159" class="la"/><rect x="178" y="144" width="120" height="30" rx="6" class="hi"/><text x="238" y="164" text-anchor="middle" class="t">Campus culture</text><rect x="316" y="48" width="122" height="42" rx="6" class="ghost"/><text x="377" y="66" text-anchor="middle" class="s">Curriculum</text><text x="377" y="80" text-anchor="middle" class="s">development</text><rect x="316" y="120" width="122" height="42" rx="6" class="ghost"/><text x="377" y="138" text-anchor="middle" class="s">Faculty admin</text><text x="377" y="152" text-anchor="middle" class="s">processes</text><text x="300" y="198" text-anchor="middle" class="s">amber = in view · dashed = not visible</text></svg><figcaption>View vs. viewpoint, using the class example. The <b>viewpoint</b> is where the student stands; the <b>view</b> is what they can see from there. Another stakeholder (e.g., faculty) would see a different set.</figcaption></figure>
+
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p>A <b>viewpoint</b> is a perspective: it's not complete, only from one stakeholder's position. A <b>view</b> is all the elements visible from it. Collect views from different stakeholders and domains; together the domains tell the whole story.</p></div>
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">The dean sees enrollment numbers and budgets, but not the IT network design.</span></summary><div class="scn-a"><span class="scn-ans">A view from the dean's viewpoint</span><span class="scn-why">The viewpoint is where the dean stands; the view is what is visible from there.</span></div></details></div>
+    <h3>Architecture models</h3>
+    <ul>
+      <li>Related ways of thinking, modeling, communicating, working, supporting, and using</li>
+      <li>A <b>single model</b> for the enterprise is <b>ideal but infeasible</b> in reality</li>
+      <li>In practice, <b>partial models</b> from different domains make a <b>collective whole</b></li>
+    </ul>
+
+    <figure class="dg"><svg viewBox="0 0 456 170" role="img" aria-label="Partial models from different domains combine into a collective whole"><defs><marker id="ar-f21" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f21" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="4" y="16" width="104" height="40" rx="6" class="bx"/><text x="56" y="34" text-anchor="middle" class="t">Business</text><text x="56" y="48" text-anchor="middle" class="s">model</text><line x1="56" y1="58" x2="116" y2="108" class="ln" marker-end="url(#ar-f21)"/><rect x="116" y="16" width="104" height="40" rx="6" class="bx"/><text x="168" y="34" text-anchor="middle" class="t">Application</text><text x="168" y="48" text-anchor="middle" class="s">model</text><line x1="168" y1="58" x2="189" y2="108" class="ln" marker-end="url(#ar-f21)"/><rect x="228" y="16" width="104" height="40" rx="6" class="bx"/><text x="280" y="34" text-anchor="middle" class="t">Data</text><text x="280" y="48" text-anchor="middle" class="s">model</text><line x1="280" y1="58" x2="262" y2="108" class="ln" marker-end="url(#ar-f21)"/><rect x="340" y="16" width="104" height="40" rx="6" class="bx"/><text x="392" y="34" text-anchor="middle" class="t">Infrastructure</text><text x="392" y="48" text-anchor="middle" class="s">model</text><line x1="392" y1="58" x2="335" y2="108" class="ln" marker-end="url(#ar-f21)"/><rect x="88" y="112" width="280" height="40" rx="6" class="hi"/><text x="228" y="137" text-anchor="middle" class="t">Collective whole of the enterprise</text></svg><figcaption>Slide 10: one model of the whole enterprise is ideal but infeasible. In practice, partial models from different domains together form the whole. (Domain names here are examples.)</figcaption></figure>
+
+    <h3>Key points about models</h3>
+    <ul>
+      <li><b>Pictures and diagrams should not be equated with models.</b> A picture can have multiple interpretations; a model has only one.</li>
+      <li>Distinguish <b>content</b> (the concepts involved: the visible elements, which set the model's scope) from <b>visualization</b> (how content is presented: the easiest, most efficient way for stakeholders to understand and appreciate it, made appealing to them).</li>
+      <li>Architecture should be <b>independent of visualization</b>.</li>
+      <li><b>Architecture semantics:</b> the inherent meaning. Two distinct views of the same thing have common elements; consistency is advantageous, especially across models that cut across each other. Problems arise when transitioning models into the physical system.</li>
+    </ul>
+
+    <h3>Symbolic vs. semantic models</h3>
+    <figure class="dg"><svg viewBox="0 0 440 140" role="img" aria-label="A semantic model is one possible interpretation of a symbolic model"><defs><marker id="ar-f20" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mk"/></marker><marker id="aa-f20" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="mka"/></marker></defs><rect x="4" y="24" width="180" height="92" rx="6" class="bx"/><text x="94" y="48" text-anchor="middle" class="t">Symbolic model</text><text x="94" y="66" text-anchor="middle" class="s">symbols that refer to</text><text x="94" y="80" text-anchor="middle" class="s">reality; formal notation</text><text x="94" y="94" text-anchor="middle" class="s">(description language)</text><text x="94" y="132" text-anchor="middle" class="m">UML FOCUSES HERE</text><rect x="256" y="24" width="180" height="92" rx="6" class="hi"/><text x="346" y="48" text-anchor="middle" class="t">Semantic model</text><text x="346" y="66" text-anchor="middle" class="s">one possible</text><text x="346" y="80" text-anchor="middle" class="s">interpretation of the</text><text x="346" y="94" text-anchor="middle" class="s">symbolic model</text><text x="346" y="132" text-anchor="middle" class="m">ARCHIMATE EMPHASIZES</text><line x1="188" y1="70" x2="252" y2="70" class="la" marker-end="url(#aa-f20)"/><text x="220" y="62" text-anchor="middle" class="s">interpreted</text></svg><figcaption>Symbolic vs. semantic models (slide 12). The symbols carry the structure; the semantic model is the meaning someone reads from them.</figcaption></figure>
+    <div class="duo">
+      <div class="area" style="padding:14px">
+        <div class="area-k">Symbolic model</div>
+        <p>Represents architecture properties using <b>symbols that refer to reality</b>. Uses a formal syntactic structure and notation known as a <b>description language</b>.</p>
+        <p class="ea"><b>UML</b> focuses on the symbolic model.</p>
+      </div>
+      <div class="area" style="padding:14px">
+        <div class="area-k">Semantic model</div>
+        <p>Represents <b>one possible interpretation</b> of a symbolic model.</p>
+        <p class="ea"><b>ArchiMate</b> emphasizes the semantic model.</p>
+      </div>
+    </div>
+    <div class="cls"><span class="cls-k">FROM CLASS</span><p><b>Problem with symbolic models:</b> they can be too technical for other stakeholder groups. <b>Semantic models are more important in EA</b> because they're easier for stakeholders to understand.</p></div>
+    <p class="note" style="font-size:13.5px">Your 9/28 notes mention ArchiMate as notation-heavy, but slide 12 says ArchiMate <b>emphasizes the semantic model</b>. Go with the slide on the exam.</p>
+
+    <div class="scn-group"><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">An architect draws an attractive picture of the system, but each manager reads it differently.</span></summary><div class="scn-a"><span class="scn-ans">It's a picture, not a model</span><span class="scn-why">Pictures allow multiple interpretations; a model is unambiguous, with only one.</span></div></details><details class="scn"><summary><span class="scn-k">Sample scenario · tap to reveal</span><span class="scn-q">Business managers find the UML diagrams too technical, so the architect presents a version focused on what the elements mean.</span></summary><div class="scn-a"><span class="scn-ans">Semantic model</span><span class="scn-why">Symbolic models (like UML) can be too technical; semantic models are easier for stakeholders and matter more in EA.</span></div></details></div>
+    <h3>Guide questions</h3>
+    <div class="qa-group"><button class="qa-all" type="button">Show all answers</button><details class="qa"><summary>Articulate the universe-enterprise analogy.</summary><div class="qa-a"><p>The enterprise is like the universe: too big for anyone to see completely. A stakeholder observes it and forms a conception of it, and that conception is the architecture. The architecture is then represented in an architecture description (models and text). The stakeholder sits between the enterprise, the architecture, and its description.</p></div></details>
+    <details class="qa"><summary>What factors affect a stakeholder's conception of a part of the enterprise?</summary><div class="qa-a"><p>Their interests (concerns), whether they are seen as an individual or an aggregated group, and their preconceptions from their social, cultural, educational, and professional background.</p></div></details>
+    <details class="qa"><summary>Describe view and viewpoint when observing domains.</summary><div class="qa-a"><p>A viewpoint is where one is looking from: the stakeholder's position and perspective. A view is what one sees from there: the visible elements, which depend on the stakeholder. Views are specified through viewpoints.</p></div></details>
+    <details class="qa"><summary>Why is a single model of the whole enterprise difficult, if not impossible?</summary><div class="qa-a"><p>Stakeholders have different interests and backgrounds and most don't want the full scope, so one model can't capture everyone's needs. A model's rigor also makes one huge model impractical. In practice, partial models from different domains form a collective whole.</p></div></details>
+    <details class="qa"><summary>What is the difference between content and visualization in models?</summary><div class="qa-a"><p>Content is the concepts involved in the model. Visualization is how that content is presented. The architecture should be independent of its visualization.</p></div></details>
+    <details class="qa"><summary>What is architecture semantics?</summary><div class="qa-a"><p>The inherent meaning of the architecture. Two distinct views of the same thing share common elements, and keeping them consistent is advantageous.</p></div></details>
+    <details class="qa"><summary>What is a symbolic model?</summary><div class="qa-a"><p>A model that represents architecture properties using symbols that refer to reality, following a formal syntactic structure and notation called a description language (e.g., UML).</p></div></details>
+    <details class="qa"><summary>What is a semantic model?</summary><div class="qa-a"><p>A model that represents one possible interpretation of a symbolic model. ArchiMate emphasizes semantic models.</p></div></details>
+</div>
