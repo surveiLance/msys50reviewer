@@ -120,6 +120,11 @@ Everything is committed and pushed; `npm run build` passes.
 
 **"Review in notes" window:** on the results screen, each wrong answer has a "Review in notes" button (and each wrong matching row a "Review" button) that opens a window over the results with the best-matching notes section, the answer highlighted, and "Open in notes ↗" (new tab, to that exact section). Notes load on demand from a static route, `/api/notes/[subject]/[module]` (JSON of `readNotes()`). Matching logic is in `lib/peek.ts`: the cited part (from a source like "2.1 slide 4") is preferred, then keyword overlap with the question, with the correct answer weighted 3×; "Guide questions" sections are skipped. It's keyword-based, so an occasional match is loose (e.g. "Product realization").
 
+**Two test styles (two professors):** setup starts with "Test style", remembered per subject (`style-<subject>`):
+- *Modified true or false* (the original prof): `!`/replacement text box, matching dropdowns, multiple choice.
+- *Mixed* (another section's prof, Canvas classic quiz): True or False (radio; derived from the same mtf statements; review says what the underlined part should be), Multiple Choice, **Multiple Answer** (checkboxes, 2 pts, Canvas partial credit: (right − wrong) / correct × 2, floor 0), **Fill in the Blank** (word bank; tap a chip to fill, tap the blank to clear). Rounds of Quick 10 (4 TF · 3 MC · 2 MA · 1 FB) / Short 20 / Medium 40 / Long 60 points, unseen-first per type (`<storageKey>-mseen`), "Another round →" on results.
+- New content in `data.json`: `multi[module]` (`MultiItem`) and `blanks[module]` (`BlankItem`), 28 each, written from the notes and tagged with a source like "2.1 notes". The prof's real quiz questions (owner shared screenshots) were deliberately NOT copied in; write new ones in that style.
+
 **Still worth checking:**
 - Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)
 - Each accent in light and dark (contrast, especially amber in light mode)

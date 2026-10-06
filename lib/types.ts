@@ -3,6 +3,12 @@ export type MtfItem = { s: string; t?: true; a?: string[]; d?: string; r?: strin
 
 export type McItem = { q: string; o: string[]; a: string; w?: string };
 
+/** Multiple answer (checkboxes): `a` lists every correct option. `r` is a source like "2.1 notes". */
+export type MultiItem = { q: string; o: string[]; a: string[]; w?: string; r?: string };
+
+/** Fill in the blank with a word bank: `s` contains one "___". */
+export type BlankItem = { s: string; bank: string[]; a: string; w?: string; r?: string };
+
 export type Draw = { pool: string; n: number };
 
 export type Section =
@@ -25,6 +31,9 @@ export type SubjectData = {
   pools: Record<string, MtfItem[]>;
   scenarios: Record<string, McItem[]>;
   midterm: MidtermSpec;
+  /** Mixed-style questions per module (Multiple Answer, Fill in the Blank). */
+  multi?: Record<string, MultiItem[]>;
+  blanks?: Record<string, BlankItem[]>;
 };
 
 export type ModuleMeta = { slug: string; num: number; title: string; parts: string[] };

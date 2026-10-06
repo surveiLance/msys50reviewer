@@ -53,6 +53,8 @@ export default async function TestPage({ params }: P) {
             scenarios={data.scenarios}
             timerMinutes={subject.exam?.minutes}
             modules={subject.modules.map((m) => m.slug)}
+          multi={data.multi}
+          blanks={data.blanks}
           questionCount={info.questions}
             pointCount={info.points}
           />
@@ -89,6 +91,8 @@ export default async function TestPage({ params }: P) {
           sets={sets}
           setLabels={labels}
           modules={subject.modules.map((m) => m.slug)}
+          multi={data.multi}
+          blanks={data.blanks}
           questionCount={info.questions}
           pointCount={info.points}
         />

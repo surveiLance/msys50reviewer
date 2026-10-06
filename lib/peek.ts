@@ -15,7 +15,9 @@ export function highlightTerms(q: Question, a?: Answer): string[] {
     const u = q.prompt.match(/<u>(.*?)<\/u>/)?.[1];
     return [q.isTrue ? u : q.answer, ...(q.isTrue ? [] : q.accept)].filter((x): x is string => !!x && x !== "!").map(plainText);
   }
-  if (q.kind === "mc") return [q.answer].map(plainText);
+  if (q.kind === "tf2") return [q.isTrue ? q.underlined : q.fix].filter((x): x is string => !!x).map(plainText);
+  if (q.kind === "mc" || q.kind === "blank") return [q.answer].map(plainText);
+  if (q.kind === "multi") return q.correct.map(plainText);
   return q.rows.filter((r, i) => a?.picks?.[i] !== r.answer).map((r) => plainText(r.answer));
 }
 

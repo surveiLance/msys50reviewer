@@ -1,4 +1,4 @@
-import type { McItem, MidtermSpec, MtfItem, Section, TestSet } from "./types";
+import type { BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, Section, TestSet } from "./types";
 import { norm, sample, shuffle } from "./quiz";
 
 /**
@@ -10,9 +10,13 @@ import { norm, sample, shuffle } from "./quiz";
 export type Question =
   | { kind: "tf"; id: string; section: string; prompt: string; isTrue: boolean; accept: string[]; answer: string; source?: string; mod?: string }
   | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string }
-  | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[] };
+  | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[] }
+  // Mixed style (Canvas "classic" quiz types):
+  | { kind: "tf2"; id: string; section: string; prompt: string; isTrue: boolean; underlined?: string; fix?: string; source?: string; mod?: string }
+  | { kind: "multi"; id: string; section: string; prompt: string; options: string[]; correct: string[]; why?: string; source?: string; mod?: string }
+  | { kind: "blank"; id: string; section: string; prompt: string; bank: string[]; answer: string; why?: string; source?: string; mod?: string };
 
-export type Answer = { text?: string; choice?: string; picks?: string[] };
+export type Answer = { text?: string; choice?: string; picks?: string[]; checks?: string[] };
 
 export type Graded = {
   points: number;
@@ -25,7 +29,12 @@ export type Graded = {
 export const TF_SECTION = "Modified true or false";
 export const TRUE_MARK = "!";
 
-export const points = (q: Question) => (q.kind === "match" ? q.rows.length : 1);
+export const MULTI_POINTS = 2;
+export const points = (q: Question) => (q.kind === "match" ? q.rows.length : q.kind === "multi" ? MULTI_POINTS : 1);
+
+/** The Canvas-style type name shown in each question's header. */
+export const typeLabel = (q: Question) =>
+  ({ tf: "Modified True or False", tf2: "True or False", mc: "Multiple Choice", multi: "Multiple Answer", blank: "Fill in the Blank", match: "Matching" })[q.kind];
 
 function tf(it: MtfItem): Question {
   return {
@@ -112,6 +121,19 @@ export function countMidterm(spec: MidtermSpec) {
 }
 
 export function grade(q: Question, a: Answer | undefined): Graded {
+  if (q.kind === "tf2") {
+    const answered = a?.choice === "True" || a?.choice === "False";
+    return { points: answered && (a!.choice === "True") === q.isTrue ? 1 : 0, max: 1, answered };
+  }
+  if (q.kind === "blank") return { points: a?.choice === q.answer ? 1 : 0, max: 1, answered: !!a?.choice };
+  if (q.kind === "multi") {
+    // Canvas partial credit: each correct box earns, each wrong box costs; never below zero.
+    const sel = a?.checks || [];
+    const right = sel.filter((x) => q.correct.includes(x)).length;
+    const wrong = sel.length - right;
+    const pts = Math.max(0, (right - wrong) / q.correct.length) * MULTI_POINTS;
+    return { points: Math.round(pts * 100) / 100, max: MULTI_POINTS, answered: sel.length > 0 };
+  }
   if (q.kind === "mc") {
     return { points: a?.choice === q.answer ? 1 : 0, max: 1, answered: !!a?.choice };
   }
@@ -204,4 +226,82 @@ export function pickRound(pool: Question[], seen: string[], n = 10): { qs: Quest
     nextSeen = fill.map((q) => q.id);
   }
   return { qs: shuffle(qs), seen: nextSeen, restarted };
+}
+
+/* ---------- Mixed style: True or False, Multiple Choice, Multiple Answer, Fill in the Blank ---------- */
+
+/** A modified true-or-false statement read as a plain True/False question. */
+function tf2(it: MtfItem): Question {
+  const underlined = it.s.match(/<u>(.*?)<\/u>/)?.[1];
+  return {
+    kind: "tf2", id: "t2:" + it.s, section: "True or False", prompt: it.s.replace(/<\/?u>/g, ""),
+    isTrue: !!it.t, underlined, fix: it.t ? undefined : it.d || it.a?.[0], source: it.r, mod: it.m,
+  };
+}
+const multiQ = (x: MultiItem, mod?: string): Question => ({
+  kind: "multi", id: "ma:" + x.q, section: "Multiple Answer", prompt: x.q, options: shuffle(x.o), correct: x.a, why: x.w, source: x.r, mod,
+});
+const blankQ = (x: BlankItem, mod?: string): Question => ({
+  kind: "blank", id: "fb:" + x.s, section: "Fill in the Blank", prompt: x.s, bank: shuffle(x.bank), answer: x.a, why: x.w, source: x.r, mod,
+});
+
+export type MixedPool = { tf2: Question[]; mc: Question[]; multi: Question[]; blank: Question[] };
+
+const modTagOf = (slug: string) => slug.replace(/^module-(\d+)$/, "M$1");
+
+export function mixedPoolModule(sets: Record<string, TestSet>, module: string, multi: MultiItem[] = [], blanks: BlankItem[] = []): MixedPool {
+  const mod = modTagOf(module);
+  const single = quickPoolModule(sets, mod);
+  return {
+    tf2: dedupeQs(Object.values(sets).flatMap((t) => t.mtf.map(tf2))).map((q) => (q.kind === "tf2" && !q.mod ? { ...q, mod } : q)),
+    mc: single.filter((q) => q.kind === "mc"),
+    multi: multi.map((x) => multiQ(x, mod)),
+    blank: blanks.map((x) => blankQ(x, mod)),
+  };
+}
+
+export function mixedPoolMidterm(
+  spec: MidtermSpec, pools: Record<string, MtfItem[]>, scenarios: Record<string, McItem[]>,
+  multi: Record<string, MultiItem[]> = {}, blanks: Record<string, BlankItem[]> = {},
+): MixedPool {
+  const single = quickPoolMidterm(spec, pools, scenarios);
+  return {
+    tf2: dedupeQs(Object.values(pools).flatMap((items) => items.map(tf2))),
+    mc: single.filter((q) => q.kind === "mc"),
+    multi: Object.entries(multi).flatMap(([m, xs]) => xs.map((x) => multiQ(x, modTagOf(m)))),
+    blank: Object.entries(blanks).flatMap(([m, xs]) => xs.map((x) => blankQ(x, modTagOf(m)))),
+  };
+}
+
+/** How many of each type a mixed round has: Quick 10 is fixed; others split the points like a Canvas quiz. */
+export function mixedCounts(target: number, quick: boolean) {
+  if (quick) return { tf2: 4, mc: 3, multi: 2, blank: 1 };
+  return {
+    tf2: Math.round(target * 0.3),
+    mc: Math.round(target * 0.25),
+    multi: Math.max(1, Math.round((target * 0.3) / MULTI_POINTS)),
+    blank: Math.max(1, Math.round(target * 0.15)),
+  };
+}
+
+/** A mixed round: unseen questions first within each type, all types shuffled together. */
+export function pickMixed(pool: MixedPool, counts: ReturnType<typeof mixedCounts>, seen: string[]) {
+  let nextSeen = seen.slice();
+  let restarted = false;
+  const qs: Question[] = [];
+  (Object.keys(counts) as (keyof MixedPool)[]).forEach((k) => {
+    const r = pickRound(pool[k], nextSeen, Math.min(counts[k], pool[k].length));
+    if (r.restarted) {
+      restarted = true;
+      // Forget only this type's history; keep the others.
+      const ids = new Set(pool[k].map((q) => q.id));
+      nextSeen = [...nextSeen.filter((id) => !ids.has(id)), ...r.seen];
+    } else nextSeen = r.seen;
+    qs.push(...r.qs);
+  });
+  return { qs: shuffle(qs), seen: nextSeen, restarted };
+}
+
+export function mixedSize(pool: MixedPool) {
+  return pool.tf2.length + pool.mc.length + pool.multi.length + pool.blank.length;
 }
