@@ -1,0 +1,994 @@
+MSYS 50 ENTERPRISE ARCHITECTURE
+                                                                Ariel A. Maguyon
+
+
+
+
+Module 1: Enterprise Architecture
+Module 1.1 - Overview of EA
+
+DEFINITION
+  ●​ Lankhorst
+        ○​ A coherent whole of principles, methods, and models that are used
+             in the design and realisation of an enterprise’s organizational
+             structure, business processes, information systems and
+             infrastructure
+        ○​ capturing requirements - from business and IT aspects
+  ●​ Kotusev
+        ○​ collection of special documents artifacts describing various aspects
+             of an organization from an integrated business and its perspective
+             Intended to bridge the communication gap between business and IT
+             stakeholders, facilitate information systems planning and thereby
+             improve business and IT alignment
+  ●​ Bernard
+        ○​ analysis and documentation of an enterprise in its current and
+             future states from an integrated strategy, business, and technology
+             perspective
+        ○​ not just requirements in current form— CAPTURING requirements in
+             its future state
+                  ■​ “what does it want to be in the future?”
+        ○​ timelines to look out for: short-term, medium-term, long-term
+
+Common standpoint
+  ●​ Perspective - a lot of different
+  ●​ Holistic - deals with entire organization
+  ●​ Principles
+  ●​ Practice
+  ●​ IS/IT
+  ●​ Business
+  ●​ Integrated
+  ●​ Documents - involves a lot of different to be produced referred to as
+     “artifact”
+
+Analogies
+  ●​ Enterprise without EA = House without blueprints
+  ●​ EA = City Planning
+         ○​ Evolving and dynamic
+
+Additional characteristics
+  ●​ Inherent complexity
+  ●​ Need for structure
+  ●​ Current and future state
+  ●​ Continuously evolves
+  ●​ Requires involvement of whole enterprise
+         ○​ Birds eye view
+  ●​ Mutual understanding of diverse perspectives
+         ○​ Get message across, especially with clients
+         ○​ get everyone's perspective (developers, business)
+  ●​ Communication is key
+
+EA is NOT
+  ●​ one-size -fits-all
+         ○​ each organization is different
+         ○​ Needs to achieve the business goals
+  ●​ Purely technical planning
+  ●​ About the artifacts
+  ●​ Able to transform incompetent decisions/actions
+  ●​ One-time planning
+  ●​ Technology-specific
+  ●​ About implementing frameworks
+  ●​ Enterprise modeling/engineering
+
+THE ARCHITECTURE PROCESS
+  ●​ architecture Is a process as well as a product
+         ○​ Produced in a form of artifacts, models
+  ●​ Idea → operational system → modify/replace
+  ●​ More of a lifecycle, not linear
+  ●​ Can start anywhere, iterative process
+
+
+
+
+MAJOR ACTORS IN EA
+
+  ●​ Business executives
+         ○​ higher ranks – overseeing all depts
+  ●​ Business unit managers
+         ○​ dep managers, supervisor level
+  ●​ IT executives
+         ○​ CTOS, IT/IS dep manager
+  ●​ IT project teams
+         ○​
+  ●​ Architects
+         ○​ make sure to consider all perspectives
+  ●​ Third-party (external)
+         ○​ Consultants, suppliers,
+
+
+
+Module 1.2 - EA Drivers
+
+Pressures that drive organizations
+  ●​ Important to consider internal and external environments
+  ●​ Good architectural practice indispensable, especially when organization
+     grows and becomes
+         ○​ Try to create a roadmap that would help the org for their future
+              growth
+Internal Drivers
+   ○​ Pressures Within
+   ○​ Organizational alignment
+         ■​ Well-orchestrated interaction of organization components
+               ●​ Hard - well documented and formally disseminated; provides
+                   structure (job description etc…)
+               ●​ Soft - word of mouth & work environment; hard to measure
+                   (culture, friendship between employees, attitude)
+         ■​ Business-IT alignment especially crucial
+         ■​ How to align?
+               ●​ Strategic Alignment Model (Henderson and Venkatraman
+
+
+
+
+                   1993)
+                         ○​ Distinguishes between aspects of
+                               ■​ Business strategy, organizational infrastructure
+                               ■​ IT strategy, IT infrastructure
+                         ○​ Four dominant perspectives used for alignment
+                         ○​ Functional Integration = mixes both business side and
+                            IT side
+                         ○​ Strategic fit = needs to be able to support all sides
+               ●​ Alignment Components (Nadler et al. 1992)
+                         ○​ Work
+                         ○​ People
+                         ○​ Formal organization
+                         ○​ Informal organization
+               ●​ Organizational Alignment (Labovitz and Rosansky, 1997)
+                    ○​ Vertical (are they in touch with each other)
+                           ■​ Top strategy
+                           ■​ People at the bottom
+                    ○​ Horizontal
+                           ■​ Internal processes
+                           ■​ External customers
+○​ EA as Management Instrument
+
+
+
+
+○​
+             ●​ mission: why
+             ●​ vision: where do we want to be - future vision
+             ●​ strategy: how to get there
+             ●​ goals: milestones to achieve
+                    ○​ As-Is = current state → Goals/Actions → To-Be =
+                       desired future state
+             ●​ actions:
+                    ○​ EA provides a roadmap that identifies the goals
+      ■​ Positioned within context of managing enterprise
+      ■​ Architecture is not a static asset
+○​ EA Role (Ross et al. 2006)
+
+
+
+
+      ■​ operating model - structure for how an org operates
+             ●​ An org probably belongs in one of the quadrants
+               ●​ process standardization: how similar the process is
+               ●​ data integ: data that is accessible throughout business units;
+                     how well it is used in outputs of each department
+        ■​ Serves as organizing logic for business processes and IT
+            infrastructure
+               ●​ Must reflect integration and standardization requirements
+
+External drivers
+  ○​ Outside the org
+  ○​ May trigger push for adoption of an EA practice
+  ○​ External regulations generate substantial impact
+        ■​ Disaster preparedness (like pandemic for schools)
+
+
+
+Module 1.3 - the complexity of EA
+
+  ●​ Understanding organizational complexity
+        ○​ Enterprise architecture is unlike building architecture
+        ○​ Orgs are dynamic socio-technical systems
+               ■​ Cannot be engineered then built
+               ■​ Complex, organic, living entities that gradually evolve over
+                     time
+               ■​ Successful orgs: well-managed evolutions ; well-organized
+  ●​ EA and City Planning
+        ○​ Business executives - city governors
+        ○​ It project teams - construction teams
+        ○​ Architects - city planners
+  ●​ EA Architects
+        ○​ Chief IT planners and owners of EA artifacts
+        ○​ Knowledgeable in business and IT, but have IT-centric background
+        ○​ Effective communicators
+        ○​ Team players
+        ○​ Innovators
+  ●​ Responsibilities of EA Architects
+        ○​ Intermediaries between diverse stakeholders
+        ○​ Develop, update, peer-review, and approve EA artifacts
+        ○​ Create and maintain repository of EA artifacts
+        ○​ Set-up software tools for EA
+        ○​ Establish, run, and optimize EA processes
+  ●​ Commonalities: Organizations and Cities
+        ○​ Cannot be perfectly planned in every detail
+        ○​ Future needs can be anticipated but not described in detail
+        ○​ Running and evolving, at the same time
+        ○​ Cannot be changed entirely, but through incremental modifications
+        ○​ Major changes do not happen overnight
+        ○​ Poor planning decisions can significantly hinder further development
+        ○​ Evolution is endless
+        ○​ No single best way to evolve
+        ○​ Planning must consider multiple concerns
+  ●​ Major Considerations
+        ○​ Communication
+        ○​ Problem of alignment
+               ■​ Major challenge because each domain developed by distinct
+                  stakeholders with their own concerns and language
+               ■​ Needs bottom-up process
+        ○​ Integration of architectural domains
+  ●​ Architectural Domains
+        ○​ Various organizational aspects important for business and IT
+            (Kotusev)
+        ○​ Sub-architectures that describe distinct functional areas (Bernard)
+        ○​ Integration often a challenge
+  ●​ Architectural Domains
+        ○​ depends per organization – have to talk to them to really see what
+            their specific domains are
+
+
+Kotusev                     Bernard
+   ●​ Business                 ●​ Strategic goals
+   ●​ Applications             ●​ Workflows
+   ●​ Data                     ●​ Dataflows
+   ●​ Integration              ●​ Systems
+   ●​ Infrastructure           ●​ Infrastructure
+   ●​ Security
+●​ Common Language
+      ○​ Use of common language is crucial
+      ○​ No need to start from scratch → better to use existing elements
+         when possible
+●​ Using Models as Representation
+      ○​ Models
+            ■​ Provide abstract, unambiguous definitions
+            ■​ Formal
+            ■​ Many types
+      ○​ Help capture the essence of EA
+      ○​ Only core of each domain should be included
+      ○​ Multiple models usually needed
+●​ Architectural Frameworks
+      ○​ Integrates different elements
+      ○​ Many available for EA
+      ○​ Considerations
+            ■​ Is it applicable and/or useful to the organization?
+            ■​ Is it worth adopting one? If not, what is the alternative?
+      ○​ template / guide
+      ○​ there are other approaches – non-framework approach
+            ■​ Kotusev
+Module 2: The Business-IT Dynamics
+Module 2.1 - EA and Other Governance Instruments
+
+
+
+
+Relevant Business- and IT-Related Standards
+   ●​ Balanced Scorecard
+   ●​ Business Model Canvas
+   ●​ Business Architecture
+   ●​ European Foundation for Quality Management
+   ●​ ISO 9001
+
+Strategic Management
+   ●​ Kaplan and Norton (1992): financial measures are inadequate
+   ●​ Strategic Planning:
+         ○​ M/V statement
+         ○​ goals
+         ○​ swot analysis is also used
+   ●​ Balanced Scorecard (BSC) clarifies vision & strategy (4 perspectives):
+         ○​ Customer
+         ○​ Financial
+         ○​ Internal Business Processes
+         ○​ Learning and Growth
+associated with:
+   ●​ Three-layered structure for each perspective (are they still applicable?)
+         ○​ Mission
+        ○​ Objectives - QUANTITATIVE
+        ○​ Measures - QUANTITATIVE
+  ●​ Quantitative perspectives- most impactful to EA
+  ●​ EA especially useful in last two perspectives
+  ●​ Example: Balanced Scorecard for an Academic Institution (BSC):
+
+
+
+
+Business Model Development
+  ●​ Business Model Canvas (Osterwalder and Pigneur 2010)
+        ○​ Provides template to create high-level description of new or existing
+            business models
+  ●​ 7 parts
+  ●​ Intuitive layout
+  ●​ Often used during brainstorming sessions
+  ●​ Many canvas elements can be translated to EA models
+  ●​ Example of Business Model Canvas for Automobile Insurance (BMC):
+
+
+
+
+Business Architecture
+  1.​ Blueprint that provides common understanding of organization; used to
+     align strategic objectives and tactical demands
+  2.​ Business-oriented abstraction to help translate strategy into action
+  3.​ MAJOR USE: Business Model Canvas could serve as major input
+  4.​ MAJOR USE: Capability-based planning
+        ○​ Focus on what (current and desired capabilities) before how
+        ○​ capability: buy and sell products online, ateneo can handle classes
+            online
+        ○​ EA focuses on current and future capabilities
+               ■​ enhancement in architecture
+                      ●​ business
+                      ●​ IT
+  5.​ Business architecture domain important in broader EA scope
+European Foundation for Quality Management
+  ●​ European Foundation for Quality Management (EFQM) is an important
+       framework
+          ○​ Broader scope than ISO 9001
+          ○​ Benchmarks organizational performance with best practices
+          ○​ Complements BSC
+          ○​ Provides principles, measures, and indicators for assessing
+               performance of organization à becomes basis of continuous
+               learning, innovation, improvement
+          ○​
+  ●​ Example: EFQM Criteria for Excellence
+
+
+
+
+  ●​ handles policy making and how processes are implemented → actions and
+       operations — THESE DIRECTLY AFFECT ENTERPRISE ARCHI
+  ●​
+
+ISO 9001:2000
+  ●​ Outlines criteria for a good quality management system (QMS)
+  ●​ QMS designed and documented to control how processes are performed
+  ●​ Product realization: business processes that realize company’s
+       product/service
+  ●​ Key processes: those that affect product/service quality
+  ●​ Once QMS is installed, audit may be requested for certification
+  ●​ EA helps conform to ISO 9001 on process identification and documentation
+IT Governance
+  ●​ COBIT (Control Objectives for Information and Related Technology)
+        ○​ admin                                        ○​ maintenance
+        ○​ predictability                               ○​ rules & regulations
+        ○​ info flow → guidance                         ○​ standards
+        ○​ restrictions                                 ○​ SECURITY
+  ●​ this complements directly to EA - since its in actions/operations level
+  ●​ IT control framework that aims to bridge gaps in business risks, control
+     needs, and technical issues
+  ●​ Also provides
+        ○​ Critical success factors for achieving optimal control over IT
+            processes and key goal indicators
+        ○​ Maturity model for IT governance, similar to CMMI
+  ●​ EA a natural complement to COBIT
+        ○​ EA focuses on business & IT structures and processes, COBIT on how
+            IT should be organized
+
+IT Delivery and Support
+  ●​ IT Infrastructure Library (ITIL) widely accepted best practices in IT service
+     delivery
+  ●​ Comprised of documents that give guidance on provision of good IT
+     services
+  ●​ Broad groups of processes
+        ○​ Service delivery
+        ○​ Service support
+  ●​ Complementary: COBIT’s control objectives tell what to do, ITIL explains how
+  ●​ EA provides clear understanding of IT, infrastructure, business processes →
+     crucial to ITIL’s focus on management of IT assets
+
+
+
+IT Implementation
+  ●​ Capability Maturity Model Integration (CMMI) enables assessment of
+     maturity of software engineering processes; also provides key practices to
+     help increase maturity
+        ○​ ASSESSMENT TOOL
+        ○​ ASSESS MATURITY OF SOFTWARE ENGINEERING
+  ●​ In 2000, upgraded from SW-CMM with expanded scope
+  ●​ Five maturity levels
+                1.​ Ad Hoc - no structure in place
+                2.​
+                3.​ Defined –
+                4.​
+                5.​ Optimized - everything is in place + optimized
+        ●​
+  ●​ EA provides context, constraints, and guidelines for individual software
+     projects
+        ○​ EA especially useful from Level 3 and beyond
+  ●​ Assessment tool
+
+
+
+Module 2.2 - The Problem of Business and IT Alignment
+
+Strategic Management Outputs
+  ●​ Strategic management process produces high-level business strategy
+     defining long-term direction
+  ●​ Business strategy
+        ○​ Mission
+        ○​ Vision and values
+        ○​ Strategic goals and objectives
+        ○​ Competitive & environmental analysis (e.g. SWOT)
+        ○​ Key Performance Indicators (KPIs)
+  ●​ “Does it make sense to start information systems planning directly from
+     the overall business strategy to achieve alignment?”
+        ○​ Business Strategy is Inadequate
+                ■​ Vague, unknown, or merely absent
+                ■​ Rarely provides clear direction for IT
+                ■​ Unstable and frequently changes
+                ■​ Often requires non-reusable IT components
+
+Business Strategy Problem #1
+  ●​ Generic statements
+        ○​ To be the leading ISP in the country
+        ○​ To increase market share by 15% over the next three years
+  ●​ Subject to different interpretations
+  ●​ May not be entirely documented
+  ●​ How are these useful to IT planning?
+
+Business Strategy Problem #2
+  ●​ Business strategy does not often contain specific suggestions regarding
+     practical IT implementation
+  ●​ Business-related targets and performance goals offer little guidance
+  ●​ IT planners often forced to decide based on guesswork
+  ●​ Little to no value as input to IT and EA
+
+Business Strategy Problem #3
+  ●​ Frequent changes in business strategy gives no solid basis for ITplanning
+  ●​ Priorities could shift at any time
+  ●​ Wreaks havoc on existing IT plans
+
+Business Strategy Problem #4
+  ●​ Many IT systems only beneficial in short term
+  ●​ Systems lifespan complicates modifications and IT agility
+         ○​ Current systems are assets, but may be liabilities in next strategy
+  ●​ Isolated legacy systems could accumulate
+  ●​ Focus on new systems for current strategy could lead to alignment trap
+         ○​ Alignment Trap:
+                ■​ hiring ppl n creating deps specific only for a certain goal /
+                   system
+                ■​ when it gets scrapped, they won’t get used anymore –
+                   rendering them useless
+
+
+
+What Needs to Happen
+  ●​ Middle ground between business and IT
+         ○​ Addresses concerns on both sides
+         ○​ Understandable and valuable for both
+  ●​ Business: explain value of IT decisions
+  ●​ IT: provide actionable suggestions
+  ●​ Should be valuable either in short- (<1-2 years) long- (3-5 years) and very
+     long-term (>3-5 years)
+Key Discussion Points Between Business and IT
+
+
+
+
+  ●​
+  ●​ Operating model
+        ○​ Desired organization-wide levels of
+              ■​ Process standardization
+              ■​ Data integration
+        ○​ Discussed in Ross et al. 2006 paper, as mentioned previously
+        ○​ Implies standardization of key business-enabling EA domains
+        ○​ Creates four major models based on combination of desired levels
+
+
+
+
+        ○​
+              ■​ diversification:
+              ■​ replication: resto
+              ■​ Diversification: Acquiring businesses unrelated to core
+                 business
+             ■​ Replication: Same business processes when moving from one
+                department to another. High on process standardization. Thus,
+                ensures consistency across multiple business units. (Ex: Hotel
+                Chains)
+             ■​ Coordination: Equal understanding of data but independent
+                business units
+             ■​ Unification: Centralized unit
+             ■​ Ex: Disney (Coordination)
+                   ●​ Low process standardization because of multiple
+                       companies (hotels, theme parks, animation film
+                       company)
+                   ●​ High Data Integration because of their branding and
+                       are less autonomous in terms of customer experience.
+             ■​ Ex: Airline Businesses (Unification)
+                   ●​ Experience and data needs to be consistent
+             ■​ Is it possible for businesses to switch to another quadrant in
+                the operating model?
+                   ●​ Yes.
+                   ●​ Ex: Amazon
+                           ○​ Originally focused on selling books = Unification
+      ○​ Shapes overall reporting structure and defines level of autonomy
+      ○​ Organizations need to decide on an operating model to thrive in its
+         environment
+      ○​ Choice of model reflects fundamental considerations not expected
+         to change in foreseeable future
+      ○​ Considered most abstract of all discussion points
+      ○​ IT planning horizon: very long-term
+●​ Business capabilities
+      ○​ General ability of organization to perform business activity
+             ■​ Example: customer behavior tracking
+      ○​ Encompasses underlying business processes, people, knowledge,
+         and other resources
+      ○​ Considered consistent and form building blocks to organization’s
+         business functions
+      ○​ Major changes due to shift in core business model
+      ○​ Business executives clear with strategy-capability relationship
+      ○​ Planning horizon: long-term
+●​ Specific business needs
+      ○​ Concept of addressing specific business problem using IT to gain
+         improvements
+      ○​ Example: improve accuracy of tracking employee work hours
+      ○​ Convenient discussion point for business and IT
+      ○​ Planning horizon: medium-term (2-3 years)
+●​ Business processes
+      ○​ Sequence of activities carried out by specific actors, with specific
+         inputs and outputs
+      ○​ Enables identification of what IT systems might need to be deployed
+      ○​ Approximates how solutions should work and which activities need
+         to be changed
+      ○​ Planning horizon: short term
+●​ Business requirements
+      ○​ Detailed functional and non-functional requirements for a specific
+         information system
+      ○​ Reflect desired behavior of a system
+      ○​ Most detailed among discussion points,
+      ○​ Planning horizon: actionable within 6-12 months
+   ●​ Pyramid of Key Discussion Points
+
+
+
+
+Module 2.3 - The IT Initiaitve
+
+What are IT Initiatives?
+   ●​ Key unit of work in EA practice resulting in a deployed IT solution or desired
+      modification in IT landscape, consequently enabling business
+      improvements
+   ●​ Typical purpose: address a specific business need
+   ●​ Initiative may be
+         ○​ Single project
+         ○​ Multi-project (w/ unified purpose and business case)
+
+Attributes of an IT Initiative
+   ●​ Core business need or problem
+   ●​ Main goals and objectives
+   ●​ Scope
+         ○​ What stakeholders will use the system?
+   ●​ Business case (financial details including initial investment, ROI)
+   ●​ Business sponsors
+   ●​ Budge
+
+
+
+Context of IT Initiatives in EA Practice
+   ●​ Understand what IT initiatives should be implemented in the future
+         ○​ Optimal initiatives portfolio for maximum business value
+         ○​ Identification of: Current & future initiatives
+                ●​ prioritization
+                       ○​ which should be proposed first
+                       ○​ which should be deployed first
+   ●​ Understand how these initiatives should be implemented
+         ○​ Optimal ways to deliver
+                ■​ Implementation aspect
+                ■​ Options: In house Development; outsourcing; off-the-shelf,
+
+Discussion Points and Level of Detail
+
+
+
+
+   ●​ Operating Model determines business capabilities
+         ○​ Specific Business Needs
+                ■​ IT initiatives
+Five Types of IT Initiatives
+
+
+
+
+   ●​ Projects, possible improvements
+
+
+   1.​ Fundamental Initiatives
+          a.​ Addresses fundamental or “permanent” business needs
+          b.​ Strategy-agnostic
+          c.​ Always necessary and useful for the business
+          d.​ Identified top-down by C-level executives and architects, often from
+             requirements of operating model
+
+
+             regardless of what models the org has, fundamental initiatives stay
+             the same
+             only changes if it changes industry
+   2.​ Strategic Initiatives
+          a.​ Stems from current business strategy
+                    business strategies could shift – which means it has no solid
+                    foundation
+                    BUT - using Risk Assessment Management:
+                    (using probabilities)
+                           ●​ if it works, it gives a competitive advantage to the
+                                company
+                           ●​ high risk, high reward.
+                           ●​
+          b.​ May be proposed directly by top executives for immediate impact
+             on strategy execution
+          c.​ Caveat: danger of becoming legacy after current strategy
+   3.​ Local Initiatives
+      a.​ Addresses specific local business needs
+      b.​ May be unrelated to organization-wide strategy
+      c.​ Proposed bottom-up by local executives
+      d.​ Reviewed by top executives and architects based on importance to
+          whole organization
+      e.​ Approved local initiatives prioritized
+4.​ Urgent Initiatives
+      a.​ From urgent business needs (e.g. overlooked critical problems,
+          changes in government regulations, new operational demands, etc.)
+      b.​ Unanticipated, unpredictable, unplanned
+      c.​ Usually triggered by external business environment
+      d.​ Bottom-up
+      e.​ Reality: substantial in number
+5.​ Architectural Initiatives
+      a.​ Aims to improve overall quality of organization’s IT landscape
+      b.​ Does not directly address specific business needs (unlike other
+          types) or provide new business functionality
+      c.​ Top-down by architects
+      d.​ Examples
+             i.​   Upgrade obsolete hardware
+            ii.​   Decommission legacy systems
+Module 3
+Module 3.1 - Architectural Complexity and Domains
+
+Support Needed at Various Phases of Architecture Life Cycle
+  ●​ Capabilities needed to have a high level success
+  ●​ Design
+        ○​ Use of common, well-defined vocabulary
+              ■​ Does not focus on single domain, but allow integration of
+                   architectures from different domains
+              ■​ Build upon Natural everyday language used to communicate
+                   with colleagues with technical terms known to organization or
+                   key domains
+        ○​ Compilation of organization-wide guidelines, best practices, and
+           other standards
+        ○​ Support for tracking architectural changes and decisions
+  ●​ Communication
+        ○​ Architecture shared with various stakeholders from within and
+           outside the organization
+        ○​ Need to visualize relevant aspects for a particular group of
+           stakeholders
+        ○​ Very important to emphasize relations (connections and
+           dependencies) among different domains
+        ○​ Need to be able to Filter Information
+              ■​ stakeholders usually care about their own concerns
+              ■​ Determine connections and interactions between domains
+  ●​ Realization
+        ○​ For better implementation/realization of design, design
+           considerations must go on a more detailed level
+              ■​ Seamless transitioning between levels
+        ○​ Integration between different design tools should be provided
+  ●​ Change
+        ○​ Change in one architecture may affect others in different domains
+        ○​ Assess consequences of such a change
+              ■​ Can snowball
+Compositionality
+  ●​ Standard way of dealing with complexity is via a compositional approach
+  ●​ Distinguishes different parts of a system as well as relations between parts
+  ●​ Example
+        ○​ Understand different parts of a car and how they work together as a
+           whole
+                ■​ Breaking down things first into more manageable parts
+                   (architectural domains)
+
+Integration of Architectural Domains
+  ●​ One way to deal with EA complexity
+  ●​ Provides insight for those who deal with architectures
+  ●​ Some integration problems cannot be solved
+  ●​ Cannot eliminate integration problems
+        ○​ Concepts and tools only make it easier to deal with issue
+  ●​ Two typical integration problems shown next
+
+Integration Problem Example #1
+  ●​ Different modeling standards and languages (e.g. UML, BPMN) used for
+     each architectural domain
+  ●​ View of each domain developed by distinct stakeholders with their own
+     concerns
+  ●​ Challenge to do one-to-one mapping (alignment) of model elements from
+     different domains
+  ●​ Example:
+        ○​ Different notations, even within IT: entities, relations vs. classes,
+           objects
+Integration Problem #2
+  ●​ Integration of structural and behavioral models
+        ○​ Structural models: fundamental components of the system
+        ○​ Behavioral models: reaction to those components but can affect
+            structural models as well
+        ○​ Both models affect each other
+               ■​ Ex: Changing the water pressure = affects the structural
+                   integrity of the faucet (it may break), or the structural integrity
+                   of the faucet may affect the output pressure of the water
+  ●​ Example
+        ○​ How are software components related to application functions?
+        ○​ ERD and DFD: how are they related?
+
+Choosing Architectural Domains
+  ●​ Domain: area of knowledge, influence, or ownership
+  ●​ Framework-dependent domains
+  ●​ Traditional vs. Modern (i.e. Cloud)
+  ●​ Could start with Business and IT → possibly break down further
+
+Questions to Ask When Choosing Deciding on Domains
+  ●​ Who are the major stakeholders? What would each one want to focus on?
+  ●​ What are the priority areas of the organization?
+  ●​ What are the capabilities of the organization? What are the strengths and
+     weaknesses of the organization?
+  ●​ Is the preferred architectural approach flexible enough to freely allow
+     choice of domains?
+  ●​ How easy is it to integrate the different chosen domains?
+
+
+
+Module 3.2 - Describing Enterprise Architecture
+
+Capturing the Essence
+  ●​ Essence of each domain is of more value to EA
+  ●​ Focus on relations and interactions between domains
+  ●​ Use of models is indispensable
+
+Model
+  ●​ abstract and unambiguous conception of something in the real world
+        ○​ minimize miscommunication
+        ○​ you’re sending a message to the stakeholders – don’t want to be
+            sending an ambiguous message
+  ●​ uses formalized graphical or textual language
+        ○​ keep the number of symbols low – don’t want to overwhelm
+            stakeholders. they want to understand the models.
+  ●​ Model’s rigor requires architects to be more meticulous
+  ●​ difficult to capture everyone’s needs in single model
+
+Observing the Universe
+
+
+  ●​ Enterprise compared to universe
+        ○​ establishes the context of the
+            organization
+  ●​ Viewer (stakeholder) articulates conception
+     of universe
+  ●​ Conception is architecture
+        ○​ stakeholder group’s understanding of
+            their part of the organization
+        ○​ Architectural Conception:
+            collection of intangible (undocumented) understanding based on
+            the perspective of each stakeholders
+        ○​ capture this in form of models / artifacts
+        ○​ ex.
+                 ■​ AS STUDENTS OF ADMU, What is your understanding of ADMU?
+                    What are your ideas of ADMU? – Understanding of ADMU
+                 ■​ not documented- but a conception of what ADMU is
+  ●​ Representation
+        ○​ Architecture description:
+             capture this collection of ideas in form of models / artifacts
+                    collection of intangible (undocumented) understanding
+                    based on the perspective of each stakeholders
+                 ●​ tangible representation of the architecture itself in artifacts
+                 ■​ models, textual descriptions
+
+Concerns
+  ●​ Stakeholder’s interests influence conception of a part of the enterprise
+  ●​ Stakeholders may be regarded at individual or aggregated level (e.g.
+     business manager as stakeholder, also entire business management as
+     another)
+  ●​ Stakeholder’s preconceptions (social, cultural, educational, professional
+     background) also a factor
+  ●​ Therefore, assume models are created from certain perspective
+  ❖​ could be diff perspectives
+
+Observing Domains
+  ●​ Domain
+        ○​ Subset of conception of universe
+  ●​ Model
+        ○​ Abstracted and unambiguous conception of a domain
+  ●​ Modeling
+        ○​ Act of abstracting a model from a part of universe
+        ○​ Uses some language and medium
+
+Views and Viewpoints
+  ●​ Most stakeholders not interested in full scope of architecture, except
+     architects
+  ●​ Stakeholders require specific views
+  ●​ View
+        ○​ Specified through a viewpoint
+         ○​ Visible elements in a viewpoint dependent on stakeholder
+  ●​ View is what one sees, viewpoint tells where one is looking from
+
+
+  ➢​ Viewpoint: A PERSPECTIVE.
+         ○​ where one is looking from
+         ○​ not complete perspective
+         ○​ ONLY FROM A CERTAIN PERSPECTIVE – usually stakeholder
+  ➢​ View: VISIBLE ELEMENTS.
+         ○​ all elements that they can see based on their perspective
+         ○​ what can you see from your perspective?
+         ○​ collect views from different perspectives, diff stakeholders, diff
+            domains
+  ➢​ Other domains will tell the whole story
+
+Architecture Models
+  ●​ Related ways of thinking, modeling, communicating, working, supporting,
+     and using
+  ●​ Single model for enterprise is ideal but infeasible in reality
+  ●​ In practice, partial models from different domains make a collective whole
+
+Key Points about Models
+  ●​ Pictures and diagrams should not be equated with models
+         ○​ pics: can be subjected to multiple interpretations
+         ○​ models: only one interpretation
+  ●​ Important to distinguish between
+         ○​ Content – concepts involved
+                ■​ visible elements to put into model
+                ■​ allows architect to specify the scope of the model
+         ○​ Visualization – how content is presented
+                ■​ representation of the content
+                ■​ easiest and efficient way for stakeholders to understand and
+                   appreciate the content
+                ■​ make it appealing to the stakeholders
+  ●​ Architecture should be independent of visualization
+  ●​ Architecture semantics
+         ○​ Inherent meaning
+         ○​ Two distinct views (of the same thing) have common elements
+        ○​ Consistency is advantageous
+                ■​ consistent across models
+                ■​ models that cut across models !!
+                        ●​ problems arise when it comes to transitioning models
+                           into physical
+
+Semantic and Symbolic Models
+  ●​ Symbolic model
+        ○​ Represents architecture properties using symbols that refer to reality
+        ○​ Uses formal syntactic structure and notation known as description
+             language
+        ○​ PROBLEM: can be technical for other groups of stakeholders to
+             understand.
+  ●​ Semantic model
+        ○​ Represents one possible interpretation of a symbolic model
+        ○​ MORE IMPORTANT IN EA: easier for stakeholders to understand since
+             symbolic models can become too technical.
+  ●​ UML focuses on symbolic model; ArchiMate emphasizes latter
+
+
+
+Module 4
+Module 4.1 - Architecture Approaches, Methods, &
+Frameworks
+
+Approaches
+  ●​ Core Strategies
+        ○​ Frameworks
+        ○​ Non-frameworks based
+        ○​ Hybrid
+  ●​ Relations between architectural domains must remain clear
+  ●​ Changes should be tracked
+
+
+Framework-Driven Approaches
+  ●​ helps structure architecture description techniques by identifying and
+     relating
+        ○​ architectural viewpoints, and
+          ○​ associated modeling techniques
+          ○​ TOGA
+  ●​ Framework may provide process, key deliverables, metrics, etc
+
+
+Framework use not a guarantee
+  ●​ Lankhorst
+          ○​ Adoption of a certain framework is not sufficient
+  ●​ Kotusev
+          ○​ “Popular EA frameworks are useless products or marketing
+             specialists and management gurus”
+  ●​ mere use of frameworks are not enough
+  ●​ some frameworks - given the proper context w/ the business needs
+     context, etc - is very useful
+
+
+Popular Frameworks
+  ●​ The Zachman Framework
+          ○​ John Zachman; 1987
+          ○​ Originally: framework for Info System Archi
+          ○​ Logical structure for classifying and organizing descriptive
+             representations of an enterprise
+          ○​ classification structure only; organizes artifacts
+          ○​ no tech, no milestones
+          ○​ basically like an excel sheet
+          ○​ Design artifacts at intersection between
+                 ■​ roles
+                       ●​ owner, designer, builder
+                 ■​ product abstractions
+                       ●​ what, how, where
+
+
+            what         how         where       who         when       why
+
+planner                                                                 Scope
+                                                                        (concept
+                                                                        ual)
+
+owner                                                                   Enterpris
+                                                                        e model
+                                                                        conceptu
+                                                                        al
+
+designer
+
+builder
+
+sub
+contract
+or
+
+
+           ○​ for completeness, additional abstractions may be used
+                 ■​ WHO WHEN WHY
+           ○​ Advantages
+                 ■​ easy to understand
+                 ■​ addresses enterprise as a whole
+                       ●​ covers the whole enterprise
+                 ■​ independent of tools/methodologies
+                       ●​ helps to identify issues
+                 ■​ issues can be mapped to understand where they fit
+           ○​ Disadvantages
+                 ■​ large number of cells
+                 ■​ relations between cells not well specified
+                       ●​ altho this one - di naman. pretty clear.
+           ○​ Using the zachman framework
+                 ■​ Identify focus areas, concerns, priority
+                       ●​ Dont do all agad to not get overwhelmed
+                 ■​ Top down or bottom up
+                 ■​ Aggregate relevant existing artifacts, identify those that must
+                    be developed
+                 ■​ Start with foundation: minimum viable architecture, starting
+                    with cells critical for decision-making
+                       ●​ minimum viable architecture, composed with all the
+                           artifacts
+                 ■​ Possibly pair with another approach
+                       ●​ adopt the methodology of TOGAF
+                       ●​ mixing and matching of frameworks
+                       ●​ possible to only use the zachman framework
+      ○​ framework can be adjusted to only what’s needed for the enterprise
+            ■​ can be 10 cells only
+
+
+●​ TOGAF
+      ○​ The open group architecture framework
+      ○​ Originated as generic framework and methodology for development
+         of technical architectures
+      ○​ treats the enterprise as a system
+      ○​ from version 8 onwards
+●​ Model-Driven Architecture
+      ○​ By the object management group (OMG, 2014)
+      ○​ Aims to provide open vendor-neutral approach to interoperability
+            ■​ it doesn’t care about who manufactured the hardware
+      ○​ Raises level of abstraction for specifying   software solutions
+      ○​ IT-centeric (software development and deployment) to be
+         considered an EA Framework
+      ○​ very useful for automating systems within enterprise’ IS.
+            ■​ nothing much to do with business
+            ■​ focus is really only IT
+            ■​ developing and deploying for the IT
+      ○​ three levels of abstraction
+            ■​ LVL 1: computation independent
+                   ●​ independent of Automation or Manual
+                   ●​ most basic level
+            ■​ LVL 2: platform independent
+                   ●​ agnostic of platform – agnostic of hardware/software
+                   ●​ you’re going to start automating , just doesn’t care
+                      about the platform used
+            ■​ LVL 3: platform specific model
+                   ●​ what platform – hardware, software, operating systems
+                      will be used
+                   ●​ What will be automated?
+                   ●​ most detailed level
+      ○​ notion of mapping is a key feature
+            ■​ set of rules and techniques to translate one model to another
+
