@@ -66,7 +66,7 @@ app/
   icon.svg, apple-icon.tsx      Favicon (amber MA/GS mark) and iOS home-screen PNG
   page.tsx                      Home: subject list
   [subject]/page.tsx            Subject overview: 3-step how-to, module cards, exam card
-  [subject]/[module]/page.tsx   Notes (+ NextStep "what's next" box)
+  [subject]/[module]/page.tsx   Notes via NotesReader (one part at a time) + NextStep box on the last part
   [subject]/[module]/flashcards Flashcards (+ NextStep)
   [subject]/test/page.tsx       Test hub: list of tests
   [subject]/test/[test]/page.tsx  One test: "module-1".."module-3" or "midterm" (midterm adds clue-sheet fold-out)
@@ -78,8 +78,12 @@ components/
   Appearance.tsx   Auto/Light/Dark + 5 accent swatches; saved in localStorage (mags-theme, mags-accent)
   ScoresView.tsx   Tiles, "focus next", strength by module (bars), midterm trend, attempt history
   RecordStrip.tsx  Best/last score line used on several pages
-  Flashcards.tsx, NotesBody.tsx
+  NotesReader.tsx  Notes: part tabs (1.1 · 1.2 · 1.3), one part shown at a time, numbered sections,
+                   sticky "you are here" bar + outline (phones/narrow), outline rail in the left margin (≥1320px),
+                   card groups (.check/.areas with 3+ cards) become swipe rows on phones (≤700px)
+  Flashcards.tsx
 lib/
+  notes.ts         readNotes(): splits module-N.html into parts (h2) and sections (h3) at build time
   questions.ts     Builds Canvas-style questions from data.json: kinds "tf" | "mc" | "match"; grade(); notesHref()
   tests.ts         listTests(): one test per module + midterm, with question/point counts
   scores.ts        Attempt history in localStorage (key scores-<subject>); recordAttempt, moduleAccuracy
@@ -106,6 +110,8 @@ Everything is committed and pushed; `npm run build` passes.
 - "Done reviewing Module N?" box at the end of notes, with correct links
 
 **Decided for consistency:** every module test includes case scenarios. Module 2 sets without their own get the Set 4 scenario section (`withScenarios` in `lib/tests.ts`), so Module 2 sets are now 34–81 points.
+
+**Notes reader (added after the owner said the notes felt like an endless wall of text):** verified at 880px (sticky bar tracks section and progress, Outline popover jumps between parts and sections), 375px (swipe rows with "n / N" counter, no sideways page scroll), and 1440px dark (rail highlights the current section). Deep links still work: `#p-2-1` opens that part, `#a-bsc` opens the part containing it. The notes body is memoized (`PartBody`) so scroll updates don't re-render the HTML; keep it that way or the swipe rows get wiped.
 
 **Still worth checking:**
 - Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)

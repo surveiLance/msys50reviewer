@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
 import NextStep from "@/components/NextStep";
-import NotesBody from "@/components/NotesBody";
+import NotesReader from "@/components/NotesReader";
 import { SUBJECTS, getSubject } from "@/lib/subjects";
-import { readContent } from "@/lib/content";
+import { readNotes } from "@/lib/notes";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -25,12 +25,13 @@ export default async function NotesPage({ params }: P) {
   const subject = getSubject(sSlug);
   const mod = subject?.modules.find((m) => m.slug === mSlug);
   if (!subject || !mod) notFound();
-  const html = readContent(subject.slug, `${mod.slug}.html`);
+  const parts = readNotes(subject.slug, mod.slug);
   return (
     <>
       <SubjectNav subject={subject} active={{ module: mod.slug, view: "notes" }} />
-      <NotesBody html={html} />
-      <NextStep subject={subject} module={mod.slug} view="notes" />
+      <NotesReader parts={parts} moduleNum={mod.num}>
+        <NextStep subject={subject} module={mod.slug} view="notes" />
+      </NotesReader>
     </>
   );
 }
