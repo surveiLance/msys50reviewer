@@ -1,82 +1,72 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { McItem, MidtermSpec, MtfItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
-import { type Answer, type Question, buildExam, buildPractice, grade, notesHref, practicePool } from "@/lib/questions";
+import {
+  type Answer, type Question, TRUE_MARK, buildMidterm, buildModuleTest, countFor, grade, notesHref, points, totalPoints,
+} from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
 
 type Props = {
   subject: string;
   storageKey: string;
-  /** practice: instant feedback after each question. exam: feedback at the end, timer, question grid. */
-  mode: "practice" | "exam";
-  // practice
+  title: string; // "Module 2 test" / "Midterm test"
+  kind: "module" | "midterm";
+  // module test
   module?: string;
   sets?: Record<string, TestSet>;
   setLabels?: Record<string, string>;
-  // exam
+  // midterm
   midterm?: MidtermSpec;
   pools?: Record<string, MtfItem[]>;
   scenarios?: Record<string, McItem[]>;
   timerMinutes?: number;
-  examName?: string;
+  /** For the setup screen (module tests recount from the chosen set). */
+  questionCount: number;
+  pointCount: number;
 };
 
-/** Saved after every change so a refresh (or a trip to the notes) never loses progress. */
+/** Saved after every answer so a refresh offers Resume. Questions are forward-only, so idx only grows. */
 type Run = {
-  v: 1;
+  v: 2;
   qs: Question[];
   answers: Answer[];
-  flags: boolean[];
   idx: number;
   startedAt: number;
   deadline: number | null;
-  label?: string;
   timed?: boolean;
+  label?: string;
 };
 
-const LENGTHS = [
-  { key: "quick", n: 10, label: "Quick", hint: "About 5 minutes" },
-  { key: "standard", n: 25, label: "Standard", hint: "About 12 minutes" },
-  { key: "all", n: null, label: "Everything", hint: "" },
-] as const;
-
 const fmtClock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-const LETTERS = "ABCDEFGH";
 
 export default function Quiz(props: Props) {
-  const { mode, subject, storageKey } = props;
-  const exam = mode === "exam";
-  const runKey = `run-${storageKey}`;
-  const examName = props.examName || "Mock exam";
+  const { subject, storageKey, kind } = props;
+  const midterm = kind === "midterm";
+  const runKey = `run2-${storageKey}`;
+  const setKeys = Object.keys(props.sets || {});
 
   const [phase, setPhase] = useState<"setup" | "run" | "done">("setup");
   const [run, setRun] = useState<Run | null>(null);
   const [saved, setSaved] = useState<Run | null>(null);
-  const [length, setLength] = useState<(typeof LENGTHS)[number]["key"]>("quick");
-  const [source, setSource] = useState("all");
-  const [gridOpen, setGridOpen] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
+  const [timed, setTimed] = useState(true);
+  const [setChoice, setSetChoice] = useState("next");
+  const [lastSet, setLastSet] = useState<string | null>(null);
+  const [now, setNow] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
-  const recorded = useRef<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [recordedAt, setRecordedAt] = useState<number | null>(null);
 
-  const setKeys = Object.keys(props.sets || {});
-  const poolSize = useMemo(() => (props.sets ? practicePool(props.sets, source).length : 0), [props.sets, source]);
-
-  // Restore an unfinished run and the last-used options.
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
-    if (r && r.v === 1 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
-    const opts = load<{ length?: string; source?: string }>(`${storageKey}-opts`, {});
-    if (opts.length && LENGTHS.some((l) => l.key === opts.length)) setLength(opts.length as typeof length);
-    if (opts.source && (opts.source === "all" || props.sets?.[opts.source])) setSource(opts.source);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runKey]);
+    if (r && r.v === 2 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
+    setLastSet(load<string | null>(`${storageKey}-lastset`, null));
+  }, [runKey, storageKey]);
 
-  // Focus mode: hide page chrome while a test is running.
+  // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
     document.body.classList.toggle("quiz-on", phase === "run");
     return () => document.body.classList.remove("quiz-on");
@@ -86,174 +76,133 @@ export default function Quiz(props: Props) {
     if (phase === "run" && run) save(runKey, run);
   }, [phase, run, runKey]);
 
-  // Scroll after the next paint, once focus mode has shown or hidden the page chrome.
-  const scrollTop = () => setTimeout(() => window.scrollTo({ top: 0 }), 0);
+  const toTop = () => setTimeout(() => window.scrollTo({ top: 0 }), 0);
 
-  const start = (timed = false) => {
+  // With several sets, "next" rotates so retakes see different questions.
+  const nextSet = setKeys.length ? setKeys[(Math.max(-1, setKeys.indexOf(lastSet || "")) + 1) % setKeys.length] : "";
+  const chosenSet = setChoice === "next" ? nextSet : setChoice;
+  const setName = (k: string) => props.setLabels?.[k] || `Set ${k}`;
+  const setCount = !midterm && props.sets?.[chosenSet] ? countFor(props.sets[chosenSet]) : null;
+
+  const start = () => {
     let qs: Question[];
     let label: string | undefined;
-    if (exam) {
-      qs = buildExam(props.midterm!, props.pools || {}, props.scenarios || {});
+    if (midterm) {
+      qs = buildMidterm(props.midterm!, props.pools || {}, props.scenarios || {});
     } else {
-      const L = LENGTHS.find((l) => l.key === length)!;
-      qs = buildPractice(props.sets || {}, source, L.n, props.module);
-      label = `${L.label} · ${qs.length}` + (source !== "all" && setKeys.length > 1 ? ` · ${props.setLabels?.[source] || `Set ${source}`}` : "");
-      save(`${storageKey}-opts`, { length, source });
+      qs = buildModuleTest(props.sets![chosenSet], (props.module || "").replace(/^module-(\d+)$/, "M$1"));
+      if (setKeys.length > 1) {
+        label = setName(chosenSet);
+        save(`${storageKey}-lastset`, chosenSet);
+        setLastSet(chosenSet);
+      }
     }
     const t = Date.now();
-    const r: Run = {
-      v: 1, qs, answers: qs.map(() => ({})), flags: qs.map(() => false), idx: 0, startedAt: t,
-      deadline: exam && timed && props.timerMinutes ? t + props.timerMinutes * 60_000 : null, label, timed: exam ? timed : undefined,
-    };
-    recorded.current = null;
+    setRun({
+      v: 2, qs, answers: qs.map(() => ({})), idx: 0, startedAt: t,
+      deadline: midterm && timed && props.timerMinutes ? t + props.timerMinutes * 60_000 : null,
+      timed: midterm ? timed : undefined, label,
+    });
+    setNow(t);
     setTimeUp(false);
-    setRun(r);
+    setShowAll(false);
     setSaved(null);
     setPhase("run");
-    scrollTop();
+    toTop();
   };
 
   const resume = () => {
     if (!saved) return;
-    recorded.current = null;
     setRun(saved);
+    setNow(Date.now());
     setSaved(null);
     setPhase("run");
-    scrollTop();
+    toTop();
   };
   const discard = () => {
     save(runKey, null);
     setSaved(null);
   };
 
-  const finish = useCallback(() => {
+  const submit = useCallback(() => {
     save(runKey, null);
-    setGridOpen(false);
     setPhase("done");
-    scrollTop();
+    toTop();
   }, [runKey]);
 
-  // Exam timer: computed from the deadline, so it stays right across refreshes.
+  // Timer from the deadline, so it stays right across refreshes. Submits at zero, like the real exam.
   useEffect(() => {
     if (phase !== "run" || !run?.deadline) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, [phase, run?.deadline]);
-  const left = run?.deadline ? Math.max(0, Math.round((run.deadline - now) / 1000)) : null;
+  const left = run?.deadline && now ? Math.max(0, Math.round((run.deadline - now) / 1000)) : null;
   useEffect(() => {
     if (phase === "run" && left === 0) {
       setTimeUp(true);
-      finish();
+      submit();
     }
-  }, [left, phase, finish]);
+  }, [left, phase, submit]);
 
   const graded = useMemo(() => (run ? run.qs.map((q, i) => grade(q, run.answers[i])) : []), [run]);
 
-  // Save the attempt once when results appear.
+  // Save the attempt once, when results first appear.
   useEffect(() => {
-    if (phase !== "done" || !run || recorded.current === run.startedAt) return;
-    recorded.current = run.startedAt;
-    const answered = graded.filter((g) => g.answered).length;
-    if (!answered) return;
+    if (phase !== "done" || !run || recordedAt === run.startedAt) return;
+    setRecordedAt(run.startedAt);
+    const answeredPts = run.qs.reduce((s, q, i) => {
+      const a = run.answers[i];
+      if (q.kind === "match") return s + (a.picks || []).filter(Boolean).length;
+      return s + (graded[i].answered ? 1 : 0);
+    }, 0);
+    if (!answeredPts) return;
     const parts = new Map<string, [number, number]>();
     const byModule: Record<string, [number, number]> = {};
     run.qs.forEach((q, i) => {
-      const p = parts.get(q.part) || [0, 0];
-      p[1]++;
-      if (graded[i].ok) p[0]++;
-      parts.set(q.part, p);
-      if (q.mod) {
+      const p = parts.get(q.section) || [0, 0];
+      p[0] += graded[i].points;
+      p[1] += graded[i].max;
+      parts.set(q.section, p);
+      if (q.kind !== "match" && q.mod) {
         byModule[q.mod] = byModule[q.mod] || [0, 0];
-        byModule[q.mod][1]++;
-        if (graded[i].ok) byModule[q.mod][0]++;
+        byModule[q.mod][0] += graded[i].points;
+        byModule[q.mod][1] += 1;
       }
     });
     recordAttempt(subject, {
-      kind: exam ? "midterm" : "practice",
+      kind: midterm ? "midterm" : "practice",
       module: props.module,
       set: run.label,
-      score: graded.filter((g) => g.ok).length,
-      max: run.qs.length,
-      answered,
-      seconds: Math.round(((run.deadline && timeUp ? run.deadline : Date.now()) - run.startedAt) / 1000),
+      score: graded.reduce((s, g) => s + g.points, 0),
+      max: totalPoints(run.qs),
+      answered: answeredPts,
+      seconds: Math.round(((timeUp && run.deadline ? run.deadline : Date.now()) - run.startedAt) / 1000),
       timed: run.timed,
       byModule,
       parts: [...parts].map(([k, [c, t]]) => [k, c, t]),
     });
-  }, [phase, run, graded, subject, exam, props.module, timeUp]);
+  }, [phase, run, graded, recordedAt, subject, midterm, props.module, timeUp]);
 
-  // ---------- answering ----------
-  const update = (patch: Partial<Answer>, i = run?.idx ?? 0) =>
+  const update = (patch: Partial<Answer>) =>
     setRun((r) => {
       if (!r) return r;
       const answers = r.answers.slice();
-      answers[i] = { ...answers[i], ...patch };
+      answers[r.idx] = { ...answers[r.idx], ...patch };
       return { ...r, answers };
     });
-  const go = (i: number) => {
-    setRun((r) => (r ? { ...r, idx: Math.max(0, Math.min(r.qs.length - 1, i)) } : r));
-    setGridOpen(false);
-    scrollTop();
-  };
-
-  const q = run?.qs[run.idx];
-  const a = run?.answers[run.idx] || {};
-  const g = q ? graded[run!.idx] : null;
-  const locked = !exam && !!a.checked;
-  const isLast = run ? run.idx === run.qs.length - 1 : false;
-  const answeredCount = graded.filter((x) => x.answered).length;
-
-  const pickTf = (v: "true" | "false") => {
-    if (locked) return;
-    // Practice: "True" is a complete answer, so check it right away. "False" still needs the replacement.
-    update({ tf: v, checked: !exam && v === "true" ? true : a.checked });
-  };
-  const pickChoice = (o: string) => {
-    if (locked) return;
-    update({ choice: o, checked: !exam ? true : undefined });
-  };
-  const checkNow = () => update({ checked: true });
   const next = () => {
-    if (isLast) {
-      if (exam) setGridOpen(true);
-      else finish();
-    } else go(run!.idx + 1);
+    if (!run) return;
+    if (run.idx >= run.qs.length - 1) submit();
+    else {
+      setRun({ ...run, idx: run.idx + 1 });
+      toTop();
+    }
   };
-  const endEarly = () => {
-    const blank = run!.qs.length - answeredCount;
-    const msg = blank
-      ? `End now? ${blank} unanswered question${blank === 1 ? "" : "s"} will count as wrong.`
-      : "Finish and see your results?";
-    if (window.confirm(msg)) finish();
+  const submitEarly = () => {
+    if (!run) return;
+    const rest = run.qs.length - run.idx - 1;
+    if (window.confirm(`Submit now? ${rest ? `The ${rest} question${rest === 1 ? "" : "s"} after this one will count as wrong.` : ""}`.trim())) submit();
   };
-
-  // Keyboard: 1–5 or A–E pick, T/F for true/false, Enter checks or moves on, arrows move.
-  useEffect(() => {
-    if (phase !== "run" || !q) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const typing = (e.target as HTMLElement)?.tagName === "INPUT";
-      if (e.key === "Enter") {
-        if (!exam && q.kind === "tf" && a.tf === "false" && !a.checked) checkNow();
-        else if (exam || a.checked) next();
-        e.preventDefault();
-        return;
-      }
-      if (typing) return;
-      if (e.key === "ArrowRight") return run!.idx < run!.qs.length - 1 && go(run!.idx + 1);
-      if (e.key === "ArrowLeft") return go(run!.idx - 1);
-      const k = e.key.toLowerCase();
-      if (q.kind === "tf") {
-        if (k === "t") pickTf("true");
-        if (k === "f") { pickTf("false"); e.preventDefault(); }
-      } else {
-        const n = /^[1-8]$/.test(k) ? +k - 1 : LETTERS.toLowerCase().indexOf(k);
-        if (n >= 0 && n < q.options.length) pickChoice(q.options[n]);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
 
   // ================= SETUP =================
   if (phase === "setup") {
@@ -264,7 +213,7 @@ export default function Quiz(props: Props) {
             <div>
               <b>You have an unfinished test</b>
               <span>
-                {saved.answers.filter((x) => x.tf || x.choice).length} of {saved.qs.length} answered
+                On question {saved.idx + 1} of {saved.qs.length}
                 {saved.deadline ? ` · ${Math.max(0, Math.floor((saved.deadline - Date.now()) / 60000))} min left` : ""}
               </span>
             </div>
@@ -272,287 +221,275 @@ export default function Quiz(props: Props) {
             <button className="btn" onClick={discard}>Discard</button>
           </div>
         )}
+        <div className="qz-panel">
+          <div>
+            <h3>{props.title}</h3>
+            <div className="qz-facts">
+              <span>{setCount?.questions ?? props.questionCount} questions</span>
+              <span>{setCount?.points ?? props.pointCount} points</span>
+              {midterm && <span>New questions each time</span>}
+            </div>
+          </div>
+          <ul className="qz-rules">
+            <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
+            <li>Modified true or false: type <code>{TRUE_MARK}</code> if the statement is true. If it&apos;s false, type the word that should replace the underlined part.</li>
+            <li>Matching: pick an answer from each dropdown.</li>
+            <li>Your score and the correct answers appear after you submit.</li>
+          </ul>
 
-        {exam ? (
-          <div className="qz-setup">
-            <h3>Ready for the {examName.toLowerCase()}?</h3>
-            <ul className="qz-facts">
-              <li><b>{props.midterm ? props.midterm.mtf.reduce((s, d) => s + d.n, 0) + props.midterm.secs.reduce((s, x) => s + (x.kind === "mc" && x.draw ? x.draw.reduce((y, d) => y + d.n, 0) : x.items?.length ?? 0), 0) : 0} questions</b> from every module, new ones each time</li>
-              <li>One question at a time. You can go back, skip, and flag questions to revisit.</li>
-              <li>Answers are revealed at the end, like the real exam.</li>
-            </ul>
-            <div className="qz-choices two">
-              <button className="qz-opt" onClick={() => start(true)}>
+          {midterm && (
+            <div className="qz-modes" role="radiogroup" aria-label="Timer">
+              <button className="qz-mode" role="radio" aria-checked={timed} onClick={() => setTimed(true)}>
                 <b>Timed · {props.timerMinutes} min</b>
                 <span>Like the real exam. Submits when time runs out.</span>
               </button>
-              <button className="qz-opt" onClick={() => start(false)}>
+              <button className="qz-mode" role="radio" aria-checked={!timed} onClick={() => setTimed(false)}>
                 <b>Untimed</b>
                 <span>Take as long as you need.</span>
               </button>
             </div>
-            <RecordStrip subject={subject} kind="midterm" />
-          </div>
-        ) : (
-          <div className="qz-setup">
-            <h3>How many questions?</h3>
-            <p className="qz-sub">One question at a time. You&apos;ll see the answer right after each one.</p>
-            <div className="qz-choices" role="radiogroup" aria-label="Test length">
-              {LENGTHS.map((L) => {
-                const n = L.n ? Math.min(L.n, poolSize) : poolSize;
-                if (L.n && L.n >= poolSize && L.key !== "quick") return null;
-                return (
-                  <button key={L.key} className="qz-opt" role="radio" aria-checked={length === L.key} onClick={() => setLength(L.key)}>
-                    <b>{L.label} · {n}</b>
-                    <span>{L.hint || `About ${Math.max(5, Math.round((n * 0.5) / 5) * 5)} minutes`}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {setKeys.length > 1 && (
-              <details className="qz-more">
-                <summary>More options</summary>
-                <p className="qz-sub">Questions come from:</p>
-                <div className="qz-sources">
-                  <button className="chip" aria-pressed={source === "all"} onClick={() => setSource("all")}>All sets, mixed</button>
-                  {setKeys.map((k) => (
-                    <button key={k} className="chip" aria-pressed={source === k} onClick={() => setSource(k)}>{props.setLabels?.[k] || `Set ${k}`}</button>
-                  ))}
-                </div>
-                {source !== "all" && props.sets?.[source]?.desc && <p className="qz-sub">{props.sets[source].desc}</p>}
-              </details>
-            )}
-            <button className="btn primary qz-start" onClick={() => start()}>Start</button>
-            <RecordStrip subject={subject} kind="practice" module={props.module} />
-          </div>
-        )}
+          )}
+
+          {setKeys.length > 1 && (
+            <details className="qz-more">
+              <summary>Question set: {setName(chosenSet)}</summary>
+              <div className="qz-sources">
+                <button className="chip" aria-pressed={setChoice === "next"} onClick={() => setSetChoice("next")}>Next in rotation</button>
+                {setKeys.map((k) => (
+                  <button key={k} className="chip" aria-pressed={setChoice === k} onClick={() => setSetChoice(k)}>{setName(k)}</button>
+                ))}
+              </div>
+            </details>
+          )}
+
+          <button className="btn primary qz-start" onClick={start}>Start test</button>
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <RecordStrip subject={subject} kind={midterm ? "midterm" : "practice"} module={props.module} />
+        </div>
       </div>
     );
   }
 
   // ================= RESULTS =================
   if (phase === "done" && run) {
-    const score = graded.filter((x) => x.ok).length;
-    const p = pct(score, run.qs.length);
-    const missed = run.qs.map((qq, i) => ({ q: qq, g: graded[i], i })).filter((x) => !x.g.ok);
-    const wrong = missed.filter((x) => x.g.answered);
-    const blank = missed.filter((x) => !x.g.answered);
-    const reviewItem = ({ q: mq, g: mg, i }: (typeof missed)[number]) => {
-      const href = notesHref(subject, mq, props.module);
-      return (
-        <li key={i}>
-          <span className="qz-part">Question {i + 1} · {mq.part}</span>
-          <div className="qz-rprompt" dangerouslySetInnerHTML={{ __html: mq.prompt }} />
-          {mg.answered && <p className="qz-your">You answered: {mg.your}</p>}
-          <p className="qz-right">
-            Correct answer: <b>{mq.answer}</b>
-            {mq.kind === "tf" && !mq.isTrue && mg.partial ? " (you were right that it's false)" : ""}
-          </p>
-          {mq.kind === "choice" && mq.why && <p className="qz-why">{mq.why}</p>}
-          {(mq.source || href) && (
-            <p className="qz-src">
-              {mq.source && <span>Source: {mq.source}</span>}
-              {href && <Link href={href} target="_blank">Review in notes ↗</Link>}
-            </p>
-          )}
-        </li>
-      );
-    };
-    const skipped = run.qs.length - answeredCount;
-    const parts = [...new Set(run.qs.map((x) => x.part))].map((part) => {
-      const idx = run.qs.map((x, i) => (x.part === part ? i : -1)).filter((i) => i >= 0);
-      return { part, c: idx.filter((i) => graded[i].ok).length, t: idx.length };
+    const score = graded.reduce((s, g) => s + g.points, 0);
+    const max = totalPoints(run.qs);
+    const p = pct(score, max);
+    const items = run.qs.map((q, i) => ({ q, g: graded[i], a: run.answers[i], i }));
+    const wrong = items.filter((x) => x.g.points < x.g.max);
+    const shown = showAll ? items : wrong;
+    const sections = [...new Set(run.qs.map((q) => q.section))].map((s) => {
+      const ix = items.filter((x) => x.q.section === s);
+      return { s, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.reduce((a, x) => a + x.g.max, 0) };
     });
-    const mods = [...new Set(run.qs.map((x) => x.mod).filter(Boolean) as string[])].sort().map((m) => {
-      const idx = run.qs.map((x, i) => (x.mod === m ? i : -1)).filter((i) => i >= 0);
-      return { m, c: idx.filter((i) => graded[i].ok).length, t: idx.length };
+    const mods = [...new Set(run.qs.flatMap((q) => (q.kind !== "match" && q.mod ? [q.mod] : [])))].sort().map((m) => {
+      const ix = items.filter((x) => x.q.kind !== "match" && x.q.mod === m);
+      return { m, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.length };
     });
-    const msg = p >= 80 ? "Great work." : p >= 60 ? "Getting there." : "Keep going. Review the ones you missed below.";
+    const msg = p >= 80 ? "Great work." : p >= 60 ? "Getting there." : "Keep going. Check the answers below, then review the notes.";
+
     return (
       <div className="qz">
-        <div className="qz-result">
-          {timeUp && <p className="qz-timeup">Time&apos;s up. Your answers were submitted.</p>}
-          <div className="qz-big">
+        <div className="qz-panel">
+          {timeUp && <p className="qz-timeup">Time&apos;s up. Your test was submitted.</p>}
+          <div className="eyebrow">{props.title}{run.label ? ` · ${run.label}` : ""}</div>
+          <div className="qz-score">
             <b>{p}%</b>
-            <span>{score} of {run.qs.length} correct{skipped ? ` · ${skipped} skipped` : ""}</span>
+            <span>{score} of {max} points</span>
           </div>
           <p className="qz-msg">{msg}</p>
-          {exam && mods.length > 0 && (
+          {midterm && mods.length > 0 && (
             <div className="qz-breakdown">
               {mods.map(({ m, c, t }) => (
                 <div key={m}><span>Module {m.slice(1)}</span><b>{pct(c, t)}%</b><em>{c}/{t}</em></div>
               ))}
             </div>
           )}
-          {parts.length > 1 && (
+          {sections.length > 1 && (
             <details className="qz-more">
-              <summary>Score by question type</summary>
+              <summary>Score by part</summary>
               <div className="qz-breakdown">
-                {parts.map(({ part, c, t }) => (
-                  <div key={part}><span>{part}</span><b>{pct(c, t)}%</b><em>{c}/{t}</em></div>
+                {sections.map(({ s, c, t }) => (
+                  <div key={s}><span>{s}</span><b>{pct(c, t)}%</b><em>{c}/{t}</em></div>
                 ))}
               </div>
             </details>
           )}
           <div className="qz-actions">
-            <button className="btn primary" onClick={() => { setRun(null); setPhase("setup"); scrollTop(); }}>
-              {exam ? "Take another" : "New test"}
-            </button>
+            <button className="btn primary" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Retake</button>
+            <Link className="btn" href={`/${subject}/test`}>Other tests</Link>
             <Link className="btn" href={`/${subject}/scores`}>My scores</Link>
           </div>
         </div>
 
-        {wrong.length > 0 && (
-          <section className="qz-review">
-            <h3>Review {wrong.length === 1 ? "the one you got wrong" : `the ${wrong.length} you got wrong`}</h3>
-            <ol>{wrong.map(reviewItem)}</ol>
-          </section>
-        )}
-        {blank.length > 0 && (
-          <details className="qz-more qz-review">
-            <summary>Show the {blank.length} you skipped</summary>
-            <ol>{blank.map(reviewItem)}</ol>
-          </details>
-        )}
+        <section className="qz-review">
+          <div className="qz-review-head">
+            <h3>Your answers</h3>
+            <div className="qz-sources">
+              <button className="chip" aria-pressed={!showAll} onClick={() => setShowAll(false)}>Wrong ({wrong.length})</button>
+              <button className="chip" aria-pressed={showAll} onClick={() => setShowAll(true)}>All ({items.length})</button>
+            </div>
+          </div>
+          {shown.length === 0 ? (
+            <p className="muted">Nothing wrong. Every answer was correct.</p>
+          ) : (
+            <ol className="qz-rv">
+              {shown.map(({ q, g, a, i }) => {
+                const full = g.points === g.max;
+                const href = notesHref(subject, q, props.module);
+                return (
+                  <li key={i} className={full ? "ok" : ""}>
+                    <div className="qz-rv-top">
+                      <span>Question {i + 1} · {q.section}</span>
+                      <b>{g.points} / {g.max} pt{g.max === 1 ? "" : "s"}</b>
+                    </div>
+                    {q.kind === "match" ? (
+                      <>
+                        <p className="qz-why">{q.inst}</p>
+                        <ul className="qz-rv-rows">
+                          {q.rows.map((r, ri) => {
+                            const pick = a.picks?.[ri] || "";
+                            const ok = g.rows?.[ri];
+                            return (
+                              <li key={ri}>
+                                <span>{r.prompt}</span>
+                                <span className="qz-rv-line">
+                                  <span className={"y" + (ok ? " ok" : "")}>{pick || "No answer"}</span>
+                                  {!ok && <> · Correct: <span className="c">{r.answer}</span></>}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </>
+                    ) : (
+                      <>
+                        <div className="qz-rv-prompt" dangerouslySetInnerHTML={{ __html: q.prompt }} />
+                        <p className="qz-rv-line">
+                          Your answer: <span className={"y" + (full ? " ok" : "")}>{(q.kind === "tf" ? a.text?.trim() : a.choice) || "No answer"}</span>
+                        </p>
+                        {!full && (
+                          <p className="qz-rv-line">
+                            Correct answer: <span className="c">{q.answer}</span>
+                            {q.kind === "tf" && q.isTrue ? " (the statement is true)" : ""}
+                            {q.kind === "tf" && !q.isTrue && q.accept.length > 1 ? ` (also accepted: ${q.accept.filter((x) => x !== q.answer).join(", ")})` : ""}
+                          </p>
+                        )}
+                        {q.kind === "mc" && q.why && <p className="qz-why">{q.why}</p>}
+                      </>
+                    )}
+                    {((q.kind !== "match" && q.source) || href) && (
+                      <p className="qz-src">
+                        {q.kind !== "match" && q.source && <span>Source: {q.source}</span>}
+                        {href && <Link href={href} target="_blank">Review in notes ↗</Link>}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
       </div>
     );
   }
 
   // ================= RUNNING =================
-  if (!run || !q || !g) return null;
-  const showFeedback = !exam && a.checked;
-  const href = notesHref(subject, q, props.module);
+  if (!run) return null;
+  const q = run.qs[run.idx];
+  const a = run.answers[run.idx] || {};
+  const g = graded[run.idx];
+  const isLast = run.idx === run.qs.length - 1;
+  const pts = points(q);
+  const blankRows = q.kind === "match" ? q.rows.length - (a.picks || []).filter(Boolean).length : 0;
+  const unanswered = !g.answered;
 
   return (
-    <div className="qz qz-running">
-      <div className="qz-bar">
-        <div className="qz-bar-row">
-          <span className="qz-count"><span className="lg">Question </span><b>{run.idx + 1}</b> of {run.qs.length}</span>
-          {left !== null && (
-            <span className={"qz-clock" + (left < 300 ? " low" : "")} role="timer">{fmtClock(left)}</span>
+    <div className="qz">
+      <div className="qz-top">
+        <div className="qz-top-row">
+          <span className="qz-title">{props.title}</span>
+          {left !== null && <span className={"qz-clock" + (left < 300 ? " low" : "")} role="timer">{fmtClock(left)}</span>}
+          <button className="qz-link" onClick={submitEarly}>Submit now</button>
+        </div>
+        <div className="qz-progress" aria-hidden><i style={{ width: `${(run.idx / run.qs.length) * 100}%` }} /></div>
+      </div>
+
+      <article className="qz-q" key={run.idx}>
+        <div className="qz-q-head">
+          <b>Question {run.idx + 1} <span>of {run.qs.length}</span></b>
+          <span>{pts} pt{pts === 1 ? "" : "s"}</span>
+        </div>
+        <div className="qz-q-body">
+          <span className="qz-section">{q.section}</span>
+          {q.kind === "tf" && (
+            <>
+              <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: q.prompt }} />
+              <label className="qz-ask" htmlFor={`a-${run.idx}`}>
+                Type <b>{TRUE_MARK}</b> if true. If false, type the word that should replace the underlined part.
+              </label>
+              <input
+                id={`a-${run.idx}`}
+                className="qz-input"
+                value={a.text || ""}
+                onChange={(e) => update({ text: e.target.value })}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); next(); } }}
+                autoFocus autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false}
+                placeholder={`${TRUE_MARK}  or the correct word`}
+              />
+            </>
           )}
-          {exam && <button className="qz-link" onClick={() => setGridOpen((o) => !o)} aria-expanded={gridOpen}>All questions</button>}
-          <button className="qz-link" onClick={endEarly}>{exam ? "Finish" : "End"}</button>
-        </div>
-        <div className="qz-progress" aria-hidden><i style={{ width: `${((exam ? answeredCount : run.idx + (a.checked ? 1 : 0)) / run.qs.length) * 100}%` }} /></div>
-      </div>
-
-      {gridOpen && (
-        <div className="qz-grid-panel">
-          <p className="qz-sub">
-            {answeredCount} of {run.qs.length} answered
-            {run.flags.some(Boolean) ? ` · ${run.flags.filter(Boolean).length} flagged` : ""}. Tap a number to jump to it.
-          </p>
-          <div className="qz-grid">
-            {run.qs.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => go(i)}
-                className={(graded[i].answered ? "done " : "") + (run.flags[i] ? "flag " : "") + (i === run.idx ? "cur" : "")}
-                aria-label={`Question ${i + 1}${graded[i].answered ? ", answered" : ""}${run.flags[i] ? ", flagged" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-          <div className="qz-actions">
-            <button className="btn primary" onClick={endEarly}>Finish and see results</button>
-            <button className="btn" onClick={() => setGridOpen(false)}>Keep going</button>
-          </div>
-        </div>
-      )}
-
-      <article className="qz-card" key={run.idx}>
-        <span className="qz-part">{q.part}</span>
-        <p className="qz-ask">{q.kind === "tf" ? "Is this statement true? If it's false, fix the underlined part." : q.ask}</p>
-        <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: q.prompt }} />
-
-        {q.kind === "tf" ? (
-          <>
-            <div className="qz-choices two">
-              {(["true", "false"] as const).map((v) => {
-                const chosen = a.tf === v;
-                // Colors judge the True/False call itself; the message below covers the replacement word.
-                const state = showFeedback && chosen ? ((v === "true") === q.isTrue ? "right" : "wrong") : "";
-                return (
-                  <button key={v} className={`qz-ans ${state}`} aria-pressed={chosen} disabled={locked} onClick={() => pickTf(v)}>
-                    <kbd>{v === "true" ? "T" : "F"}</kbd>{v === "true" ? "True" : "False"}
-                  </button>
-                );
-              })}
-            </div>
-            {a.tf === "false" && (
-              <div className="qz-fix">
-                <label htmlFor={`fix-${run.idx}`}>Replace the underlined part with:</label>
-                <div className="qz-fix-row">
-                  <input
-                    id={`fix-${run.idx}`}
-                    value={a.text || ""}
-                    onChange={(e) => update({ text: e.target.value })}
-                    disabled={locked}
-                    autoFocus
-                    autoComplete="off" autoCapitalize="off" spellCheck={false}
-                    placeholder="Type the correct word or phrase"
-                  />
-                  {!exam && !a.checked && <button className="btn primary" onClick={checkNow}>Check</button>}
-                </div>
+          {q.kind === "mc" && (
+            <>
+              <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: q.prompt }} />
+              <fieldset className="qz-radios">
+                <legend className="qz-ask">Choose one.</legend>
+                {q.options.map((o) => (
+                  <label key={o} className="qz-radio">
+                    <input type="radio" name={`q-${run.idx}`} checked={a.choice === o} onChange={() => update({ choice: o })} />
+                    <span dangerouslySetInnerHTML={{ __html: o }} />
+                  </label>
+                ))}
+              </fieldset>
+            </>
+          )}
+          {q.kind === "match" && (
+            <>
+              <p className="qz-ask">{q.inst}</p>
+              <div className="qz-match">
+                {q.rows.map((r, ri) => (
+                  <div className="qz-match-row" key={ri}>
+                    <span dangerouslySetInnerHTML={{ __html: r.prompt }} />
+                    <select
+                      value={a.picks?.[ri] || ""}
+                      aria-label={`Answer for: ${r.prompt.replace(/<[^>]+>/g, "")}`}
+                      onChange={(e) => {
+                        const picks = (a.picks || q.rows.map(() => "")).slice();
+                        picks[ri] = e.target.value;
+                        update({ picks });
+                      }}
+                    >
+                      <option value="">[ Choose ]</option>
+                      {q.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                ))}
               </div>
-            )}
-          </>
-        ) : (
-          <div className="qz-choices">
-            {q.options.map((o, i) => {
-              const chosen = a.choice === o;
-              const state = showFeedback ? (o === q.answer ? "right" : chosen ? "wrong" : "dim") : "";
-              return (
-                <button key={o} className={`qz-ans ${state}`} aria-pressed={chosen} disabled={locked} onClick={() => pickChoice(o)}>
-                  <kbd>{LETTERS[i]}</kbd><span dangerouslySetInnerHTML={{ __html: o }} />
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {showFeedback && (
-          <div className={`qz-fb ${g.ok ? "ok" : "bad"}`} role="status">
-            <b>{g.ok ? "✓ Correct" : g.partial ? "Almost: it is false, but that's not the replacement" : "✗ Not quite"}</b>
-            {!g.ok && <p>Answer: <strong>{q.answer}</strong></p>}
-            {q.kind === "tf" && g.ok && !q.isTrue && q.accept.length > 1 && <p>Also accepted: {q.accept.filter((x) => x !== q.answer).join(", ")}</p>}
-            {q.kind === "choice" && q.why && <p>{q.why}</p>}
-            {(q.source || href) && (
-              <p className="qz-src">
-                {q.source && <span>Source: {q.source}</span>}
-                {href && <Link href={href} target="_blank">Review in notes ↗</Link>}
-              </p>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
+        <div className="qz-foot">
+          <p>
+            {unanswered
+              ? "Not answered yet. If you move on, it counts as wrong."
+              : blankRows
+                ? `${blankRows} dropdown${blankRows === 1 ? "" : "s"} still blank.`
+                : isLast ? "That's the last question." : "You can't come back to this question."}
+          </p>
+          <button className="btn primary" onClick={next}>{isLast ? "Submit test" : "Next →"}</button>
+        </div>
       </article>
-
-      <div className="qz-nav">
-        <button className="btn" onClick={() => go(run.idx - 1)} disabled={run.idx === 0}>← Back</button>
-        {exam && (
-          <button
-            className={"btn qz-flag" + (run.flags[run.idx] ? " on" : "")}
-            aria-pressed={run.flags[run.idx]}
-            onClick={() => setRun((r) => (r ? { ...r, flags: r.flags.map((f, i) => (i === r.idx ? !f : f)) } : r))}
-          >
-            {run.flags[run.idx] ? "⚑ Flagged" : "⚐ Flag"}
-          </button>
-        )}
-        <button
-          className="btn primary"
-          onClick={next}
-          disabled={!exam && !a.checked}
-        >
-          {isLast
-              ? exam ? "Review & finish" : "See results"
-              : exam && !g.answered ? "Skip →" : "Next →"}
-        </button>
-      </div>
-      {!exam && !a.checked && (
-        <p className="qz-hint">Not sure? <button className="qz-link" onClick={() => { update({ checked: true }); }}>Show the answer</button></p>
-      )}
     </div>
   );
 }

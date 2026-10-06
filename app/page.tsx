@@ -6,7 +6,7 @@ export default function Home() {
     <>
       <header className="top">
         <div className="eyebrow">Study reviewers</div>
-        <h1>Pick a <span>subject</span></h1>
+        <h1>Pick a subject</h1>
         <p className="lede">Notes, flashcards, and practice tests built from class slides, guide questions, and lecture notes.</p>
       </header>
       <div className="subject-grid">

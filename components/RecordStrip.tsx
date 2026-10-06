@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SCORES_EVENT, loadAttempts, pct, type Attempt } from "@/lib/scores";
 
-/** Small "your record" line: attempts, best, and latest score for the midterm or one module's practice tests. */
+/** Small "your record" line: attempts, best, and latest score for the midterm or one module's tests. */
 export default function RecordStrip({ subject, kind, module, compact }: { subject: string; kind: Attempt["kind"]; module?: string; compact?: boolean }) {
   const [list, setList] = useState<Attempt[] | null>(null);
 

@@ -1,35 +1,39 @@
 import Link from "next/link";
 import type { SubjectMeta } from "@/lib/types";
-import { STEPS, type View } from "./SubjectNav";
+import type { View } from "./SubjectNav";
 
-/** "Next step" link at the end of a module view: notes → flashcards → practice test → next module (or the mock exam). */
+/** End of a module's notes or flashcards: take this module's test, the midterm, or switch study mode. */
 export default function NextStep({ subject, module, view }: { subject: SubjectMeta; module: string; view: View }) {
   const base = `/${subject.slug}`;
-  const mi = subject.modules.findIndex((m) => m.slug === module);
-  const si = STEPS.findIndex((s) => s.view === view);
-  let href: string, label: string, hint: string;
-  if (si < STEPS.length - 1) {
-    const s = STEPS[si + 1];
-    href = `${base}/${module}${s.path}`;
-    label = `Step ${si + 2}: ${s.label}`;
-    hint = view === "notes" ? "Drill the key terms from these notes." : "Test yourself on this module.";
-  } else if (mi < subject.modules.length - 1) {
-    const m = subject.modules[mi + 1];
-    href = `${base}/${m.slug}`;
-    label = `Module ${m.num}: ${m.title}`;
-    hint = "On to the next module's notes.";
-  } else if (subject.exam) {
-    href = `${base}/midterm`;
-    label = `Mock ${subject.exam.title.toLowerCase()}`;
-    hint = "You've covered every module. Try the full mock exam.";
-  } else {
-    return null;
-  }
+  const m = subject.modules.find((x) => x.slug === module);
+  if (!m) return null;
   return (
-    <Link href={href} className="next-step">
-      <span className="eyebrow">Next</span>
-      <b>{label} →</b>
-      <span>{hint}</span>
-    </Link>
+    <section className="whats-next" aria-labelledby="whats-next-h">
+      <h3 id="whats-next-h">{view === "notes" ? `Done reviewing Module ${m.num}?` : "Ready to test yourself?"}</h3>
+      <p>Check what stuck with a test, Canvas-style.</p>
+      <div className="next-grid">
+        <Link href={`${base}/test/${m.slug}`} className="next-opt main">
+          <b>Take the Module {m.num} test →</b>
+          <span>Only this module</span>
+        </Link>
+        {subject.exam && (
+          <Link href={`${base}/test/midterm`} className="next-opt">
+            <b>Take the {subject.exam.title.toLowerCase()} test →</b>
+            <span>Every module, mixed</span>
+          </Link>
+        )}
+        {view === "notes" ? (
+          <Link href={`${base}/${m.slug}/flashcards`} className="next-opt">
+            <b>Practice with flashcards</b>
+            <span>Drill this module&apos;s key terms</span>
+          </Link>
+        ) : (
+          <Link href={`${base}/${m.slug}`} className="next-opt">
+            <b>Back to the notes</b>
+            <span>Module {m.num}: {m.title}</span>
+          </Link>
+        )}
+      </div>
+    </section>
   );
 }

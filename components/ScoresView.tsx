@@ -18,7 +18,7 @@ function level(p: number) {
 export default function ScoresView({ subject }: { subject: SubjectMeta }) {
   const [all, setAll] = useState<Attempt[] | null>(null);
   const base = `/${subject.slug}`;
-  const examName = subject.exam ? `Mock ${subject.exam.title.toLowerCase()}` : "Mock exam";
+  const examName = subject.exam ? `${subject.exam.title} test` : "Exam";
 
   useEffect(() => {
     const read = () => setAll(loadAttempts(subject.slug));
@@ -37,10 +37,9 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
     return (
       <div className="empty">
         <h3>No scores yet</h3>
-        <p>Every time you press <b>Check answers</b> on a practice test or the mock exam, your score lands here so you can see how you&apos;re improving and which module needs more work.</p>
+        <p>Every time you submit a test, your score lands here so you can see how you&apos;re improving and which module needs more work.</p>
         <div className="module-links">
-          <Link className="btn primary" href={`${base}/${subject.modules[0].slug}/test`}>Try a practice test</Link>
-          {subject.exam && <Link className="btn" href={`${base}/midterm`}>Take the {examName}</Link>}
+          <Link className="btn primary" href={`${base}/test`}>Take a test</Link>
         </div>
       </div>
     );
@@ -57,7 +56,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
   const weakest = tried.length ? tried.reduce((a, b) => (b.pct < a.pct ? b : a)) : null;
   const modName = (slug?: string) => {
     const m = subject.modules.find((x) => x.slug === slug);
-    return m ? `Module ${m.num}` : "Practice";
+    return m ? `Module ${m.num}` : "Module";
   };
 
   const reset = () => {
@@ -81,11 +80,11 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
                   const d = midPcts[midPcts.length - 1] - midPcts[midPcts.length - 2];
                   return d === 0 ? "Same as the time before" : `${d > 0 ? "▲ up" : "▼ down"} ${Math.abs(d)} points from last time`;
                 })()
-              : mids.length ? "Take it again to see your trend" : <Link href={`${base}/midterm`}>Take it now →</Link>}
+              : mids.length ? "Take it again to see your trend" : <Link href={`${base}/test/midterm`}>Take it now →</Link>}
           </span>
         </div>
         <div className="tile">
-          <span className="eyebrow">Practice tests</span>
+          <span className="eyebrow">Module tests</span>
           <b>{practice.length}</b>
           <span>taken across {new Set(practice.map((a) => a.module)).size} of {subject.modules.length} modules</span>
         </div>
@@ -98,14 +97,14 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
           <div className="module-links">
             <Link className="btn primary" href={`${base}/${weakest.m.slug}`}>Review the notes</Link>
             <Link className="btn" href={`${base}/${weakest.m.slug}/flashcards`}>Flashcards</Link>
-            <Link className="btn" href={`${base}/${weakest.m.slug}/test`}>Practice test</Link>
+            <Link className="btn" href={`${base}/test/${weakest.m.slug}`}>Module {weakest.m.num} test</Link>
           </div>
         </div>
       )}
 
       <section className="chart-card">
         <h3>Strength by module</h3>
-        <p className="inst">Your accuracy on each module over your last 5 tests that covered it: practice tests count in full, and the mock exam counts the items tied to that module.</p>
+        <p className="inst">Your accuracy on each module over your last 5 tests that covered it: module tests count in full, and the midterm counts the questions tied to that module.</p>
         <div className="hbars">
           {mods.map(({ m, total, correct, attempts, pct: p }) => {
             const lv = level(p);
@@ -128,7 +127,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
                 ) : (
                   <>
                     <div className="hbar-track empty-track" />
-                    <div className="hbar-v"><Link href={`${base}/${m.slug}/test`} className="lvl none">Not tested yet →</Link></div>
+                    <div className="hbar-v"><Link href={`${base}/test/${m.slug}`} className="lvl none">Not tested yet →</Link></div>
                   </>
                 )}
               </div>
@@ -179,7 +178,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
               {all.slice().reverse().map((a) => (
                 <tr key={a.id}>
                   <td>
-                    <b>{a.kind === "midterm" ? examName : `${modName(a.module)} practice`}</b>
+                    <b>{a.kind === "midterm" ? examName : `${modName(a.module)} test`}</b>
                     {a.set ? <span className="muted"> · {a.set}</span> : null}
                     <span className="hist-meta">
                       {fmtDate(a.at)} · {fmtDuration(a.seconds)}
