@@ -4,7 +4,7 @@ import SubjectNav from "@/components/SubjectNav";
 import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
-import { listTests, withScenarios } from "@/lib/tests";
+import { listTests } from "@/lib/tests";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -51,12 +51,11 @@ export default async function TestPage({ params }: P) {
             midterm={data.midterm}
             pools={data.pools}
             scenarios={data.scenarios}
+            tests={data.tests}
             timerMinutes={subject.exam?.minutes}
             modules={subject.modules.map((m) => m.slug)}
           multi={data.multi}
           blanks={data.blanks}
-          questionCount={info.questions}
-            pointCount={info.points}
           />
         </div>
         {clues && (
@@ -72,8 +71,7 @@ export default async function TestPage({ params }: P) {
     );
   }
 
-  const sets = withScenarios(data.tests[info.slug] || {});
-  const labels = data.setLabels[info.slug] || Object.fromEntries(Object.keys(sets).map((k) => [k, `Set ${k}`]));
+  const sets = data.tests[info.slug] || {};
   return (
     <>
       <SubjectNav subject={subject} active={{ test: true }} />
@@ -89,12 +87,9 @@ export default async function TestPage({ params }: P) {
           storageKey={`test-${subject.slug}-${info.slug}`}
           module={info.slug}
           sets={sets}
-          setLabels={labels}
           modules={subject.modules.map((m) => m.slug)}
           multi={data.multi}
           blanks={data.blanks}
-          questionCount={info.questions}
-          pointCount={info.points}
         />
       </div>
     </>

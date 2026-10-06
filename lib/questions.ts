@@ -87,37 +87,8 @@ function fromSection(sec: Section, scenarios?: Record<string, McItem[]>): Questi
   }));
 }
 
-/** A module test: one set, laid out like a paper exam (true or false first, then each section in order). */
-export function buildModuleTest(set: TestSet, mod: string): Question[] {
-  const qs = [...shuffle(set.mtf).map(tf), ...set.secs.flatMap((s) => fromSection(s))];
-  return qs.map((q) => (q.kind !== "match" && !q.mod ? { ...q, mod } : q));
-}
-
-/** The midterm test: drawn fresh from every module each time. */
-export function buildMidterm(spec: MidtermSpec, pools: Record<string, MtfItem[]>, scenarios: Record<string, McItem[]>): Question[] {
-  const tfs = shuffle(spec.mtf.flatMap((d) => sample(pools[d.pool] || [], d.n))).map(tf);
-  return [...tfs, ...spec.secs.flatMap((s) => fromSection(s, scenarios))];
-}
-
 export function totalPoints(qs: Question[]) {
   return qs.reduce((s, q) => s + points(q), 0);
-}
-
-export function countFor(set: TestSet) {
-  const qs = set.mtf.length + set.secs.reduce((s, x) => s + (x.kind === "mc" ? x.items?.length ?? 0 : 1), 0);
-  const pts = set.mtf.length + set.secs.reduce((s, x) => s + (x.items?.length ?? 0), 0);
-  return { questions: qs, points: pts };
-}
-
-export function countMidterm(spec: MidtermSpec) {
-  const tfn = spec.mtf.reduce((s, d) => s + d.n, 0);
-  let qs = tfn, pts = tfn;
-  for (const s of spec.secs) {
-    const n = s.kind === "mc" && s.draw ? s.draw.reduce((a, d) => a + d.n, 0) : s.items?.length ?? 0;
-    qs += s.kind === "mc" ? n : 1;
-    pts += n;
-  }
-  return { questions: qs, points: pts };
 }
 
 export function grade(q: Question, a: Answer | undefined): Graded {
@@ -147,37 +118,6 @@ export function grade(q: Question, a: Answer | undefined): Graded {
   return { points: ok ? 1 : 0, max: 1, answered: true };
 }
 
-
-/** Test lengths offered on the setup screen, in points. Lengths at or above a test's full size are dropped. */
-export const LENGTHS = [
-  { key: "quick", label: "Quick 10", points: 10 },
-  { key: "short", label: "Short", points: 20 },
-  { key: "medium", label: "Medium", points: 40 },
-  { key: "full", label: "Full", points: Infinity },
-] as const;
-export type LengthKey = (typeof LENGTHS)[number]["key"];
-
-/**
- * A shorter version of a built test with the same mix: every part shrinks by the same factor,
- * keeping at least one question per part and two dropdowns per matching question.
- * Questions are already shuffled, so taking the first ones is a random pick.
- */
-export function shrink(qs: Question[], target: number): Question[] {
-  const total = totalPoints(qs);
-  if (!(target < total)) return qs;
-  const f = target / total;
-  const perSection = new Map<string, number>();
-  qs.forEach((q) => q.kind !== "match" && perSection.set(q.section, (perSection.get(q.section) || 0) + 1));
-  const keep = new Map([...perSection].map(([s, n]) => [s, Math.max(1, Math.round(n * f))]));
-  const used = new Map<string, number>();
-  return qs.flatMap((q): Question[] => {
-    if (q.kind === "match") return [{ ...q, rows: q.rows.slice(0, Math.max(2, Math.round(q.rows.length * f))) }];
-    const u = used.get(q.section) || 0;
-    if (u >= (keep.get(q.section) || 0)) return [];
-    used.set(q.section, u + 1);
-    return [q];
-  });
-}
 
 /* ---------- Quick rounds: 10 single questions at a time, rotating through everything ---------- */
 
@@ -245,63 +185,127 @@ const blankQ = (x: BlankItem, mod?: string): Question => ({
   kind: "blank", id: "fb:" + x.s, section: "Fill in the Blank", prompt: x.s, bank: shuffle(x.bank), answer: x.a, why: x.w, source: x.r, mod,
 });
 
-export type MixedPool = { tf2: Question[]; mc: Question[]; multi: Question[]; blank: Question[] };
-
 const modTagOf = (slug: string) => slug.replace(/^module-(\d+)$/, "M$1");
 
-export function mixedPoolModule(sets: Record<string, TestSet>, module: string, multi: MultiItem[] = [], blanks: BlankItem[] = []): MixedPool {
+/* ---------- Rounds built from the question types a student checks ---------- */
+
+export type QType = "tf" | "tf2" | "mc" | "multi" | "blank" | "match";
+export const QTYPES: { key: QType; label: string; hint: string }[] = [
+  { key: "tf", label: "Modified true or false", hint: `Type ${TRUE_MARK} or the correct word` },
+  { key: "tf2", label: "True or false", hint: "Pick True or False" },
+  { key: "mc", label: "Multiple choice", hint: "Includes case scenarios" },
+  { key: "multi", label: "Multiple answer", hint: "Checkboxes, partial credit" },
+  { key: "blank", label: "Fill in the blank", hint: "Word bank" },
+  { key: "match", label: "Matching", hint: "Dropdowns" },
+];
+export type Pool = Record<QType, Question[]>;
+
+/** Matching questions show at most this many rows per round, so one can't take over a short test. */
+export const MATCH_ROWS = 5;
+
+/** Every question a module can draw from, by type (all of its question sets). */
+export function poolModule(sets: Record<string, TestSet>, module: string, multi: MultiItem[] = [], blanks: BlankItem[] = []): Pool {
   const mod = modTagOf(module);
+  const mtf = Object.values(sets).flatMap((t) => t.mtf);
   const single = quickPoolModule(sets, mod);
+  const tag = (q: Question): Question => (q.kind !== "match" && !q.mod ? { ...q, mod } : q);
   return {
-    tf2: dedupeQs(Object.values(sets).flatMap((t) => t.mtf.map(tf2))).map((q) => (q.kind === "tf2" && !q.mod ? { ...q, mod } : q)),
+    tf: dedupeQs(mtf.map(tf)).map(tag),
+    tf2: dedupeQs(mtf.map(tf2)).map(tag),
     mc: single.filter((q) => q.kind === "mc"),
     multi: multi.map((x) => multiQ(x, mod)),
     blank: blanks.map((x) => blankQ(x, mod)),
+    match: dedupeQs(Object.values(sets).flatMap((t) => t.secs.filter((x) => x.kind !== "mc").flatMap((x) => fromSection(x)))),
   };
 }
 
-export function mixedPoolMidterm(
+/** Every question the midterm can draw from: all modules' banks plus the midterm's own sections. */
+export function poolMidterm(
   spec: MidtermSpec, pools: Record<string, MtfItem[]>, scenarios: Record<string, McItem[]>,
-  multi: Record<string, MultiItem[]> = {}, blanks: Record<string, BlankItem[]> = {},
-): MixedPool {
-  const single = quickPoolMidterm(spec, pools, scenarios);
+  tests: Record<string, Record<string, TestSet>>, multi: Record<string, MultiItem[]> = {}, blanks: Record<string, BlankItem[]> = {},
+): Pool {
+  const mtf = Object.values(pools).flat();
   return {
-    tf2: dedupeQs(Object.values(pools).flatMap((items) => items.map(tf2))),
-    mc: single.filter((q) => q.kind === "mc"),
+    tf: dedupeQs(mtf.map(tf)),
+    tf2: dedupeQs(mtf.map(tf2)),
+    mc: quickPoolMidterm(spec, pools, scenarios).filter((q) => q.kind === "mc"),
     multi: Object.entries(multi).flatMap(([m, xs]) => xs.map((x) => multiQ(x, modTagOf(m)))),
     blank: Object.entries(blanks).flatMap(([m, xs]) => xs.map((x) => blankQ(x, modTagOf(m)))),
+    match: dedupeQs([
+      ...spec.secs.filter((x) => x.kind !== "mc").flatMap((x) => fromSection(x)),
+      ...Object.values(tests).flatMap((sets) => Object.values(sets).flatMap((t) => t.secs.filter((x) => x.kind !== "mc").flatMap((x) => fromSection(x)))),
+    ]),
   };
 }
 
-/** How many of each type a mixed round has: Quick 10 is fixed; others split the points like a Canvas quiz. */
-export function mixedCounts(target: number, quick: boolean) {
-  if (quick) return { tf2: 4, mc: 3, multi: 2, blank: 1 };
-  return {
-    tf2: Math.round(target * 0.3),
-    mc: Math.round(target * 0.25),
-    multi: Math.max(1, Math.round((target * 0.3) / MULTI_POINTS)),
-    blank: Math.max(1, Math.round(target * 0.15)),
-  };
+/** Unique questions across the chosen types (a statement used as both kinds of true or false counts once). */
+export const poolSize = (pool: Pool, types: QType[]) =>
+  new Set(types.flatMap((t) => pool[t].map((q) => q.id.replace(/^(tf|t2):/, "st:")))).size;
+
+// How much of a round each type gets (normalized over the checked types), and its points per question.
+const WEIGHT: Record<QType, number> = { tf: 0.3, tf2: 0.3, mc: 0.25, multi: 0.3, blank: 0.15, match: 0.2 };
+const PTS: Record<QType, number> = { tf: 1, tf2: 1, mc: 1, multi: MULTI_POINTS, blank: 1, match: MATCH_ROWS };
+
+/**
+ * How many questions of each checked type a round gets: Quick rounds are 10 questions,
+ * other rounds aim for `target` points. Every checked type gets at least one question.
+ */
+export function roundCounts(pool: Pool, types: QType[], target: number, quick: boolean): Record<QType, number> {
+  const sel = types.filter((t) => pool[t].length);
+  const counts = { tf: 0, tf2: 0, mc: 0, multi: 0, blank: 0, match: 0 } as Record<QType, number>;
+  if (!sel.length) return counts;
+  const total = sel.reduce((s, t) => s + WEIGHT[t], 0);
+  if (quick) {
+    const raw = sel.map((t) => ({ t, x: (WEIGHT[t] / total) * 10 }));
+    raw.forEach(({ t, x }) => (counts[t] = Math.max(1, Math.floor(x))));
+    let left = 10 - sel.reduce((s, t) => s + counts[t], 0);
+    raw.sort((a, b) => (b.x % 1) - (a.x % 1));
+    for (let i = 0; left > 0 && i < raw.length * 3; i++) {
+      const t = raw[i % raw.length].t;
+      if (counts[t] < pool[t].length) counts[t]++, left--;
+    }
+  } else {
+    sel.forEach((t) => (counts[t] = Math.max(1, Math.round((target * WEIGHT[t]) / total / PTS[t]))));
+  }
+  sel.forEach((t) => (counts[t] = Math.min(counts[t], pool[t].length)));
+  return counts;
 }
 
-/** A mixed round: unseen questions first within each type, all types shuffled together. */
-export function pickMixed(pool: MixedPool, counts: ReturnType<typeof mixedCounts>, seen: string[]) {
+export const roundPoints = (pool: Pool, counts: Record<QType, number>) =>
+  (Object.keys(counts) as QType[]).reduce((s, t) => s + counts[t] * (t === "match" ? Math.min(MATCH_ROWS, avgRows(pool.match)) : PTS[t]), 0);
+const avgRows = (qs: Question[]) => (qs.length ? Math.round(qs.reduce((s, q) => s + (q.kind === "match" ? q.rows.length : 0), 0) / qs.length) : MATCH_ROWS);
+
+/** Modified and plain true or false share a statement; treat them as one for "seen" and within a round. */
+const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
+
+/**
+ * Builds a round: unseen questions first within each type, never the same statement twice,
+ * matching trimmed to MATCH_ROWS random rows. A type whose questions have all been seen starts over.
+ */
+export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: string[]) {
   let nextSeen = seen.slice();
+  const used = new Set<string>();
   let restarted = false;
   const qs: Question[] = [];
-  (Object.keys(counts) as (keyof MixedPool)[]).forEach((k) => {
-    const r = pickRound(pool[k], nextSeen, Math.min(counts[k], pool[k].length));
-    if (r.restarted) {
+  (Object.keys(counts) as QType[]).forEach((t) => {
+    const n = counts[t];
+    if (!n) return;
+    const seenSet = new Set(nextSeen);
+    const avail = pool[t].filter((q) => !used.has(baseId(q.id)));
+    let fresh = shuffle(avail.filter((q) => !seenSet.has(baseId(q.id)))).slice(0, n);
+    if (fresh.length < n) {
+      // Everything of this type has been seen: start this type over.
       restarted = true;
-      // Forget only this type's history; keep the others.
-      const ids = new Set(pool[k].map((q) => q.id));
-      nextSeen = [...nextSeen.filter((id) => !ids.has(id)), ...r.seen];
-    } else nextSeen = r.seen;
-    qs.push(...r.qs);
+      const ids = new Set(pool[t].map((q) => baseId(q.id)));
+      nextSeen = nextSeen.filter((id) => !ids.has(id));
+      const have = new Set(fresh.map((q) => q.id));
+      fresh = [...fresh, ...shuffle(avail.filter((q) => !have.has(q.id))).slice(0, n - fresh.length)];
+    }
+    fresh.forEach((q) => {
+      used.add(baseId(q.id));
+      nextSeen.push(baseId(q.id));
+      qs.push(q.kind === "match" ? { ...q, rows: shuffle(q.rows).slice(0, MATCH_ROWS) } : q);
+    });
   });
   return { qs: shuffle(qs), seen: nextSeen, restarted };
-}
-
-export function mixedSize(pool: MixedPool) {
-  return pool.tf2.length + pool.mc.length + pool.multi.length + pool.blank.length;
 }

@@ -5,9 +5,8 @@ import Link from "next/link";
 import type { BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type LengthKey, type Question, LENGTHS, MULTI_POINTS, TRUE_MARK, buildMidterm, buildModuleTest, grade, mixedCounts,
-  mixedPoolMidterm, mixedPoolModule, mixedSize, pickMixed, pickRound, points, quickPoolMidterm, quickPoolModule, shrink, totalPoints,
-  typeLabel,
+  type Answer, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points, poolMidterm, poolModule,
+  poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
@@ -21,25 +20,23 @@ type Props = {
   // module test
   module?: string;
   sets?: Record<string, TestSet>;
-  setLabels?: Record<string, string>;
   // midterm
   midterm?: MidtermSpec;
   pools?: Record<string, MtfItem[]>;
   scenarios?: Record<string, McItem[]>;
+  /** every module's test sets, for the midterm's matching questions */
+  tests?: Record<string, Record<string, TestSet>>;
   timerMinutes?: number;
-  /** Mixed-style questions (Multiple Answer, Fill in the Blank) for every module. */
+  /** Multiple Answer and Fill in the Blank questions for every module. */
   multi?: Record<string, MultiItem[]>;
   blanks?: Record<string, BlankItem[]>;
   /** Every module slug in the subject, for "Review in notes" on questions without a source. */
   modules: string[];
-  /** For the setup screen (module tests recount from the chosen set). */
-  questionCount: number;
-  pointCount: number;
 };
 
 /** Saved after every answer so a refresh offers Resume. Questions are forward-only, so idx only grows. */
 type Run = {
-  v: 2;
+  v: 3;
   qs: Question[];
   answers: Answer[];
   idx: number;
@@ -47,49 +44,41 @@ type Run = {
   deadline: number | null;
   timed?: boolean;
   label?: string;
-  /** a Quick 10 round: results offer "Next 10" */
-  quick?: boolean;
-  /** a mixed-style round: results offer "Another round" */
-  mixed?: boolean;
 };
 
-type Style = "modified" | "mixed";
-/** Mixed rounds are sized in points like a Canvas quiz; "full" is the long round. */
-const MIXED_LENGTHS: { key: LengthKey; label: string; points: number }[] = [
-  { key: "quick", label: "Quick 10", points: 12 },
-  { key: "short", label: "Short", points: 20 },
-  { key: "medium", label: "Medium", points: 40 },
-  { key: "full", label: "Long", points: 60 },
-];
-const fmtPts = (n: number) => String(Math.round(n * 100) / 100);
+type LengthKey = "quick" | "short" | "medium" | "long";
+/** The real midterm's size, for scaling the timer of shorter rounds. */
+const EXAM_POINTS = 85;
+const ALL_TYPES = QTYPES.map((t) => t.key);
 
 const fmtClock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const fmtPts = (n: number) => String(Math.round(n * 100) / 100);
+const estMinutes = (pts: number) => Math.max(5, Math.round((pts * 0.7) / 5) * 5);
+const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
 
 export default function Quiz(props: Props) {
   const { subject, storageKey, kind } = props;
   const midterm = kind === "midterm";
-  const runKey = `run2-${storageKey}`;
-  const setKeys = Object.keys(props.sets || {});
+  const runKey = `run3-${storageKey}`;
+  const lengths: { key: LengthKey; label: string; points: number }[] = [
+    { key: "quick", label: "Quick 10", points: 0 },
+    { key: "short", label: "Short", points: 20 },
+    { key: "medium", label: "Medium", points: 40 },
+    midterm ? { key: "long", label: "Full exam", points: EXAM_POINTS } : { key: "long", label: "Long", points: 60 },
+  ];
 
   const [phase, setPhase] = useState<"setup" | "run" | "done">("setup");
   const [run, setRun] = useState<Run | null>(null);
   const [saved, setSaved] = useState<Run | null>(null);
   const [timed, setTimed] = useState(true);
-  const [setChoice, setSetChoice] = useState("next");
-  const [lastSet, setLastSet] = useState<string | null>(null);
   const [now, setNow] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [recordedAt, setRecordedAt] = useState<number | null>(null);
-  const [length, setLength] = useState<LengthKey>(kind === "midterm" ? "full" : "quick");
+  const [length, setLength] = useState<LengthKey>(midterm ? "long" : "quick");
+  const [types, setTypes] = useState<QType[]>(ALL_TYPES);
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
-  const [style, setStyleState] = useState<Style>("modified");
-  const [mseen, setMseen] = useState<string[]>([]);
-  const setStyle = (st: Style) => {
-    setStyleState(st);
-    save(`style-${subject}`, st); // one choice per subject: classmates follow their own prof's format
-  };
   // "Review in notes" window: a whole question, or one row of a matching question.
   const [peek, setPeek] = useState<{ q: Question; a?: Answer } | null>(null);
   const closePeek = useCallback(() => setPeek(null), []);
@@ -98,15 +87,13 @@ export default function Quiz(props: Props) {
 
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
-    if (r && r.v === 2 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
-    setLastSet(load<string | null>(`${storageKey}-lastset`, null));
-    setSeen(load<string[]>(`${storageKey}-seen`, []));
-    setMseen(load<string[]>(`${storageKey}-mseen`, []));
-    const st = load<string | null>(`style-${subject}`, null);
-    if (st === "mixed" || st === "modified") setStyleState(st);
+    if (r && r.v === 3 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
+    setSeen(load<string[]>(`${storageKey}-seen3`, []));
     const len = load<string | null>(`${storageKey}-len`, null);
-    if (len && LENGTHS.some((l) => l.key === len)) setLength(len as LengthKey);
-  }, [runKey, storageKey]);
+    if (len === "quick" || len === "short" || len === "medium" || len === "long") setLength(len);
+    const ts = load<string[] | null>(`types-${subject}`, null);
+    if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
+  }, [runKey, storageKey, subject]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -120,122 +107,55 @@ export default function Quiz(props: Props) {
 
   const toTop = () => setTimeout(() => window.scrollTo({ top: 0 }), 0);
 
-  // With several sets, "next" rotates so retakes see different questions.
-  const nextSet = setKeys.length ? setKeys[(Math.max(-1, setKeys.indexOf(lastSet || "")) + 1) % setKeys.length] : "";
-  const chosenSet = setChoice === "next" ? nextSet : setChoice;
-  const setName = (k: string) => props.setLabels?.[k] || `Set ${k}`;
-
-  const build = useCallback(
+  // Everything this test can draw from, by question type.
+  const pool = useMemo(
     () =>
       midterm
-        ? buildMidterm(props.midterm!, props.pools || {}, props.scenarios || {})
-        : buildModuleTest(props.sets![chosenSet], (props.module || "").replace(/^module-(\d+)$/, "M$1")),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [midterm, chosenSet],
-  );
-  const modTag = (props.module || "").replace(/^module-(\d+)$/, "M$1");
-  // Quick rounds draw from every single-point question (all sets), rotating through unseen ones first.
-  const quickPool = useMemo(
-    () => (midterm ? quickPoolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}) : quickPoolModule(props.sets || {}, modTag)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [midterm, props.sets, props.midterm],
-  );
-  // Sizes for each length choice (the question picks are random, the counts are not).
-  const sizes = useMemo(() => {
-    const full = build();
-    const fullPts = totalPoints(full);
-    return LENGTHS.filter((l) => l.points < fullPts || l.key === "full").map((l) => {
-      if (l.key === "quick") return { ...l, questions: 10, pts: 10, fullPts };
-      const qs = shrink(full, l.points);
-      return { ...l, questions: qs.length, pts: totalPoints(qs), fullPts };
-    });
-  }, [build]);
-  const mixedPool = useMemo(
-    () =>
-      midterm
-        ? mixedPoolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}, props.multi, props.blanks)
-        : mixedPoolModule(props.sets || {}, props.module || "", props.multi?.[props.module || ""], props.blanks?.[props.module || ""]),
+        ? poolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}, props.tests || {}, props.multi, props.blanks)
+        : poolModule(props.sets || {}, props.module || "", props.multi?.[props.module || ""], props.blanks?.[props.module || ""]),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [midterm, props.sets, props.midterm, props.multi, props.blanks],
   );
-  const mixedSizes = useMemo(() => {
-    const fullPts = sizes[sizes.length - 1].fullPts;
-    return MIXED_LENGTHS.map((l) => {
-      const c = mixedCounts(l.points, l.key === "quick");
-      const n = { tf2: Math.min(c.tf2, mixedPool.tf2.length), mc: Math.min(c.mc, mixedPool.mc.length), multi: Math.min(c.multi, mixedPool.multi.length), blank: Math.min(c.blank, mixedPool.blank.length) };
-      return { ...l, counts: n, questions: n.tf2 + n.mc + n.multi + n.blank, pts: n.tf2 + n.mc + n.multi * MULTI_POINTS + n.blank, fullPts };
-    });
-  }, [mixedPool, sizes]);
-  const mixed = style === "mixed";
-  const seenCount = Math.min(seen.length, quickPool.length);
-  const mixedTotal = mixedSize(mixedPool);
-  const mseenCount = Math.min(mseen.length, mixedTotal);
-  const size = mixed
-    ? mixedSizes.find((x) => x.key === length) || mixedSizes[0]
-    : sizes.find((x) => x.key === length) || sizes[sizes.length - 1];
+  const sizes = useMemo(
+    () =>
+      lengths.map((l) => {
+        const counts = roundCounts(pool, types, l.points, l.key === "quick");
+        const questions = (Object.values(counts) as number[]).reduce((a, b) => a + b, 0);
+        return { ...l, counts, questions, pts: roundPoints(pool, counts) };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pool, types, midterm],
+  );
+  // Hide lengths that can't be bigger than the one before (a small bank caps them all).
+  const shownSizes = sizes.filter((l, i) => i === 0 || l.questions > sizes[i - 1].questions);
+  const size = shownSizes.find((x) => x.key === length) || shownSizes[shownSizes.length - 1];
+  const bank = poolSize(pool, types);
+  const seenCount = useMemo(() => {
+    const ids = new Set(types.flatMap((t) => pool[t].map((q) => baseId(q.id))));
+    return seen.filter((id) => ids.has(id)).length;
+  }, [seen, pool, types]);
   // A shorter timed midterm gets proportionally less time.
-  const minutes = props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / size.fullPts)) : 0;
-  const estMinutes = (pts: number) => Math.max(5, Math.round((pts * 0.7) / 5) * 5);
+  const minutes = props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / EXAM_POINTS)) : 0;
 
-  const startQuick = () => {
-    const r = pickRound(quickPool, seen);
-    setSeen(r.seen);
-    setRestarted(r.restarted);
-    save(`${storageKey}-seen`, r.seen);
-    save(`${storageKey}-len`, "quick");
-    const t = Date.now();
-    const mins = midterm && timed && props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * 10) / size.fullPts)) : 0;
-    setRun({
-      v: 2, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
-      deadline: mins ? t + mins * 60_000 : null, timed: midterm ? timed : undefined, label: "Quick 10", quick: true,
-    });
-    setNow(t);
-    setTimeUp(false);
-    setShowAll(false);
-    setSaved(null);
-    setPhase("run");
-    toTop();
+  const toggleType = (t: QType) => {
+    const next = types.includes(t) ? types.filter((x) => x !== t) : ALL_TYPES.filter((x) => x === t || types.includes(x));
+    setTypes(next);
+    save(`types-${subject}`, next); // remembered for every test in this subject
   };
-
-  const startMixed = () => {
-    const m = mixedSizes.find((x) => x.key === size.key) || mixedSizes[0];
-    const r = pickMixed(mixedPool, m.counts, mseen);
-    setMseen(r.seen);
-    setRestarted(r.restarted);
-    save(`${storageKey}-mseen`, r.seen);
-    save(`${storageKey}-len`, m.key);
-    const t = Date.now();
-    const mins = midterm && timed && props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * m.pts) / m.fullPts)) : 0;
-    setRun({
-      v: 2, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
-      deadline: mins ? t + mins * 60_000 : null, timed: midterm ? timed : undefined, label: `Mixed · ${m.label}`, mixed: true,
-    });
-    setNow(t);
-    setTimeUp(false);
-    setShowAll(false);
-    setSaved(null);
-    setPhase("run");
-    toTop();
-  };
+  const typeSummary = types.length === ALL_TYPES.length ? "All types" : `${types.length} type${types.length === 1 ? "" : "s"}`;
 
   const start = () => {
-    if (mixed) return startMixed();
-    if (size.key === "quick") return startQuick();
-    const qs = shrink(build(), size.points);
-    const parts: string[] = [];
-    if (size.key !== "full") parts.push(size.label);
-    if (!midterm && setKeys.length > 1) {
-      parts.push(setName(chosenSet));
-      save(`${storageKey}-lastset`, chosenSet);
-      setLastSet(chosenSet);
-    }
+    if (!size.questions) return;
+    const r = pickTypes(pool, size.counts, seen);
+    setSeen(r.seen);
+    setRestarted(r.restarted);
+    save(`${storageKey}-seen3`, r.seen);
     save(`${storageKey}-len`, size.key);
-    const label = parts.length ? parts.join(" · ") : undefined;
     const t = Date.now();
     setRun({
-      v: 2, qs, answers: qs.map(() => ({})), idx: 0, startedAt: t,
+      v: 3, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
       deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
-      timed: midterm ? timed : undefined, label,
+      timed: midterm ? timed : undefined, label: `${size.label} · ${typeSummary}`,
     });
     setNow(t);
     setTimeUp(false);
@@ -294,14 +214,15 @@ export default function Quiz(props: Props) {
     const parts = new Map<string, [number, number]>();
     const byModule: Record<string, [number, number]> = {};
     run.qs.forEach((q, i) => {
-      const p = parts.get(q.section) || [0, 0];
+      const key = typeLabel(q);
+      const p = parts.get(key) || [0, 0];
       p[0] += graded[i].points;
       p[1] += graded[i].max;
-      parts.set(q.section, p);
+      parts.set(key, p);
       if (q.kind !== "match" && q.mod) {
         byModule[q.mod] = byModule[q.mod] || [0, 0];
         byModule[q.mod][0] += graded[i].points;
-        byModule[q.mod][1] += 1;
+        byModule[q.mod][1] += graded[i].max;
       }
     });
     recordAttempt(subject, {
@@ -341,6 +262,7 @@ export default function Quiz(props: Props) {
 
   // ================= SETUP =================
   if (phase === "setup") {
+    const has = (t: QType) => types.includes(t);
     return (
       <div className="qz">
         {saved && (
@@ -358,63 +280,53 @@ export default function Quiz(props: Props) {
         )}
         <div className="qz-panel">
           <div>
-            <h4 className="qz-h">Test style</h4>
-            <div className="qz-modes" role="radiogroup" aria-label="Test style">
-              <button className="qz-mode" role="radio" aria-checked={!mixed} onClick={() => setStyle("modified")}>
-                <b>Modified true or false</b>
-                <span>Type {TRUE_MARK} or the fix · matching dropdowns · multiple choice</span>
-              </button>
-              <button className="qz-mode" role="radio" aria-checked={mixed} onClick={() => setStyle("mixed")}>
-                <b>Mixed</b>
-                <span>True or false · multiple choice · multiple answer · fill in the blank</span>
-              </button>
+            <div className="qz-h-row">
+              <h4 className="qz-h">Question types</h4>
+              {types.length < ALL_TYPES.length && (
+                <button className="qz-peek" onClick={() => { setTypes(ALL_TYPES); save(`types-${subject}`, ALL_TYPES); }}>Select all</button>
+              )}
+            </div>
+            <div className="qz-types">
+              {QTYPES.map((t) => {
+                const n = pool[t.key].length;
+                return (
+                  <label key={t.key} className={"qz-type" + (n ? "" : " off")}>
+                    <input type="checkbox" checked={has(t.key) && n > 0} disabled={!n} onChange={() => toggleType(t.key)} />
+                    <span><b>{t.label}</b><small>{n ? t.hint : "None for this test yet"}</small></span>
+                  </label>
+                );
+              })}
             </div>
           </div>
-          <div>
-            <div className="qz-facts">
-              <span>{size.questions} questions</span>
-              <span>{size.pts} points</span>
-              {midterm && <span>New questions each time</span>}
-            </div>
-          </div>
+
           <div>
             <h4 className="qz-h">How long?</h4>
-            <div className={`qz-modes n${(mixed ? mixedSizes : sizes).length}`} role="radiogroup" aria-label="Test length">
-              {(mixed ? mixedSizes : sizes).map((l) => (
-                <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)}>
+            <div className={`qz-modes n${shownSizes.length}`} role="radiogroup" aria-label="Test length">
+              {shownSizes.map((l) => (
+                <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)} disabled={!l.questions}>
                   <b>{l.key === "quick" ? l.label : `${l.label} · ${l.pts} pts`}</b>
-                  <span>
-                    {l.key === "quick" && !mixed
-                      ? "New questions every round"
-                      : `${l.questions} questions${midterm && timed ? "" : ` · about ${estMinutes(l.pts)} min`}`}
-                  </span>
+                  <span>{l.questions} questions{midterm && timed ? "" : ` · about ${estMinutes(l.pts)} min`}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <ul className="qz-rules">
-            <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
-            {mixed ? (
-              <>
-                <li>True or false and multiple choice: pick one.</li>
-                <li>Multiple answer: check <b>every</b> correct option. Right boxes earn points, wrong boxes take points away.</li>
-                <li>Fill in the blank: tap a word from the word bank to put it in the blank.</li>
-              </>
-            ) : (
-              <>
-                <li>Modified true or false: type <code>{TRUE_MARK}</code> if the statement is true. If it&apos;s false, type the word that should replace the underlined part.</li>
-                <li>Matching: pick an answer from each dropdown.</li>
-              </>
-            )}
-            <li>Your score and the correct answers appear after you submit.</li>
-          </ul>
+          {types.length > 0 && (
+            <ul className="qz-rules">
+              <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
+              {has("tf") && <li>Modified true or false: type <code>{TRUE_MARK}</code> if true. If false, type the word that should replace the underlined part.</li>}
+              {has("multi") && <li>Multiple answer: check <b>every</b> correct option. Right boxes earn points, wrong boxes take points away.</li>}
+              {has("blank") && <li>Fill in the blank: tap a word from the word bank to put it in the blank.</li>}
+              {has("match") && <li>Matching: pick an answer from each dropdown.</li>}
+              <li>Your score and the correct answers appear after you submit.</li>
+            </ul>
+          )}
 
           {midterm && (
             <div className="qz-modes" role="radiogroup" aria-label="Timer">
               <button className="qz-mode" role="radio" aria-checked={timed} onClick={() => setTimed(true)}>
                 <b>Timed · {minutes} min</b>
-                <span>Like the real exam. Submits when time runs out.</span>
+                <span>{size.key === "long" ? "Like the real exam." : "Scaled to this length."} Submits when time runs out.</span>
               </button>
               <button className="qz-mode" role="radio" aria-checked={!timed} onClick={() => setTimed(false)}>
                 <b>Untimed</b>
@@ -423,32 +335,16 @@ export default function Quiz(props: Props) {
             </div>
           )}
 
-          {mixed && (
+          {types.length > 0 ? (
             <p className="qz-note">
-              Every round picks questions you haven&apos;t seen yet{midterm ? ", from every module" : ""}.
-              {mseenCount > 0 ? ` You've practiced ${mseenCount} of ${mixedTotal} questions.` : ` ${mixedTotal} questions to rotate through.`}
+              Every round picks questions you haven&apos;t seen yet{midterm ? ", from every module" : ", from all of this module's question sets"}.
+              {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
-          )}
-          {!mixed && size.key === "quick" && (
-            <p className="qz-note">
-              Quick rounds mix true or false, multiple choice, and scenarios from {midterm ? "every module" : "all of this module's question sets"}.
-              {seenCount > 0 ? ` You've practiced ${seenCount} of ${quickPool.length} questions.` : ` ${quickPool.length} questions to rotate through.`}
-            </p>
+          ) : (
+            <p className="qz-note">Check at least one question type to start.</p>
           )}
 
-          {setKeys.length > 1 && !mixed && size.key !== "quick" && (
-            <details className="qz-more">
-              <summary>Question set: {setName(chosenSet)}</summary>
-              <div className="qz-sources">
-                <button className="chip" aria-pressed={setChoice === "next"} onClick={() => setSetChoice("next")}>Next in rotation</button>
-                {setKeys.map((k) => (
-                  <button key={k} className="chip" aria-pressed={setChoice === k} onClick={() => setSetChoice(k)}>{setName(k)}</button>
-                ))}
-              </div>
-            </details>
-          )}
-
-          <button className="btn primary qz-start" onClick={start}>Start test</button>
+          <button className="btn primary qz-start" onClick={start} disabled={!size.questions}>Start test</button>
         </div>
         <div style={{ marginTop: 12 }}>
           <RecordStrip subject={subject} kind={midterm ? "midterm" : "practice"} module={props.module} />
@@ -465,19 +361,18 @@ export default function Quiz(props: Props) {
     const items = run.qs.map((q, i) => ({ q, g: graded[i], a: run.answers[i], i }));
     const wrong = items.filter((x) => x.g.points < x.g.max);
     const shown = showAll ? items : wrong;
-    const sections = [...new Set(run.qs.map((q) => q.section))].map((s) => {
-      const ix = items.filter((x) => x.q.section === s);
+    const sections = [...new Set(run.qs.map((q) => typeLabel(q)))].map((s) => {
+      const ix = items.filter((x) => typeLabel(x.q) === s);
       return { s, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.reduce((a, x) => a + x.g.max, 0) };
     });
     const mods = [...new Set(run.qs.flatMap((q) => (q.kind !== "match" && q.mod ? [q.mod] : [])))].sort().map((m) => {
       const ix = items.filter((x) => x.q.kind !== "match" && x.q.mod === m);
-      return { m, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.length };
+      return { m, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.reduce((a, x) => a + x.g.max, 0) };
     });
     const msg =
       p >= 80 ? "Great work." :
       p >= 60 ? "Getting there." :
-      run.quick || run.mixed ? "Every round helps. Check the answers below, then try another round." :
-      "Keep going. Check the answers below, then review the notes.";
+      "Every round helps. Check the answers below, then try another round.";
 
     return (
       <div className="qz">
@@ -489,20 +384,11 @@ export default function Quiz(props: Props) {
             <span>{fmtPts(score)} of {max} points</span>
           </div>
           <p className="qz-msg">{msg}</p>
-          {run.mixed && (
-            <p className="qz-note">
-              {restarted
-                ? "You've been through every question of one type, so that type started over."
-                : `You've practiced ${mseenCount} of ${mixedTotal} questions. The next round picks ones you haven't seen.`}
-            </p>
-          )}
-          {run.quick && (
-            <p className="qz-note">
-              {restarted
-                ? `You've been through all ${quickPool.length} questions, so the rotation started over.`
-                : `You've practiced ${seenCount} of ${quickPool.length} questions. The next round picks ones you haven't seen.`}
-            </p>
-          )}
+          <p className="qz-note">
+            {restarted
+              ? "You've been through every question of at least one type, so those started over."
+              : `You've practiced ${seenCount} of ${bank} questions. The next round picks ones you haven't seen.`}
+          </p>
           {midterm && mods.length > 0 && (
             <div className="qz-breakdown">
               {mods.map(({ m, c, t }) => (
@@ -512,7 +398,7 @@ export default function Quiz(props: Props) {
           )}
           {sections.length > 1 && (
             <details className="qz-more">
-              <summary>Score by part</summary>
+              <summary>Score by question type</summary>
               <div className="qz-breakdown">
                 {sections.map(({ s, c, t }) => (
                   <div key={s}><span>{s}</span><b>{pct(c, t)}%</b><em>{fmtPts(c)}/{t}</em></div>
@@ -521,19 +407,8 @@ export default function Quiz(props: Props) {
             </details>
           )}
           <div className="qz-actions">
-            {run.mixed ? (
-              <>
-                <button className="btn primary" onClick={startMixed}>Another round →</button>
-                <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change length</button>
-              </>
-            ) : run.quick ? (
-              <>
-                <button className="btn primary" onClick={startQuick}>Next 10 questions →</button>
-                <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change length</button>
-              </>
-            ) : (
-              <button className="btn primary" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Retake</button>
-            )}
+            <button className="btn primary" onClick={start}>Another round →</button>
+            <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change settings</button>
             <Link className="btn" href={`/${subject}/test`}>Other tests</Link>
             <Link className="btn" href={`/${subject}/scores`}>My scores</Link>
           </div>

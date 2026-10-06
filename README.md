@@ -36,11 +36,16 @@ Old links (`/msys-50/module-1/test`, `/msys-50/midterm`) redirect to the new tes
 
 ## How tests work
 
-- One question at a time, Canvas-style. Once you go to the next question you can't go back. Nothing is marked until you submit.
-- **Modified true or false:** type `!` if the statement is true; if it's false, type the word that should replace the underlined part.
-- **Matching:** one question with a dropdown per item (1 point each). **Multiple choice:** radio buttons.
-- Every module test includes case scenarios. Module 2 rotates through its five question sets (or pick one).
-- The midterm test draws new questions from Modules 1–3 each time and can be timed (75 minutes, auto-submits) or untimed.
+- Pick the **question types** (checkboxes) and a **length** (Quick 10, Short, Medium, Long; the midterm's longest is the full 85-point exam).
+  - Modified true or false: type `!` if true, or the word that should replace the underlined part
+  - True or false, Multiple choice (includes case scenarios)
+  - Multiple answer: checkboxes, 2 points, partial credit (right boxes earn, wrong boxes cost, never below zero)
+  - Fill in the blank: tap a word from the word bank
+  - Matching: a dropdown per item (5 per round)
+- One question at a time, Canvas-style: no going back, nothing marked until you submit.
+- Each round picks questions you haven't seen yet; results offer "Another round".
+- "Review in notes" on a wrong answer opens the matching notes section in a window.
+- The midterm draws from every module and can be timed (scaled to the round's length; auto-submits).
 - Progress is saved after every answer; reloading offers Resume.
 
 ## Project layout

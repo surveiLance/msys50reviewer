@@ -30,17 +30,14 @@ export default async function TestsPage({ params }: P) {
       <SubjectNav subject={subject} active={{ test: true }} />
       <div className="mod-head">
         <h2>Take a test</h2>
-        <p>Pick a module, or the midterm for every module mixed. Tests work like Canvas: one question at a time, and you can&apos;t go back.</p>
+        <p>Pick a module, or the midterm for every module mixed. Choose the question types and length; tests work like Canvas, one question at a time.</p>
       </div>
       <div className="test-list">
         {tests.map((t) => (
           <Link key={t.slug} href={`/${subject.slug}/test/${t.slug}`} className={"test-item" + (t.kind === "midterm" ? " exam" : "")}>
             <b>{t.title}</b>
             <span className="meta">{t.subtitle}</span>
-            <span className="meta">
-              {t.range ? `${t.sets} question sets · ${t.range}` : `${t.questions} questions · ${t.points} points`}
-              {t.kind === "midterm" ? " · new questions each time" : ""}
-            </span>
+            <span className="meta">{t.bank} questions to practice · pick the types and length</span>
             <RecordStrip subject={subject.slug} kind={t.kind === "midterm" ? "midterm" : "practice"} module={t.kind === "module" ? t.slug : undefined} compact />
             <span className="go">Start →</span>
           </Link>
