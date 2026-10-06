@@ -134,3 +134,83 @@ export function notesHref(subject: string, q: Question, fallbackModule?: string)
   if (num) return `/${subject}/module-${num}`;
   return fallbackModule ? `/${subject}/${fallbackModule}` : null;
 }
+
+/** Test lengths offered on the setup screen, in points. Lengths at or above a test's full size are dropped. */
+export const LENGTHS = [
+  { key: "quick", label: "Quick 10", points: 10 },
+  { key: "short", label: "Short", points: 20 },
+  { key: "medium", label: "Medium", points: 40 },
+  { key: "full", label: "Full", points: Infinity },
+] as const;
+export type LengthKey = (typeof LENGTHS)[number]["key"];
+
+/**
+ * A shorter version of a built test with the same mix: every part shrinks by the same factor,
+ * keeping at least one question per part and two dropdowns per matching question.
+ * Questions are already shuffled, so taking the first ones is a random pick.
+ */
+export function shrink(qs: Question[], target: number): Question[] {
+  const total = totalPoints(qs);
+  if (!(target < total)) return qs;
+  const f = target / total;
+  const perSection = new Map<string, number>();
+  qs.forEach((q) => q.kind !== "match" && perSection.set(q.section, (perSection.get(q.section) || 0) + 1));
+  const keep = new Map([...perSection].map(([s, n]) => [s, Math.max(1, Math.round(n * f))]));
+  const used = new Map<string, number>();
+  return qs.flatMap((q): Question[] => {
+    if (q.kind === "match") return [{ ...q, rows: q.rows.slice(0, Math.max(2, Math.round(q.rows.length * f))) }];
+    const u = used.get(q.section) || 0;
+    if (u >= (keep.get(q.section) || 0)) return [];
+    used.set(q.section, u + 1);
+    return [q];
+  });
+}
+
+/* ---------- Quick rounds: 10 single questions at a time, rotating through everything ---------- */
+
+const mcQ = (x: McItem, section: string, mod?: string): Question => ({
+  kind: "mc", id: `c:${x.q}`, section, prompt: x.q, options: shuffle(x.o), answer: x.a, why: x.w, mod,
+});
+
+function dedupeQs(qs: Question[]): Question[] {
+  const seen = new Set<string>();
+  return qs.filter((q) => (seen.has(q.id) ? false : (seen.add(q.id), true)));
+}
+
+/** Every single-point question in a module (all sets): true or false, multiple choice, and scenarios. */
+export function quickPoolModule(sets: Record<string, TestSet>, mod: string): Question[] {
+  return dedupeQs(Object.values(sets).flatMap((t) => [
+    ...t.mtf.map(tf),
+    ...t.secs.flatMap((sec) => (sec.kind === "mc" ? (sec.items || []).map((x) => mcQ(x, sec.title, mod)) : [])),
+  ])).map((q) => (q.kind !== "match" && !q.mod ? { ...q, mod } : q));
+}
+
+/** Every single-point question the midterm can draw from. */
+export function quickPoolMidterm(spec: MidtermSpec, pools: Record<string, MtfItem[]>, scenarios: Record<string, McItem[]>): Question[] {
+  return dedupeQs([
+    ...Object.values(pools).flatMap((items) => items.map(tf)),
+    ...Object.entries(scenarios).flatMap(([pool, items]) => items.map((x) => mcQ(x, "Case Scenarios", pool))),
+    ...spec.secs.flatMap((sec) => (sec.kind === "mc" && sec.items ? sec.items.map((x) => mcQ(x, sec.title)) : [])),
+  ]);
+}
+
+/**
+ * Picks a round of n questions, unseen ones first. Returns the round and the updated seen list;
+ * once everything has been seen, the list starts over.
+ */
+export function pickRound(pool: Question[], seen: string[], n = 10): { qs: Question[]; seen: string[]; restarted: boolean } {
+  const seenSet = new Set(seen);
+  const fresh = shuffle(pool.filter((q) => !seenSet.has(q.id)));
+  let restarted = false;
+  let qs = fresh.slice(0, n);
+  let nextSeen = [...seen, ...qs.map((q) => q.id)];
+  if (qs.length < n) {
+    // Everything has been seen: finish this round with a fresh pass and start counting again.
+    restarted = true;
+    const ids = new Set(qs.map((q) => q.id));
+    const fill = shuffle(pool.filter((q) => !ids.has(q.id))).slice(0, n - qs.length);
+    qs = [...qs, ...fill];
+    nextSeen = fill.map((q) => q.id);
+  }
+  return { qs: shuffle(qs), seen: nextSeen, restarted };
+}

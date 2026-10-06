@@ -116,6 +116,8 @@ Everything is committed and pushed; `npm run build` passes.
 
 **Owner preference (notes):** related items side by side, not stacked — definitions, term cards (`.check`), and term-vs-term comparisons (`.compare`) use auto-fit grids; names in definition/comparison cards are headings (bigger, ink color). Cards containing diagrams/tables stay full width.
 
+**Test lengths and Quick 10 rounds:** every test's setup starts with "How long?": Quick 10 · Short (~20 pts) · Medium (~40) · Full. Short/Medium use `shrink()` (each part scaled by the same factor; ≥1 question per part, ≥2 dropdowns per matching question). Quick 10 draws 10 single-point questions (true/false + multiple choice + scenarios) from *all* sets of the module (or every module for the midterm) via `quickPool*()`/`pickRound()`, unseen first; seen ids are kept in `<storageKey>-seen` and the rotation restarts once everything's been seen. Results offer "Next 10 questions →". Module tests default to Quick 10, the midterm to Full; the last choice is remembered (`<storageKey>-len`). Verified: two rounds back to back had no overlap.
+
 **Still worth checking:**
 - Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)
 - Each accent in light and dark (contrast, especially amber in light mode)

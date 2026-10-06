@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { McItem, MidtermSpec, MtfItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type Question, TRUE_MARK, buildMidterm, buildModuleTest, countFor, grade, notesHref, points, totalPoints,
+  type Answer, type LengthKey, type Question, LENGTHS, TRUE_MARK, buildMidterm, buildModuleTest, grade, notesHref, pickRound, points,
+  quickPoolMidterm, quickPoolModule, shrink, totalPoints,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
@@ -39,6 +40,8 @@ type Run = {
   deadline: number | null;
   timed?: boolean;
   label?: string;
+  /** a Quick 10 round: results offer "Next 10" */
+  quick?: boolean;
 };
 
 const fmtClock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -59,11 +62,17 @@ export default function Quiz(props: Props) {
   const [timeUp, setTimeUp] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [recordedAt, setRecordedAt] = useState<number | null>(null);
+  const [length, setLength] = useState<LengthKey>(kind === "midterm" ? "full" : "quick");
+  const [seen, setSeen] = useState<string[]>([]);
+  const [restarted, setRestarted] = useState(false);
 
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
     if (r && r.v === 2 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
     setLastSet(load<string | null>(`${storageKey}-lastset`, null));
+    setSeen(load<string[]>(`${storageKey}-seen`, []));
+    const len = load<string | null>(`${storageKey}-len`, null);
+    if (len && LENGTHS.some((l) => l.key === len)) setLength(len as LengthKey);
   }, [runKey, storageKey]);
 
   // Focus mode: only the test is on screen while it runs.
@@ -82,25 +91,74 @@ export default function Quiz(props: Props) {
   const nextSet = setKeys.length ? setKeys[(Math.max(-1, setKeys.indexOf(lastSet || "")) + 1) % setKeys.length] : "";
   const chosenSet = setChoice === "next" ? nextSet : setChoice;
   const setName = (k: string) => props.setLabels?.[k] || `Set ${k}`;
-  const setCount = !midterm && props.sets?.[chosenSet] ? countFor(props.sets[chosenSet]) : null;
+
+  const build = useCallback(
+    () =>
+      midterm
+        ? buildMidterm(props.midterm!, props.pools || {}, props.scenarios || {})
+        : buildModuleTest(props.sets![chosenSet], (props.module || "").replace(/^module-(\d+)$/, "M$1")),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [midterm, chosenSet],
+  );
+  const modTag = (props.module || "").replace(/^module-(\d+)$/, "M$1");
+  // Quick rounds draw from every single-point question (all sets), rotating through unseen ones first.
+  const quickPool = useMemo(
+    () => (midterm ? quickPoolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}) : quickPoolModule(props.sets || {}, modTag)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [midterm, props.sets, props.midterm],
+  );
+  // Sizes for each length choice (the question picks are random, the counts are not).
+  const sizes = useMemo(() => {
+    const full = build();
+    const fullPts = totalPoints(full);
+    return LENGTHS.filter((l) => l.points < fullPts || l.key === "full").map((l) => {
+      if (l.key === "quick") return { ...l, questions: 10, pts: 10, fullPts };
+      const qs = shrink(full, l.points);
+      return { ...l, questions: qs.length, pts: totalPoints(qs), fullPts };
+    });
+  }, [build]);
+  const seenCount = Math.min(seen.length, quickPool.length);
+  const size = sizes.find((x) => x.key === length) || sizes[sizes.length - 1];
+  // A shorter timed midterm gets proportionally less time.
+  const minutes = props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / size.fullPts)) : 0;
+  const estMinutes = (pts: number) => Math.max(5, Math.round((pts * 0.7) / 5) * 5);
+
+  const startQuick = () => {
+    const r = pickRound(quickPool, seen);
+    setSeen(r.seen);
+    setRestarted(r.restarted);
+    save(`${storageKey}-seen`, r.seen);
+    save(`${storageKey}-len`, "quick");
+    const t = Date.now();
+    const mins = midterm && timed && props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * 10) / size.fullPts)) : 0;
+    setRun({
+      v: 2, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
+      deadline: mins ? t + mins * 60_000 : null, timed: midterm ? timed : undefined, label: "Quick 10", quick: true,
+    });
+    setNow(t);
+    setTimeUp(false);
+    setShowAll(false);
+    setSaved(null);
+    setPhase("run");
+    toTop();
+  };
 
   const start = () => {
-    let qs: Question[];
-    let label: string | undefined;
-    if (midterm) {
-      qs = buildMidterm(props.midterm!, props.pools || {}, props.scenarios || {});
-    } else {
-      qs = buildModuleTest(props.sets![chosenSet], (props.module || "").replace(/^module-(\d+)$/, "M$1"));
-      if (setKeys.length > 1) {
-        label = setName(chosenSet);
-        save(`${storageKey}-lastset`, chosenSet);
-        setLastSet(chosenSet);
-      }
+    if (size.key === "quick") return startQuick();
+    const qs = shrink(build(), size.points);
+    const parts: string[] = [];
+    if (size.key !== "full") parts.push(size.label);
+    if (!midterm && setKeys.length > 1) {
+      parts.push(setName(chosenSet));
+      save(`${storageKey}-lastset`, chosenSet);
+      setLastSet(chosenSet);
     }
+    save(`${storageKey}-len`, size.key);
+    const label = parts.length ? parts.join(" · ") : undefined;
     const t = Date.now();
     setRun({
       v: 2, qs, answers: qs.map(() => ({})), idx: 0, startedAt: t,
-      deadline: midterm && timed && props.timerMinutes ? t + props.timerMinutes * 60_000 : null,
+      deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
       timed: midterm ? timed : undefined, label,
     });
     setNow(t);
@@ -224,11 +282,27 @@ export default function Quiz(props: Props) {
         <div className="qz-panel">
           <div>
             <div className="qz-facts">
-              <span>{setCount?.questions ?? props.questionCount} questions</span>
-              <span>{setCount?.points ?? props.pointCount} points</span>
+              <span>{size.questions} questions</span>
+              <span>{size.pts} points</span>
               {midterm && <span>New questions each time</span>}
             </div>
           </div>
+          <div>
+            <h4 className="qz-h">How long?</h4>
+            <div className={`qz-modes n${sizes.length}`} role="radiogroup" aria-label="Test length">
+              {sizes.map((l) => (
+                <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)}>
+                  <b>{l.key === "quick" ? l.label : `${l.label} · ${l.pts} pts`}</b>
+                  <span>
+                    {l.key === "quick"
+                      ? "New questions every round"
+                      : `${l.questions} questions${midterm && timed ? "" : ` · about ${estMinutes(l.pts)} min`}`}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <ul className="qz-rules">
             <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
             <li>Modified true or false: type <code>{TRUE_MARK}</code> if the statement is true. If it&apos;s false, type the word that should replace the underlined part.</li>
@@ -239,7 +313,7 @@ export default function Quiz(props: Props) {
           {midterm && (
             <div className="qz-modes" role="radiogroup" aria-label="Timer">
               <button className="qz-mode" role="radio" aria-checked={timed} onClick={() => setTimed(true)}>
-                <b>Timed · {props.timerMinutes} min</b>
+                <b>Timed · {minutes} min</b>
                 <span>Like the real exam. Submits when time runs out.</span>
               </button>
               <button className="qz-mode" role="radio" aria-checked={!timed} onClick={() => setTimed(false)}>
@@ -249,7 +323,14 @@ export default function Quiz(props: Props) {
             </div>
           )}
 
-          {setKeys.length > 1 && (
+          {size.key === "quick" && (
+            <p className="qz-note">
+              Quick rounds mix true or false, multiple choice, and scenarios from {midterm ? "every module" : "all of this module's question sets"}.
+              {seenCount > 0 ? ` You've practiced ${seenCount} of ${quickPool.length} questions.` : ` ${quickPool.length} questions to rotate through.`}
+            </p>
+          )}
+
+          {setKeys.length > 1 && size.key !== "quick" && (
             <details className="qz-more">
               <summary>Question set: {setName(chosenSet)}</summary>
               <div className="qz-sources">
@@ -286,7 +367,11 @@ export default function Quiz(props: Props) {
       const ix = items.filter((x) => x.q.kind !== "match" && x.q.mod === m);
       return { m, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.length };
     });
-    const msg = p >= 80 ? "Great work." : p >= 60 ? "Getting there." : "Keep going. Check the answers below, then review the notes.";
+    const msg =
+      p >= 80 ? "Great work." :
+      p >= 60 ? "Getting there." :
+      run.quick ? "Every round helps. Check the answers below, then try the next 10." :
+      "Keep going. Check the answers below, then review the notes.";
 
     return (
       <div className="qz">
@@ -298,6 +383,13 @@ export default function Quiz(props: Props) {
             <span>{score} of {max} points</span>
           </div>
           <p className="qz-msg">{msg}</p>
+          {run.quick && (
+            <p className="qz-note">
+              {restarted
+                ? `You've been through all ${quickPool.length} questions, so the rotation started over.`
+                : `You've practiced ${seenCount} of ${quickPool.length} questions. The next round picks ones you haven't seen.`}
+            </p>
+          )}
           {midterm && mods.length > 0 && (
             <div className="qz-breakdown">
               {mods.map(({ m, c, t }) => (
@@ -316,7 +408,14 @@ export default function Quiz(props: Props) {
             </details>
           )}
           <div className="qz-actions">
-            <button className="btn primary" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Retake</button>
+            {run.quick ? (
+              <>
+                <button className="btn primary" onClick={startQuick}>Next 10 questions →</button>
+                <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change length</button>
+              </>
+            ) : (
+              <button className="btn primary" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Retake</button>
+            )}
             <Link className="btn" href={`/${subject}/test`}>Other tests</Link>
             <Link className="btn" href={`/${subject}/scores`}>My scores</Link>
           </div>
