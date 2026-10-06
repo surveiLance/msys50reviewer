@@ -364,6 +364,29 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bar:#B98318;--warn:#F4A86B;--warn-bg:#33220F}}
 :root[data-theme="dark"]{--bar:#B98318;--warn:#F4A86B;--warn-bg:#33220F}
 
+/* numbered study steps */
+.step-n{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;font:600 11px/1 var(--f-mono);margin-right:7px;vertical-align:-3px;opacity:.75}
+.subnav.steps a{display:flex;align-items:center;justify-content:center}
+.subnav.steps a[aria-current="page"] .step-n{opacity:1}
+.module-links .btn{display:inline-flex;align-items:center;justify-content:center}
+
+/* how-to strip on the subject page */
+ol.howto{list-style:none;padding:0;margin:22px 0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;counter-reset:h}
+ol.howto li{counter-increment:h;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px;min-width:0}
+ol.howto li::before{content:"Step " counter(h);font:500 10.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink)}
+ol.howto b{font-family:var(--f-display);font-size:16px;line-height:1.25}
+ol.howto span{font-size:13.5px;color:var(--muted);line-height:1.45}
+@media (max-width:600px){ol.howto{grid-template-columns:1fr}}
+.module-rec{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.rec-compact{font:600 12.5px/1.3 var(--f-mono);color:var(--ink)}
+.rec-none{font-size:13px}
+
+/* next step */
+.next-step{display:grid;gap:3px;margin:40px 0 0;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;text-decoration:none;color:var(--ink)}
+.next-step:hover{border-color:var(--accent)}
+.next-step b{font-family:var(--f-display);font-size:18px;line-height:1.25}
+.next-step span:last-child{font-size:14px;color:var(--muted)}
+
 /* midterm: record, fold-out, start screen, clock */
 .rec-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:4px 0 12px;padding:10px 14px;border:1px dashed var(--line);border-radius:10px;font-size:13px;color:var(--muted)}
 .rec-strip div{display:flex;align-items:baseline;gap:5px}
@@ -454,3 +477,5 @@ table.hist td > b{font-weight:600;background:none;padding:0}
 .hist-score{text-align:right;white-space:nowrap;width:1%}
 .hist-score b{font:700 17px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 table.hist th:last-child{text-align:right}
+.subnav.steps .sm{display:none}
+@media (max-width:420px){.subnav.steps .lg{display:none}.subnav.steps .sm{display:inline}}

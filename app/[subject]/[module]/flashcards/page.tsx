@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
+import NextStep from "@/components/NextStep";
 import Flashcards from "@/components/Flashcards";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 
@@ -30,6 +31,7 @@ export default async function FlashcardsPage({ params }: P) {
       <div className="sub">
         <Flashcards cards={data.cards[mod.slug] || []} storageKey={`known-${subject.slug}-${mod.slug}`} />
       </div>
+      <NextStep subject={subject} module={mod.slug} view="flashcards" />
     </>
   );
 }

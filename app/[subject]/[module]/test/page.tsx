@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
+import NextStep from "@/components/NextStep";
 import PracticeTest from "@/components/PracticeTest";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 
@@ -41,6 +42,7 @@ export default async function TestPage({ params }: P) {
           storageKey={`test-${subject.slug}-${mod.slug}`}
         />
       </div>
+      <NextStep subject={subject} module={mod.slug} view="test" />
     </>
   );
 }

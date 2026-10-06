@@ -1,9 +1,17 @@
 import Link from "next/link";
 import type { SubjectMeta } from "@/lib/types";
 
-type Active = { module?: string; view?: "notes" | "flashcards" | "test"; exam?: boolean; scores?: boolean };
+export type View = "notes" | "flashcards" | "test";
+type Active = { module?: string; view?: View; exam?: boolean; scores?: boolean };
 
-/** Module tabs (Module 1 · 2 · 3 · Midterm · My Scores) plus the Notes / Flashcards / Practice test switch. */
+/** The three study steps inside a module, in the order we suggest doing them. */
+export const STEPS: { view: View; label: string; short: string; path: string }[] = [
+  { view: "notes", label: "Notes", short: "Notes", path: "" },
+  { view: "flashcards", label: "Flashcards", short: "Flashcards", path: "/flashcards" },
+  { view: "test", label: "Practice test", short: "Test", path: "/test" },
+];
+
+/** Section tabs (Module 1 · 2 · 3 · Midterm · My Scores) plus the numbered study steps inside a module. */
 export default function SubjectNav({ subject, active }: { subject: SubjectMeta; active: Active }) {
   const base = `/${subject.slug}`;
   const mod = subject.modules.find((m) => m.slug === active.module);
@@ -16,7 +24,7 @@ export default function SubjectNav({ subject, active }: { subject: SubjectMeta; 
           </Link>
         ))}
         {subject.exam && (
-          <Link href={`${base}/midterm`} aria-current={active.exam ? "page" : undefined}>{subject.exam.title}</Link>
+          <Link href={`${base}/midterm`} className="tab-exam" aria-current={active.exam ? "page" : undefined}>{subject.exam.title}</Link>
         )}
         <Link href={`${base}/scores`} aria-current={active.scores ? "page" : undefined}>
           <span className="lg">My </span>Scores
@@ -30,10 +38,12 @@ export default function SubjectNav({ subject, active }: { subject: SubjectMeta; 
             <h2>{mod.title}</h2>
             <p>{mod.parts.join(" · ")}</p>
           </div>
-          <nav className="subnav" aria-label={`Module ${mod.num} views`}>
-            <Link href={`${base}/${mod.slug}`} aria-current={active.view === "notes" ? "page" : undefined}>Notes</Link>
-            <Link href={`${base}/${mod.slug}/flashcards`} aria-current={active.view === "flashcards" ? "page" : undefined}>Flashcards</Link>
-            <Link href={`${base}/${mod.slug}/test`} aria-current={active.view === "test" ? "page" : undefined}>Practice test</Link>
+          <nav className="subnav steps" aria-label={`Module ${mod.num} study steps`}>
+            {STEPS.map((s, i) => (
+              <Link key={s.view} href={`${base}/${mod.slug}${s.path}`} aria-current={active.view === s.view ? "page" : undefined}>
+                <span className="step-n">{i + 1}</span><span className="lg">{s.label}</span><span className="sm">{s.short}</span>
+              </Link>
+            ))}
           </nav>
         </>
       )}

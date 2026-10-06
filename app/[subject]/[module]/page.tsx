@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
+import NextStep from "@/components/NextStep";
 import NotesBody from "@/components/NotesBody";
 import { SUBJECTS, getSubject } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
@@ -29,6 +30,7 @@ export default async function NotesPage({ params }: P) {
     <>
       <SubjectNav subject={subject} active={{ module: mod.slug, view: "notes" }} />
       <NotesBody html={html} />
+      <NextStep subject={subject} module={mod.slug} view="notes" />
     </>
   );
 }
