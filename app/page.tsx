@@ -5,9 +5,9 @@ export default function Home() {
   return (
     <>
       <header className="top">
-        <div className="eyebrow">Study reviewers</div>
+        <div className="eyebrow">MAGS study reviewers</div>
         <h1>Pick a subject</h1>
-        <p className="lede">Notes, flashcards, and practice tests built from class slides, guide questions, and lecture notes.</p>
+        <p className="lede">Notes, flashcards, and Canvas-style tests built from class slides, guide questions, and lecture notes.</p>
       </header>
       <div className="subject-grid">
         {SUBJECTS.map((s) => (

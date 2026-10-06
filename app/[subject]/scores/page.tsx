@@ -13,7 +13,7 @@ type P = { params: Promise<{ subject: string }> };
 
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const s = getSubject((await params).subject);
-  return { title: s ? `${s.code} My Scores` : "My Scores" };
+  return { title: s ? `${s.code} My scores` : "My scores" };
 }
 
 export default async function ScoresPage({ params }: P) {
@@ -24,8 +24,8 @@ export default async function ScoresPage({ params }: P) {
       <SubjectNav subject={subject} active={{ scores: true }} />
       <div className="mod-head">
         <div className="eyebrow">{subject.code} · Progress</div>
-        <h2>My Scores</h2>
-        <p>How you&apos;re doing on practice tests and the mock exam, and where to focus next.</p>
+        <h2>My scores</h2>
+        <p>How you&apos;re doing on the module tests and the midterm test, and where to focus next.</p>
       </div>
       <div className="sub">
         <ScoresView subject={subject} />

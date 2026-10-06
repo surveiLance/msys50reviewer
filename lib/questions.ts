@@ -84,7 +84,7 @@ export function buildModuleTest(set: TestSet, mod: string): Question[] {
   return qs.map((q) => (q.kind !== "match" && !q.mod ? { ...q, mod } : q));
 }
 
-/** The mock midterm: drawn fresh from every module each time. */
+/** The midterm test: drawn fresh from every module each time. */
 export function buildMidterm(spec: MidtermSpec, pools: Record<string, MtfItem[]>, scenarios: Record<string, McItem[]>): Question[] {
   const tfs = shuffle(spec.mtf.flatMap((d) => sample(pools[d.pool] || [], d.n))).map(tf);
   return [...tfs, ...spec.secs.flatMap((s) => fromSection(s, scenarios))];

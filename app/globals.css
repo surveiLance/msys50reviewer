@@ -481,3 +481,6 @@ table.hist th:last-child{text-align:right}
 .scores-foot .inst{margin:0;flex:1 1 280px}
 
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.qz-rv-top b{white-space:nowrap}
+.qz .qz-rv-rows{padding-left:0}
+.qz .qz-rv-rows li{max-width:none;margin:0}

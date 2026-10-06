@@ -45,7 +45,7 @@ export const modTag = (num: number) => `M${num}`;
 
 /**
  * Accuracy for one module from the most recent attempts that touched it:
- * practice tests of that module count whole; midterms count only that module's tagged items.
+ * module tests count whole; midterm tests count only that module's tagged items.
  */
 export function moduleAccuracy(attempts: Attempt[], slug: string, num: number, recent = 5) {
   const tag = modTag(num);

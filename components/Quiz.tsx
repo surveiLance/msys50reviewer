@@ -223,7 +223,6 @@ export default function Quiz(props: Props) {
         )}
         <div className="qz-panel">
           <div>
-            <h3>{props.title}</h3>
             <div className="qz-facts">
               <span>{setCount?.questions ?? props.questionCount} questions</span>
               <span>{setCount?.points ?? props.pointCount} points</span>

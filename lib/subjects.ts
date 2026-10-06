@@ -11,7 +11,7 @@ export const SUBJECTS: SubjectMeta[] = [
     slug: "msys-50",
     code: "MSYS 50",
     title: "Enterprise Architecture",
-    blurb: "Notes, flashcards, practice tests, and a mock midterm for Modules 1–3.",
+    blurb: "Notes, flashcards, and tests for Modules 1–3, plus a midterm test that mixes them.",
     modules: [
       { slug: "module-1", num: 1, title: "Overview, Drivers, and Complexity of EA", parts: ["1.1 Overview of EA", "1.2 EA Drivers", "1.3 The Complexity of EA"] },
       { slug: "module-2", num: 2, title: "Governance, Alignment, and IT Initiatives", parts: ["2.1 EA and Other Governance Instruments", "2.2 The Problem of Business and IT Alignment", "2.3 The IT Initiative"] },
