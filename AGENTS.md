@@ -55,7 +55,7 @@ Most recent requests, in their words where useful:
 5. **Light/dark mode and colors chosen by each person.**
 6. **After a module's notes**, offer that module's test or the midterm at the bottom.
 7. Keep it **as easy to understand as possible** — the owner felt earlier versions put "a lot in front of" them.
-8. Scenario-based questions must stay in. Note: in Module 2 only **Set 4** has scenarios, and module tests rotate through sets, so Module 2 scenarios appear only 1 in 5 attempts. The owner was asked whether to always include them or default to Set 4 — **unanswered; ask them.**
+8. Scenario-based questions must stay in. Every module test now includes them (see "Where the last session stopped").
 
 ## Architecture
 
@@ -96,21 +96,25 @@ Key behaviors:
 
 ## Where the last session stopped
 
-Committed and pushed along with this file: the full redesign + Canvas-style tests + Test tab + appearance menu + end-of-notes box. `npm run build` passes. **Verified in the browser (phone width, light mode):** test hub, Module 1 test setup screen, forward-only flow (no back button), `!` answers save and nothing is marked before submit, Next/Enter advances, first matching question renders with dropdowns.
+Everything is committed and pushed; `npm run build` passes.
 
-**Not yet verified — do this first:**
-1. Finish a module test end to end: matching dropdowns, radio MC, Submit, results screen ("Wrong / All" review filter, score by part), and that the attempt shows up on Scores.
-2. Midterm: timed and untimed, timer display, Submit now, results with per-module breakdown, clue-sheet fold-out hidden during the test.
-3. Appearance menu: each mode and accent, in light and dark; no flash on reload.
-4. NextStep box at the bottom of notes and flashcards.
-5. Old URLs redirect (`/msys-50/module-1/test`, `/msys-50/midterm`).
-6. Dark mode pass over notes, tests, and scores; check contrast of each accent.
+**Verified in the browser (phone width):**
+- Test hub; Module 1 and Module 2 setup screens (no duplicate title; per-set counts)
+- A full Module 2 test end to end: 25 true/false (`!` saved, nothing marked early, no back button), 3 matching questions with dropdowns, 16 case scenarios with radio buttons, Submit, results, Wrong/All review (matching review shows each row), attempt saved to Scores
+- Midterm: old `/msys-50/midterm` redirects; timed mode starts at 74:59; tabs and clue sheet hide during the test; Submit now; results with per-module breakdown; attempt saved
+- Appearance menu: Dark + Purple applied and still applied after reload
+- "Done reviewing Module N?" box at the end of notes, with correct links
 
-**Known small fixes to make:**
-- Setup panel repeats the title ("Module 1 test" appears as page heading and panel heading) — drop the `<h3>` in the Quiz setup panel.
-- README still describes the old structure ("practice test", `/midterm`) and calls the site "Reviewers"; update it.
-- History note: commit `710186d` (an earlier style commit) doesn't build on its own because it removed a component still imported at that point; later commits are fine. Not worth rewriting pushed history.
+**Decided for consistency:** every module test includes case scenarios. Module 2 sets without their own get the Set 4 scenario section (`withScenarios` in `lib/tests.ts`), so Module 2 sets are now 34–81 points.
+
+**Still worth checking:**
+- Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)
+- Each accent in light and dark (contrast, especially amber in light mode)
+- Flashcards page in the new design and its end-of-page box
+- Scores page with real data in the new design
+- Desktop width
+
+**History note:** commit `710186d` doesn't build on its own (it removed a component still imported at that point); later commits are fine. Not worth rewriting pushed history.
 
 ## Ideas the owner may want next (ask first)
-- Always include Module 2's 16 case scenarios in the Module 2 test (see item 8 above).
 - Deploy to Vercel and enable Analytics, then share the link with classmates.

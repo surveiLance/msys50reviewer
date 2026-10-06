@@ -1,8 +1,8 @@
-# Reviewers
+# MAGS
 
-Study reviewers by subject: notes, flashcards, practice tests, and mock exams. Starts with **MSYS 50: Enterprise Architecture** (Modules 1–3 and a mock midterm).
+Study reviewers by subject: notes, flashcards, and Canvas-style tests. Starts with **MSYS 50: Enterprise Architecture** (Modules 1–3 and a midterm test).
 
-Built with Next.js (App Router) and Vercel Web Analytics.
+Built with Next.js (App Router) and Vercel Web Analytics. No accounts or backend: scores, test progress, and theme choices are saved in each visitor's browser.
 
 ## Run it locally
 
@@ -11,48 +11,59 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
-
-Run `npm run build` once before deploying to catch any errors.
+Open http://localhost:3000. Run `npm run build` before deploying to catch errors.
 
 ## Deploy to Vercel
 
-1. Push this folder to a new GitHub repo.
-2. In Vercel, choose **Add New → Project**, import the repo, and deploy (no settings needed).
-3. Open the project in Vercel → **Analytics** → **Enable**.
+1. In Vercel, choose **Add New → Project**, import this repo, and deploy (no settings needed).
+2. Open the project → **Analytics** → **Enable**.
 
-Or, without GitHub: `npx vercel` from this folder, then enable Analytics the same way.
+## Pages
 
-## Analytics
-
-Every view has its own URL, so Vercel's Analytics shows usage per subject, module, and view:
+Every view has its own URL, so Vercel Analytics shows usage per page:
 
 | Page | URL |
 |---|---|
 | Subject overview | `/msys-50` |
 | Module notes | `/msys-50/module-1` |
 | Flashcards | `/msys-50/module-1/flashcards` |
-| Practice test | `/msys-50/module-1/test` |
-| Mock midterm | `/msys-50/midterm` |
+| Test hub (pick a test) | `/msys-50/test` |
+| A module test | `/msys-50/test/module-1` |
+| Midterm test | `/msys-50/test/midterm` |
+| My scores | `/msys-50/scores` |
 
-Filter by path prefix (e.g., `/msys-50`) to see one subject.
+Old links (`/msys-50/module-1/test`, `/msys-50/midterm`) redirect to the new test pages.
+
+## How tests work
+
+- One question at a time, Canvas-style. Once you go to the next question you can't go back. Nothing is marked until you submit.
+- **Modified true or false:** type `!` if the statement is true; if it's false, type the word that should replace the underlined part.
+- **Matching:** one question with a dropdown per item (1 point each). **Multiple choice:** radio buttons.
+- Every module test includes case scenarios. Module 2 rotates through its five question sets (or pick one).
+- The midterm test draws new questions from Modules 1–3 each time and can be timed (75 minutes, auto-submits) or untimed.
+- Progress is saved after every answer; reloading offers Resume.
 
 ## Project layout
 
 ```
 app/
-  page.tsx                         Home: list of subjects
-  [subject]/page.tsx               Subject overview
-  [subject]/[module]/page.tsx      Notes
-  [subject]/[module]/flashcards/   Flashcards
-  [subject]/[module]/test/         Practice test(s)
-  [subject]/midterm/               Mock exam
-components/                        Flashcards, PracticeTest, NotesBody, SubjectNav
+  layout.tsx                     Header, logo, Appearance menu, font
+  globals.css                    Design system: theme × accent tokens, then each area of the site
+  [subject]/page.tsx             Subject overview
+  [subject]/[module]/            Notes; flashcards/ for flashcards
+  [subject]/test/                Test hub; [test]/ for one test
+  [subject]/scores/              My scores
+components/                      Quiz, Flashcards, NotesBody, SubjectNav, NextStep, Appearance, ScoresView, RecordStrip
 content/<subject>/
-  module-N.html                    Notes (pre-built HTML with diagrams)
-  clues.html                       Scenario clue sheet for the mock exam
-  data.json                        Flashcards, tests, question pools, scenarios
-lib/subjects.ts                    Subject registry (titles, modules, exam info)
+  module-N.html                  Notes (pre-built HTML with diagrams)
+  clues.html                     Scenario clue sheet for the midterm test
+  data.json                      Flashcards, test sets, midterm pools and scenarios
+lib/
+  questions.ts                   Turns data.json into Canvas-style questions and grades them
+  tests.ts                       The list of tests per subject
+  scores.ts                      Saved attempts (localStorage)
+  subjects.ts                    Subject registry (titles, modules, exam info)
+docs/source/                     The class notes the reviewer was built from
 ```
 
 ## Add a subject
@@ -60,15 +71,15 @@ lib/subjects.ts                    Subject registry (titles, modules, exam info)
 1. Create `content/<slug>/` with `module-N.html` files and a `data.json` that follows `lib/types.ts` (`SubjectData`).
 2. Add the subject to `SUBJECTS` and `DATA` in `lib/subjects.ts`.
 
-Routes, navigation, and analytics pages are generated automatically.
+Routes, navigation, tests, and analytics pages are generated automatically.
 
 ## Data format (data.json)
 
 - `cards[module]`: `[part, front, back]`
 - `tests[module][setKey]`: `{ desc, mtf: MtfItem[], secs: Section[] }`
   - MtfItem: `{ s, t?: true, a?: accepted[], d?: shown answer, r?: source, m?: module tag }`
-  - Section kinds: `letter` (matching with lettered choices), `pick` (dropdown of fixed options), `mc` (multiple choice with optional `w` explanation)
-- `pools` / `scenarios`: question banks the mock exam draws from on every retake
+  - Section kinds: `letter` (term ↔ description matching), `pick` (dropdown of fixed options), `mc` (multiple choice with optional `w` explanation)
+- `pools` / `scenarios`: question banks the midterm test draws from on every attempt
 - `midterm`: which pools to draw from and how many items
 
-Content is an unofficial study aid built from class slides and notes.
+Content is an unofficial study aid built from class slides and notes. When something differs from the professor's materials, follow the professor.
