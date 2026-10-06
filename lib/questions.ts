@@ -125,15 +125,6 @@ export function grade(q: Question, a: Answer | undefined): Graded {
   return { points: ok ? 1 : 0, max: 1, answered: true };
 }
 
-/** "2.1 slide 4" → the notes section for part 2.1. Falls back to the module's notes. */
-export function notesHref(subject: string, q: Question, fallbackModule?: string): string | null {
-  if (q.kind === "match") return fallbackModule ? `/${subject}/${fallbackModule}` : null;
-  const m = q.source?.match(/^(\d+)\.(\d+)/);
-  if (m) return `/${subject}/module-${m[1]}#p-${m[1]}-${m[2]}`;
-  const num = q.mod?.match(/^M(\d+)$/)?.[1];
-  if (num) return `/${subject}/module-${num}`;
-  return fallbackModule ? `/${subject}/${fallbackModule}` : null;
-}
 
 /** Test lengths offered on the setup screen, in points. Lengths at or above a test's full size are dropped. */
 export const LENGTHS = [

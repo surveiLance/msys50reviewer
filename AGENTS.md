@@ -118,6 +118,8 @@ Everything is committed and pushed; `npm run build` passes.
 
 **Test lengths and Quick 10 rounds:** every test's setup starts with "How long?": Quick 10 · Short (~20 pts) · Medium (~40) · Full. Short/Medium use `shrink()` (each part scaled by the same factor; ≥1 question per part, ≥2 dropdowns per matching question). Quick 10 draws 10 single-point questions (true/false + multiple choice + scenarios) from *all* sets of the module (or every module for the midterm) via `quickPool*()`/`pickRound()`, unseen first; seen ids are kept in `<storageKey>-seen` and the rotation restarts once everything's been seen. Results offer "Next 10 questions →". Module tests default to Quick 10, the midterm to Full; the last choice is remembered (`<storageKey>-len`). Verified: two rounds back to back had no overlap.
 
+**"Review in notes" window:** on the results screen, each wrong answer has a "Review in notes" button (and each wrong matching row a "Review" button) that opens a window over the results with the best-matching notes section, the answer highlighted, and "Open in notes ↗" (new tab, to that exact section). Notes load on demand from a static route, `/api/notes/[subject]/[module]` (JSON of `readNotes()`). Matching logic is in `lib/peek.ts`: the cited part (from a source like "2.1 slide 4") is preferred, then keyword overlap with the question, with the correct answer weighted 3×; "Guide questions" sections are skipped. It's keyword-based, so an occasional match is loose (e.g. "Product realization").
+
 **Still worth checking:**
 - Untimed midterm, and the timer auto-submitting at 0 (try a short `timerMinutes`)
 - Each accent in light and dark (contrast, especially amber in light mode)

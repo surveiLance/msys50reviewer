@@ -5,11 +5,12 @@ import Link from "next/link";
 import type { McItem, MidtermSpec, MtfItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type LengthKey, type Question, LENGTHS, TRUE_MARK, buildMidterm, buildModuleTest, grade, notesHref, pickRound, points,
+  type Answer, type LengthKey, type Question, LENGTHS, TRUE_MARK, buildMidterm, buildModuleTest, grade, pickRound, points,
   quickPoolMidterm, quickPoolModule, shrink, totalPoints,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
+import NotesPeek from "./NotesPeek";
 
 type Props = {
   subject: string;
@@ -25,6 +26,8 @@ type Props = {
   pools?: Record<string, MtfItem[]>;
   scenarios?: Record<string, McItem[]>;
   timerMinutes?: number;
+  /** Every module slug in the subject, for "Review in notes" on questions without a source. */
+  modules: string[];
   /** For the setup screen (module tests recount from the chosen set). */
   questionCount: number;
   pointCount: number;
@@ -65,6 +68,11 @@ export default function Quiz(props: Props) {
   const [length, setLength] = useState<LengthKey>(kind === "midterm" ? "full" : "quick");
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
+  // "Review in notes" window: a whole question, or one row of a matching question.
+  const [peek, setPeek] = useState<{ q: Question; a?: Answer } | null>(null);
+  const closePeek = useCallback(() => setPeek(null), []);
+  const peekRow = (q: Question & { kind: "match" }, ri: number) =>
+    setPeek({ q: { kind: "mc", id: `${q.id}:${ri}`, section: q.section, prompt: q.rows[ri].prompt, options: [], answer: q.rows[ri].answer } });
 
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
@@ -435,7 +443,6 @@ export default function Quiz(props: Props) {
             <ol className="qz-rv">
               {shown.map(({ q, g, a, i }) => {
                 const full = g.points === g.max;
-                const href = notesHref(subject, q, props.module);
                 return (
                   <li key={i} className={full ? "ok" : ""}>
                     <div className="qz-rv-top">
@@ -456,6 +463,7 @@ export default function Quiz(props: Props) {
                                   <span className={"y" + (ok ? " ok" : "")}>{pick || "No answer"}</span>
                                   {!ok && <> · Correct: <span className="c">{r.answer}</span></>}
                                 </span>
+                                {!ok && <button className="qz-peek" onClick={() => peekRow(q, ri)}>Review</button>}
                               </li>
                             );
                           })}
@@ -477,10 +485,10 @@ export default function Quiz(props: Props) {
                         {q.kind === "mc" && q.why && <p className="qz-why">{q.why}</p>}
                       </>
                     )}
-                    {((q.kind !== "match" && q.source) || href) && (
+                    {q.kind !== "match" && (
                       <p className="qz-src">
-                        {q.kind !== "match" && q.source && <span>Source: {q.source}</span>}
-                        {href && <Link href={href} target="_blank">Review in notes ↗</Link>}
+                        {q.source && <span>Source: {q.source}</span>}
+                        <button className="qz-peek" onClick={() => setPeek({ q, a })}>Review in notes</button>
                       </p>
                     )}
                   </li>
@@ -489,6 +497,16 @@ export default function Quiz(props: Props) {
             </ol>
           )}
         </section>
+        {peek && (
+          <NotesPeek
+            subject={subject}
+            question={peek.q}
+            answer={peek.a}
+            fallbackModule={props.module}
+            allModules={props.modules}
+            onClose={closePeek}
+          />
+        )}
       </div>
     );
   }
