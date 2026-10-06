@@ -32,6 +32,8 @@ export default async function TestPage({ params }: P) {
       <SubjectNav subject={subject} active={{ module: mod.slug, view: "test" }} />
       <div className="sub">
         <PracticeTest
+          subject={subject.slug}
+          module={mod.slug}
           sets={sets}
           order={order}
           labels={labels}

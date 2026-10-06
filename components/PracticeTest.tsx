@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { McItem, MidtermSpec, MtfItem, Section, TestSet } from "@/lib/types";
 import { LETTERS, ROMAN, load, norm, sample, save, shuffle } from "@/lib/quiz";
+import { pct, recordAttempt } from "@/lib/scores";
 
-type Row = { prompt: string; options: { value: string; label: string }[]; answer: string; why?: string };
+/** `mod` = module tag ("M1") when the item belongs to one module. */
+type Row = { prompt: string; options: { value: string; label: string }[]; answer: string; why?: string; mod?: string };
 type BuiltSection = { kind: Section["kind"]; title: string; inst: string; rows: Row[]; choices?: string[] };
 type Built = { desc: string; mtf: MtfItem[]; secs: BuiltSection[] };
 
 type Props = {
+  /** Subject slug; attempts are saved under it for the My Scores page. */
+  subject: string;
+  /** Module slug, for practice tests. */
+  module?: string;
   sets?: Record<string, TestSet>;
   order?: string[];
   labels?: Record<string, string>;
@@ -33,12 +40,14 @@ function buildSection(sec: Section, scenarios?: Record<string, McItem[]>): Built
     const rows = shuffle(sec.items).map(([p, a]) => ({ prompt: p, options: opts, answer: a }));
     return { kind: sec.kind, title: sec.title, inst: sec.inst, rows };
   }
-  const items: McItem[] = sec.items ?? (sec.draw || []).flatMap((d) => sample(scenarios?.[d.pool] || [], d.n));
+  const items: (McItem & { mod?: string })[] =
+    sec.items ?? (sec.draw || []).flatMap((d) => sample(scenarios?.[d.pool] || [], d.n).map((x) => ({ ...x, mod: d.pool })));
   const rows = shuffle(items).map((x) => ({
     prompt: x.q,
     options: shuffle(x.o).map((o) => ({ value: o, label: o })),
     answer: x.a,
     why: x.w,
+    mod: x.mod,
   }));
   return { kind: "mc", title: sec.title, inst: sec.inst, rows };
 }
@@ -82,6 +91,11 @@ export default function PracticeTest(props: Props) {
   const [selAns, setSelAns] = useState<string[][]>([]);
   const [checked, setChecked] = useState(false);
   const [left, setLeft] = useState<number | null>(null);
+  // The mock exam opens on a start screen; practice tests start right away.
+  const [started, setStarted] = useState(!props.midterm);
+  const [timed, setTimed] = useState(false);
+  const startedAt = useRef(0);
+  const recorded = useRef(-1);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +110,7 @@ export default function PracticeTest(props: Props) {
     setMtfAns(b.mtf.map(() => ""));
     setSelAns(b.secs.map((s) => s.rows.map(() => "")));
     setChecked(false);
+    startedAt.current = Date.now();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setKey, attempt]);
 
@@ -120,8 +135,42 @@ export default function PracticeTest(props: Props) {
       mods[it.m][1]++;
       if (mtf[i].ok) mods[it.m][0]++;
     });
+    built.secs.forEach((s, si) => s.rows.forEach((r, ri) => {
+      if (!r.mod) return;
+      mods[r.mod] = mods[r.mod] || [0, 0];
+      mods[r.mod][1]++;
+      if (secs[si][ri]) mods[r.mod][0]++;
+    }));
     return { mtf, secs, mtfScore, secScores, total, max, mods };
   }, [built, checked, mtfAns, selAns]);
+
+  const answered = built
+    ? mtfAns.filter((x) => x.trim()).length + selAns.reduce((a, s) => a + s.filter(Boolean).length, 0)
+    : 0;
+  const total = built ? built.mtf.length + built.secs.reduce((a, s) => a + s.rows.length, 0) : 0;
+
+  // Save the first check of each attempt for the My Scores page.
+  useEffect(() => {
+    if (!result || !built || recorded.current === attempt || answered === 0) return;
+    recorded.current = attempt;
+    const isMid = !!props.midterm;
+    recordAttempt(props.subject, {
+      kind: isMid ? "midterm" : "practice",
+      module: props.module,
+      set: isMid ? undefined : props.order && props.order.length > 1 ? props.labels?.[setKey] || setKey : undefined,
+      score: result.total,
+      max: result.max,
+      answered,
+      seconds: Math.round((Date.now() - startedAt.current) / 1000),
+      timed: isMid ? timed : undefined,
+      byModule: result.mods,
+      parts: [
+        ["True or False", result.mtfScore, built.mtf.length],
+        ...built.secs.map((s, i): [string, number, number] => [s.title, result.secScores[i], s.rows.length]),
+      ],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
 
   const switchSet = (k: string) => {
     setSetKey(k);
@@ -131,14 +180,48 @@ export default function PracticeTest(props: Props) {
   const retake = () => {
     setAttempt((a) => a + 1);
     setLeft(null);
+    if (props.midterm) setStarted(false);
     rootRef.current?.scrollIntoView({ block: "start" });
   };
   const check = () => {
+    if (answered === 0) {
+      window.alert("Answer at least one item first.");
+      return;
+    }
+    const blank = total - answered;
+    if (!checked && blank > 0 && !window.confirm(`You left ${blank} item${blank === 1 ? "" : "s"} blank. Blanks count as wrong. Check anyway?`)) return;
     setChecked(true);
     setLeft(null);
   };
+  const start = (withTimer: boolean) => {
+    setTimed(withTimer);
+    setStarted(true);
+    startedAt.current = Date.now();
+    setLeft(withTimer && props.timerMinutes ? props.timerMinutes * 60 : null);
+    rootRef.current?.scrollIntoView({ block: "start" });
+  };
 
   if (!built) return <div ref={rootRef}><p className="inst">Loading the test…</p></div>;
+
+  if (!started) {
+    return (
+      <div ref={rootRef} className="start-card">
+        <div className="eyebrow">Ready when you are</div>
+        <h3>Start the mock exam</h3>
+        <p>{total} items, new questions every time. Answer what you can, then press <b>Check answers</b> to see your score and save it to My Scores.</p>
+        <div className="start-btns">
+          <button className="btn primary" type="button" onClick={() => start(true)}>
+            Timed · {props.timerMinutes} minutes
+            <small>Like the real exam</small>
+          </button>
+          <button className="btn" type="button" onClick={() => start(false)}>
+            Untimed
+            <small>Take as long as you need</small>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={rootRef} className="test-root">
@@ -151,12 +234,9 @@ export default function PracticeTest(props: Props) {
       )}
       <p className="inst set-desc">{built.desc}</p>
 
-      {props.timerMinutes ? (
-        <div className="timer-row">
-          <button className="btn" type="button" onClick={() => setLeft(props.timerMinutes! * 60)}>
-            {left === null ? `Start ${props.timerMinutes}-minute timer` : "Restart timer"}
-          </button>
-          <span className={"t-clock" + (left === 0 ? " up" : "")} aria-live="polite">{left === null ? "" : left === 0 ? "Time's up" : fmt(left)}</span>
+      {timed && !checked && left !== null ? (
+        <div className={"clock-pill" + (left === 0 ? " up" : left < 300 ? " low" : "")} role="timer" aria-live={left < 60 ? "polite" : "off"}>
+          {left === 0 ? "Time's up — check your answers" : <>Time left <b>{fmt(left)}</b></>}
         </div>
       ) : null}
 
@@ -233,18 +313,24 @@ export default function PracticeTest(props: Props) {
         <div className="score">
           {result ? (
             <>
-              {result.total} / {result.max} <span className="pct">{Math.round((result.total / result.max) * 100)}%</span>
+              {result.total} / {result.max} <span className="pct">{pct(result.total, result.max)}%</span>
               <small>{["I " + result.mtfScore + "/" + built.mtf.length, ...result.secScores.map((g, i) => ROMAN[i + 1] + " " + g + "/" + built.secs[i].rows.length)].join(" · ")}</small>
               {props.showModules && (
-                <small>True or false by module: {Object.keys(result.mods).sort().map((k) => `${k} ${result.mods[k][0]}/${result.mods[k][1]}`).join(" · ")}</small>
+                <small>By module: {Object.keys(result.mods).sort().map((k) => `${k} ${result.mods[k][0]}/${result.mods[k][1]}`).join(" · ")}</small>
               )}
             </>
           ) : (
-            <>— <small>Answer the items, then check</small></>
+            <>{answered} / {total} <span className="pct">answered</span><small>Check whenever you&apos;re done</small></>
           )}
         </div>
-        <button className="btn primary" onClick={check}>Check answers</button>
-        <button className="btn" onClick={retake}>Retake</button>
+        {result ? (
+          <>
+            <Link className="btn" href={`/${props.subject}/scores`}>My scores</Link>
+            <button className="btn primary" onClick={retake}>{props.midterm ? "New mock exam" : "Retake"}</button>
+          </>
+        ) : (
+          <button className="btn primary" onClick={check}>Check answers</button>
+        )}
       </div>
     </div>
   );
