@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
 import NextStep from "@/components/NextStep";
-import PracticeTest from "@/components/PracticeTest";
+import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 
 export const dynamicParams = false;
@@ -26,19 +26,17 @@ export default async function TestPage({ params }: P) {
   const data = getSubjectData(sSlug);
   if (!subject || !mod || !data) notFound();
   const sets = data.tests[mod.slug] || {};
-  const order = Object.keys(sets);
-  const labels = data.setLabels[mod.slug] || Object.fromEntries(order.map((k) => [k, order.length > 1 ? `Set ${k}` : "Slide-based"]));
+  const labels = data.setLabels[mod.slug] || Object.fromEntries(Object.keys(sets).map((k) => [k, `Set ${k}`]));
   return (
     <>
       <SubjectNav subject={subject} active={{ module: mod.slug, view: "test" }} />
       <div className="sub">
-        <PracticeTest
+        <Quiz
+          mode="practice"
           subject={subject.slug}
           module={mod.slug}
           sets={sets}
-          order={order}
-          labels={labels}
-          defaultSet={data.defaultSet[mod.slug] || order[0]}
+          setLabels={labels}
           storageKey={`test-${subject.slug}-${mod.slug}`}
         />
       </div>

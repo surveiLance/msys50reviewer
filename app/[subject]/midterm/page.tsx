@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
-import PracticeTest from "@/components/PracticeTest";
-import RecordStrip from "@/components/RecordStrip";
+import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
 
@@ -24,44 +23,36 @@ export default async function MidtermPage({ params }: P) {
   const data = getSubjectData(sSlug);
   if (!subject || !subject.exam || !data) notFound();
   const exam = subject.exam;
-  const mtfCount = data.midterm.mtf.reduce((a, d) => a + d.n, 0);
-  const secCount = data.midterm.secs.reduce((a, s) => a + (s.kind === "mc" && s.draw ? s.draw.reduce((x, d) => x + d.n, 0) : (s.items?.length ?? 0)), 0);
   // The clue sheet brings its own heading; the fold-out supplies one instead.
   const clues = readContent(subject.slug, "clues.html").replace(/^<h3[^>]*>.*?<\/h3>/, "");
   return (
     <>
       <SubjectNav subject={subject} active={{ exam: true }} />
       <div className="mod-head">
-        <div className="eyebrow">Mock exam</div>
-        <h2>Mock {exam.title}</h2>
-        <p>Practice the real thing: every module, mixed. The actual exam is <b>{exam.when}</b> ({exam.rooms.join(" · ")}).</p>
+        <h2>Mock {exam.title.toLowerCase()}</h2>
+        <p>The real exam: <b>{exam.when}</b> · {exam.rooms.join(" · ")}</p>
       </div>
-      <div className="mid-facts">
-        <div><b>{mtfCount + secCount} items</b><span>{mtfCount} true or false, plus matching, multiple choice, and case scenarios</span></div>
-        <div><b>{exam.minutes} minutes</b><span>If you choose timed: 60 minutes plus a 15-minute buffer, like the real exam</span></div>
-        <div><b>New every time</b><span>Questions are drawn fresh from all modules, so retakes stay useful</span></div>
-      </div>
-      <RecordStrip subject={subject.slug} kind="midterm" />
-      {clues && (
-        <details className="fold">
-          <summary>
-            <span className="eyebrow">Read before you start</span>
-            <b>Scenario clue sheet</b>
-          </summary>
-          <div className="sub fold-body" dangerouslySetInnerHTML={{ __html: clues }} />
-        </details>
-      )}
       <div className="sub">
-        <PracticeTest
+        <Quiz
+          mode="exam"
           subject={subject.slug}
           midterm={data.midterm}
           pools={data.pools}
           scenarios={data.scenarios}
           storageKey={`mid-${subject.slug}`}
           timerMinutes={exam.minutes}
-          showModules
+          examName={`Mock ${exam.title.toLowerCase()}`}
         />
       </div>
+      {clues && (
+        <details className="fold hide-in-quiz">
+          <summary>
+            <b>Scenario clue sheet</b>
+            <span>Tips for spotting the concept hidden in a case scenario. Worth a read before you start.</span>
+          </summary>
+          <div className="sub fold-body" dangerouslySetInnerHTML={{ __html: clues }} />
+        </details>
+      )}
     </>
   );
 }
