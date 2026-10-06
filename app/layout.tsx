@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Reviewers", template: "%s · Reviewers" },
+  title: { default: "MAGS", template: "%s · MAGS" },
   description: "Study notes, flashcards, and practice tests by subject.",
 };
 
@@ -22,7 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="site-head">
           <div className="wrap site-head-in">
-            <Link href="/" className="brand">Reviewers</Link>
+            <Link href="/" className="brand" aria-label="MAGS home">
+              <img src="/icon.svg" alt="" width={28} height={28} />
+              MAGS
+            </Link>
             <Link href="/msys-50" className="site-link">MSYS 50</Link>
           </div>
         </header>

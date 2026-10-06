@@ -327,7 +327,8 @@ a{color:inherit}
 .site-head{border-bottom:1px solid var(--line);background:var(--bg)}
 .site-head-in{display:flex;align-items:center;gap:16px;min-height:52px;padding-block:0}
 .brand{font:800 18px/1 var(--f-display);font-stretch:90%;text-decoration:none;letter-spacing:-.01em}
-.brand::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--accent);margin-right:8px;vertical-align:1px}
+.brand{display:inline-flex;align-items:center;gap:9px;letter-spacing:.02em}
+.brand img{display:block;border-radius:6px}
 .site-link{font:500 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);text-decoration:none}
 .site-link:hover{color:var(--ink)}
 .site-foot{font-size:12.5px;color:var(--muted);padding-block:24px 40px;border-top:1px solid var(--line);margin-top:40px}
