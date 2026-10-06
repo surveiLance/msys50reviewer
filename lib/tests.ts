@@ -1,4 +1,4 @@
-import type { SubjectData, SubjectMeta } from "./types";
+import type { Section, SubjectData, SubjectMeta, TestSet } from "./types";
 import { countFor, countMidterm } from "./questions";
 
 export type TestInfo = {
@@ -13,10 +13,24 @@ export type TestInfo = {
   range?: string;
 };
 
+const isScenarios = (s: Section) => s.kind === "mc" && /scenario/i.test(s.title);
+
+/**
+ * Every module test includes case scenarios. Some sets (Module 2) don't have their own,
+ * so they borrow the module's scenario section from the set that does.
+ */
+export function withScenarios(sets: Record<string, TestSet>): Record<string, TestSet> {
+  const scen = Object.values(sets).flatMap((t) => t.secs).find(isScenarios);
+  if (!scen) return sets;
+  return Object.fromEntries(
+    Object.entries(sets).map(([k, t]) => [k, t.secs.some(isScenarios) ? t : { ...t, secs: [...t.secs, scen] }]),
+  );
+}
+
 /** Every test a subject offers: one per module, plus the midterm. */
 export function listTests(subject: SubjectMeta, data: SubjectData): TestInfo[] {
   const tests: TestInfo[] = subject.modules.map((m) => {
-    const sets = data.tests[m.slug] || {};
+    const sets = withScenarios(data.tests[m.slug] || {});
     const keys = Object.keys(sets);
     const counts = keys.map((k) => countFor(sets[k]));
     const c = counts[keys.indexOf(data.defaultSet[m.slug] || keys[0])] || { questions: 0, points: 0 };

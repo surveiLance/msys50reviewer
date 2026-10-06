@@ -4,7 +4,7 @@ import SubjectNav from "@/components/SubjectNav";
 import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
-import { listTests } from "@/lib/tests";
+import { listTests, withScenarios } from "@/lib/tests";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -69,7 +69,7 @@ export default async function TestPage({ params }: P) {
     );
   }
 
-  const sets = data.tests[info.slug] || {};
+  const sets = withScenarios(data.tests[info.slug] || {});
   const labels = data.setLabels[info.slug] || Object.fromEntries(Object.keys(sets).map((k) => [k, `Set ${k}`]));
   return (
     <>
