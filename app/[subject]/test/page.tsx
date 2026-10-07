@@ -29,6 +29,7 @@ export default async function TestsPage({ params }: P) {
     <>
       <SubjectNav subject={subject} active={{ test: true }} />
       <div className="mod-head">
+        <div className="eyebrow">{subject.code} · Practice</div>
         <h2>Take a test</h2>
         <p>Pick a module, or the midterm for every module mixed. Choose the question types and length; tests work like Canvas, one question at a time.</p>
       </div>
