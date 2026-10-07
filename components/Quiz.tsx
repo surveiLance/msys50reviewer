@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points, poolMidterm, poolModule,
+  type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points, poolMidterm, poolModule,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
@@ -44,6 +44,10 @@ type Run = {
   deadline: number | null;
   timed?: boolean;
   label?: string;
+  /** Study mode: lock and explain each answer before moving forward. */
+  feedback?: boolean;
+  /** Whether the current answer has been checked in study mode. */
+  revealed?: boolean;
 };
 
 type LengthKey = "quick" | "short" | "medium" | "long";
@@ -55,6 +59,77 @@ const fmtClock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart
 const fmtPts = (n: number) => String(Math.round(n * 100) / 100);
 const estMinutes = (pts: number) => Math.max(5, Math.round((pts * 0.7) / 5) * 5);
 const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
+
+function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Graded; onReview: () => void }) {
+  const full = g.points === g.max;
+  const result = full ? "Correct" : g.points > 0 ? "Partly correct" : "Not quite";
+  return (
+    <div className={"qz-feedback " + (full ? "ok" : g.points > 0 ? "partial" : "bad")} role="status" aria-live="polite">
+      <h4>{result} · {fmtPts(g.points)} / {g.max} pt{g.max === 1 ? "" : "s"}</h4>
+      {q.kind === "match" ? (
+        <ul className="qz-rv-rows">
+          {q.rows.map((row, i) => {
+            const pick = a.picks?.[i] || "No answer";
+            const ok = g.rows?.[i];
+            return (
+              <li key={i} className={ok ? "is-right" : "is-wrong"}>
+                <span dangerouslySetInnerHTML={{ __html: row.prompt }} />
+                <span className="qz-rv-line">
+                  <span className={"y" + (ok ? " ok" : "")}>{pick}</span>
+                  {!ok && <> · Correct: <span className="c">{row.answer}</span></>}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : q.kind === "multi" ? (
+        <>
+          <ul className="qz-rv-rows">
+            {q.options.map((option) => {
+              const chose = (a.checks || []).includes(option);
+              const right = q.correct.includes(option);
+              return (
+                <li key={option} className={right ? "is-right" : chose ? "is-wrong" : "is-off"}>
+                  <span>{option}</span>
+                  <span className="qz-rv-line">
+                    {right ? (chose ? "✓ Correct, and you checked it" : "Correct, but you missed it") : (chose ? "✗ Not correct, but you checked it" : "Not correct")}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {q.why && <p className="qz-why">{q.why}</p>}
+        </>
+      ) : q.kind === "tf2" ? (
+        <>
+          <p className="qz-rv-line">Your answer: <span className={"y" + (full ? " ok" : "")}>{a.choice || "No answer"}</span> · Correct: <span className="c">{q.isTrue ? "True" : "False"}</span></p>
+          {!q.isTrue && q.underlined && q.fix && <p className="qz-why">It&apos;s false: &ldquo;{q.underlined}&rdquo; should be &ldquo;{q.fix}&rdquo;.</p>}
+        </>
+      ) : q.kind === "blank" ? (
+        <>
+          <p className="qz-rv-line">Your answer: <span className={"y" + (full ? " ok" : "")}>{a.choice || "No answer"}</span> · Correct: <span className="c">{q.answer}</span></p>
+          {q.why && <p className="qz-why">{q.why}</p>}
+        </>
+      ) : (
+        <>
+          <p className="qz-rv-line">
+            Your answer: <span className={"y" + (full ? " ok" : "")}>{(q.kind === "tf" ? a.text?.trim() : a.choice) || "No answer"}</span>
+            {" · "}Correct: <span className="c">{q.answer}</span>
+          </p>
+          {q.kind === "tf" && q.isTrue && <p className="qz-why">The statement is true, so <b>{TRUE_MARK}</b> is the answer.</p>}
+          {q.kind === "tf" && !q.isTrue && <p className="qz-why">Replace the underlined part with &ldquo;{q.answer}&rdquo;.</p>}
+          {q.kind === "mc" && q.why && <p className="qz-why">{q.why}</p>}
+        </>
+      )}
+      {q.kind !== "match" && (
+        <p className="qz-src">
+          {q.source && <span>Source: {q.source}</span>}
+          <button className="qz-peek" onClick={onReview}>Review in notes</button>
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function Quiz(props: Props) {
   const { subject, storageKey, kind } = props;
@@ -71,6 +146,7 @@ export default function Quiz(props: Props) {
   const [run, setRun] = useState<Run | null>(null);
   const [saved, setSaved] = useState<Run | null>(null);
   const [timed, setTimed] = useState(true);
+  const [instantFeedback, setInstantFeedback] = useState(false);
   const [now, setNow] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -93,6 +169,7 @@ export default function Quiz(props: Props) {
     if (len === "quick" || len === "short" || len === "medium" || len === "long") setLength(len);
     const ts = load<string[] | null>(`types-${subject}`, null);
     if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
+    setInstantFeedback(load<boolean>(`feedback-${subject}`, false));
   }, [runKey, storageKey, subject]);
 
   // Focus mode: only the test is on screen while it runs.
@@ -156,6 +233,7 @@ export default function Quiz(props: Props) {
       v: 3, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
       deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
       timed: midterm ? timed : undefined, label: `${size.label} · ${typeSummary}`,
+      feedback: instantFeedback, revealed: false,
     });
     setNow(t);
     setTimeUp(false);
@@ -242,6 +320,7 @@ export default function Quiz(props: Props) {
   const update = (patch: Partial<Answer>) =>
     setRun((r) => {
       if (!r) return r;
+      if (r.feedback && r.revealed) return r;
       const answers = r.answers.slice();
       answers[r.idx] = { ...answers[r.idx], ...patch };
       return { ...r, answers };
@@ -250,9 +329,14 @@ export default function Quiz(props: Props) {
     if (!run) return;
     if (run.idx >= run.qs.length - 1) submit();
     else {
-      setRun({ ...run, idx: run.idx + 1 });
+      setRun({ ...run, idx: run.idx + 1, revealed: false });
       toTop();
     }
+  };
+  const checkOrNext = () => {
+    if (!run) return;
+    if (run.feedback && !run.revealed) setRun({ ...run, revealed: true });
+    else next();
   };
   const submitEarly = () => {
     if (!run) return;
@@ -311,6 +395,26 @@ export default function Quiz(props: Props) {
             </div>
           </div>
 
+          <div>
+            <h4 className="qz-h">When should answers appear?</h4>
+            <div className="qz-modes" role="radiogroup" aria-label="Answer feedback">
+              <button
+                className="qz-mode" role="radio" aria-checked={!instantFeedback}
+                onClick={() => { setInstantFeedback(false); save(`feedback-${subject}`, false); }}
+              >
+                <b>After submitting</b>
+                <span>Exam mode. Nothing is marked while the test is running.</span>
+              </button>
+              <button
+                className="qz-mode" role="radio" aria-checked={instantFeedback}
+                onClick={() => { setInstantFeedback(true); save(`feedback-${subject}`, true); }}
+              >
+                <b>After each question</b>
+                <span>Study mode. Check the answer and explanation before continuing.</span>
+              </button>
+            </div>
+          </div>
+
           {types.length > 0 && (
             <ul className="qz-rules">
               <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
@@ -318,7 +422,7 @@ export default function Quiz(props: Props) {
               {has("multi") && <li>Multiple answer: check <b>every</b> correct option. Right boxes earn points, wrong boxes take points away.</li>}
               {has("blank") && <li>Fill in the blank: tap a word from the word bank to put it in the blank.</li>}
               {has("match") && <li>Matching: pick an answer from each dropdown.</li>}
-              <li>Your score and the correct answers appear after you submit.</li>
+              <li>{instantFeedback ? "Each answer locks and is explained when you check it." : "Your score and the correct answers appear after you submit."}</li>
             </ul>
           )}
 
@@ -373,6 +477,24 @@ export default function Quiz(props: Props) {
       p >= 80 ? "Great work." :
       p >= 60 ? "Getting there." :
       "Every round helps. Check the answers below, then try another round.";
+    const retryWrong = () => {
+      if (!wrong.length) return;
+      const qs = wrong.map(({ q, g }) =>
+        q.kind === "match" ? { ...q, rows: q.rows.filter((_, i) => !g.rows?.[i]) } : q,
+      );
+      const t = Date.now();
+      setRun({
+        v: 3, qs, answers: qs.map(() => ({})), idx: 0, startedAt: t,
+        deadline: null, timed: midterm ? false : undefined,
+        label: `Retry wrong answers · ${qs.length} question${qs.length === 1 ? "" : "s"}`,
+        feedback: run.feedback, revealed: false,
+      });
+      setTimeUp(false);
+      setShowAll(false);
+      setRestarted(false);
+      setPhase("run");
+      toTop();
+    };
 
     return (
       <div className="qz">
@@ -407,7 +529,8 @@ export default function Quiz(props: Props) {
             </details>
           )}
           <div className="qz-actions">
-            <button className="btn primary" onClick={start}>Another round →</button>
+            {wrong.length > 0 && <button className="btn primary" onClick={retryWrong}>Retry wrong answers ({wrong.length}) →</button>}
+            <button className={"btn" + (wrong.length ? "" : " primary")} onClick={start}>Another round →</button>
             <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change settings</button>
             <Link className="btn" href={`/${subject}/test`}>Other tests</Link>
             <Link className="btn" href={`/${subject}/scores`}>My scores</Link>
@@ -546,6 +669,7 @@ export default function Quiz(props: Props) {
   const pts = points(q);
   const blankRows = q.kind === "match" ? q.rows.length - (a.picks || []).filter(Boolean).length : 0;
   const unanswered = !g.answered;
+  const checked = !!(run.feedback && run.revealed);
 
   return (
     <div className="qz">
@@ -578,8 +702,9 @@ export default function Quiz(props: Props) {
                 id={`a-${run.idx}`}
                 className="qz-input"
                 value={a.text || ""}
+                disabled={checked}
                 onChange={(e) => update({ text: e.target.value })}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); next(); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); checkOrNext(); } }}
                 autoFocus autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false}
                 placeholder={`${TRUE_MARK}  or the correct word`}
               />
@@ -592,7 +717,7 @@ export default function Quiz(props: Props) {
                 <legend className="qz-ask">Choose one.</legend>
                 {q.options.map((o) => (
                   <label key={o} className="qz-radio">
-                    <input type="radio" name={`q-${run.idx}`} checked={a.choice === o} onChange={() => update({ choice: o })} />
+                    <input type="radio" name={`q-${run.idx}`} checked={a.choice === o} disabled={checked} onChange={() => update({ choice: o })} />
                     <span dangerouslySetInnerHTML={{ __html: o }} />
                   </label>
                 ))}
@@ -606,7 +731,7 @@ export default function Quiz(props: Props) {
                 <legend className="qz-ask">True or false?</legend>
                 {["True", "False"].map((o) => (
                   <label key={o} className="qz-radio">
-                    <input type="radio" name={`q-${run.idx}`} checked={a.choice === o} onChange={() => update({ choice: o })} />
+                    <input type="radio" name={`q-${run.idx}`} checked={a.choice === o} disabled={checked} onChange={() => update({ choice: o })} />
                     <span>{o}</span>
                   </label>
                 ))}
@@ -625,6 +750,7 @@ export default function Quiz(props: Props) {
                       <input
                         type="checkbox"
                         checked={on}
+                        disabled={checked}
                         onChange={() => update({ checks: on ? (a.checks || []).filter((x) => x !== o) : [...(a.checks || []), o] })}
                       />
                       <span dangerouslySetInnerHTML={{ __html: o }} />
@@ -643,6 +769,7 @@ export default function Quiz(props: Props) {
                   <button
                     type="button"
                     className={"qz-slot" + (a.choice ? " filled" : "")}
+                    disabled={checked}
                     onClick={() => a.choice && update({ choice: undefined })}
                     aria-label={a.choice ? `Blank: ${a.choice}. Tap to clear.` : "Blank, empty"}
                   >
@@ -653,7 +780,7 @@ export default function Quiz(props: Props) {
                 <p className="qz-ask">Tap a word to put it in the blank{a.choice ? ", or tap the blank to clear it" : ""}.</p>
                 <div className="qz-bank" role="group" aria-label="Word bank">
                   {q.bank.map((w) => (
-                    <button key={w} type="button" className="qz-chip" aria-pressed={a.choice === w} onClick={() => update({ choice: w })}>{w}</button>
+                    <button key={w} type="button" className="qz-chip" aria-pressed={a.choice === w} disabled={checked} onClick={() => update({ choice: w })}>{w}</button>
                   ))}
                 </div>
               </>
@@ -668,6 +795,7 @@ export default function Quiz(props: Props) {
                     <span dangerouslySetInnerHTML={{ __html: r.prompt }} />
                     <select
                       value={a.picks?.[ri] || ""}
+                      disabled={checked}
                       aria-label={`Answer for: ${r.prompt.replace(/<[^>]+>/g, "")}`}
                       onChange={(e) => {
                         const picks = (a.picks || q.rows.map(() => "")).slice();
@@ -683,18 +811,33 @@ export default function Quiz(props: Props) {
               </div>
             </>
           )}
+          {checked && <QuestionFeedback q={q} a={a} g={g} onReview={() => setPeek({ q, a })} />}
         </div>
         <div className="qz-foot">
           <p>
-            {unanswered
+            {checked
+              ? isLast ? "Answer checked. Submit when you're ready." : "Answer checked. Continue when you're ready."
+              : unanswered
               ? "Not answered yet. If you move on, it counts as wrong."
               : blankRows
                 ? `${blankRows} dropdown${blankRows === 1 ? "" : "s"} still blank.`
                 : isLast ? "That's the last question." : "You can't come back to this question."}
           </p>
-          <button className="btn primary" onClick={next}>{isLast ? "Submit test" : "Next →"}</button>
+          <button className="btn primary" onClick={checkOrNext}>
+            {run.feedback && !run.revealed ? "Check answer" : isLast ? "Submit test" : "Next →"}
+          </button>
         </div>
       </article>
+      {peek && (
+        <NotesPeek
+          subject={subject}
+          question={peek.q}
+          answer={peek.a}
+          fallbackModule={props.module}
+          allModules={props.modules}
+          onClose={closePeek}
+        />
+      )}
     </div>
   );
 }
