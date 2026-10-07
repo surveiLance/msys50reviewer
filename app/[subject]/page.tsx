@@ -23,12 +23,12 @@ export default async function SubjectPage({ params }: P) {
   const base = `/${subject.slug}`;
   return (
     <>
+      <SubjectNav subject={subject} active={{}} />
       <header className="top">
         <div className="eyebrow">{subject.code}</div>
         <h1>{subject.title}</h1>
         <p className="lede">{subject.blurb}</p>
       </header>
-      <SubjectNav subject={subject} active={{}} />
 
       <ol className="howto" aria-label="How to use this reviewer">
         <li><b>Study a module</b><span>Read the notes, then drill the flashcards.</span></li>
