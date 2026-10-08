@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { BATTLE_TYPES, DEFAULT_BATTLE_SETTINGS, moduleCounts, validModuleCounts, type BattleSettings } from "@/lib/battleSettings";
 import { SCORING_OPTIONS, scoringInfo, type BattleScoring } from "@/lib/battleScoring";
+import BattleLeaderboard from "./BattleLeaderboard";
 
 type Identity = { token: string; name: string };
 type Answer = string | string[];
@@ -50,10 +51,10 @@ function Arena() {
   const [partyId, setPartyId] = useState<Id<"parties"> | null>(null), [title, setTitle] = useState("Study battle");
   const [settings, setSettings] = useState<BattleSettings>(DEFAULT_BATTLE_SETTINGS), [editingSettings, setEditingSettings] = useState(false);
   const [answer, setAnswer] = useState<Answer>(""), [busy, setBusy] = useState(false), [error, setError] = useState("");
-  const [weekly, setWeekly] = useState(false), [now, setNow] = useState(0), [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState(0), [mounted, setMounted] = useState(false);
   const party = useQuery(api.parties.get, identity && partyId ? { token: identity.token, partyId } : "skip");
   const lobbies = useQuery(api.parties.discover, identity && !partyId ? { token: identity.token } : "skip");
-  const leaders = useQuery(api.battle.leaderboard, { weekly });
+  const ongoing = useQuery(api.matches.ongoing, !partyId ? {} : "skip");
   const profile = useQuery(api.battle.profile, identity ? { token: identity.token } : "skip");
 
   useEffect(() => {
@@ -119,6 +120,7 @@ function Arena() {
       : !partyId ? <>
         <div className="battle-heading arena-identity"><p>Playing as <b>{identity.name}</b></p><button className="hist-review-btn" onClick={() => setEditingName(true)}>Edit nickname</button></div>
         <section className="chart-card arena-join"><span className="eyebrow">Want to play with a friend?</span><h3>Join a party</h3><p className="inst">Find your friend’s party below → tap Request to join → wait for approval → press Ready.</p>{lobbies === undefined ? <p>Looking for parties…</p> : !lobbies.length ? <p>No parties open yet. Ask your friend to create one, or create your own below. It will appear here automatically.</p> : <div className="party-lobbies">{lobbies.map(p => <article key={p.id}><div><h4>{p.title}</h4><p>Leader: <b>{p.host}</b> · {p.joined}/{p.settings.capacity} players</p><details className="arena-game-details"><summary>Game details · {p.settings.count} questions</summary><p className="inst">{describe(p.settings)}</p><p className="inst">{BATTLE_TYPES.filter(t => p.settings.types.includes(t.key)).map(t => t.label).join(" · ")}</p></details></div><button className="btn primary" disabled={busy || p.joined >= p.settings.capacity} onClick={() => perform(async () => remember(await requestJoin({ token: identity.token, partyId: p.id })))}>{p.joined >= p.settings.capacity ? "Party full" : "Request to join"}</button></article>)}</div>}</section>
+        {!!ongoing?.length && <section className="chart-card"><span className="eyebrow">Live now</span><h3>Ongoing matches</h3><p className="inst">These games have already started, so joining is closed. Scores update live; answers stay private.</p><div className="battle-match-list">{ongoing.map(m => <article className="battle-match" key={m.id}><div className="battle-heading"><h4>{m.title}</h4><span>Question {m.round}/{m.total}{m.betweenQuestions ? " · between questions" : ""}</span></div><p className="inst">{scoringInfo(m.scoring).label}</p><div className="battle-live-scores">{m.players.map(p => <span key={p.name}><b>{p.name}</b> {p.score} pts</span>)}</div></article>)}</div></section>}
         <details className="chart-card arena-create"><summary>Create a party <span>Host your own game</span></summary><p className="inst">Pick your settings and create the party. Friends can find it above; you approve requests and start when everyone is ready.</p><label>Party name<input value={title} onChange={e => setTitle(e.target.value)} maxLength={60} required /></label><Settings value={settings} onChange={setSettings} disabled={busy} /><button className="btn primary" disabled={busy || !settings.types.length || !validModuleCounts(settings) || !title.trim()} onClick={() => perform(async () => remember(await create({ token: identity.token, title, settings })))}>Create party</button></details>
       </> : party === undefined ? <section className="chart-card"><p role="status">Loading party…</p><button className="btn" onClick={() => remember(null)}>Back to arena</button></section> : !party ? <section className="chart-card"><h3>Party unavailable</h3><button className="btn" onClick={() => remember(null)}>Back to arena</button></section> : <section className="chart-card">
         <div className="battle-heading"><div><span className="eyebrow">{party.host ? "You are the party leader" : `Leader: ${party.hostName}`}</span><h3>{party.title}</h3><p className="inst">{describe(party.settings)}</p></div><button className="btn" disabled={busy} onClick={() => {
@@ -155,7 +157,7 @@ function Arena() {
           {party.phase === "finished" && <><p className="inst">Final result saved to the leaderboard. Rankings are based only on game wins.</p><button className="btn primary" onClick={() => remember(null)}>Back to arena</button><details className="battle-review"><summary>Review your answers</summary>{party.review?.map((q, i) => <article key={i}><h4>{i + 1}. <span dangerouslySetInnerHTML={{ __html: q.prompt }} /></h4>{q.rows.length ? q.rows.map((row, j) => <p key={j}><span dangerouslySetInnerHTML={{ __html: row }} /> → {q.correct[j]}</p>) : <p>Correct: {q.correct.join(" · ")}</p>}<p>Your answer: {formatAnswer(q.yourAnswer)} · {q.ok ? "Correct" : "Incorrect"} · +{q.points}</p><p>{q.explanation}</p></article>)}</details></>}
         </>}
       </section>}
-    <details className="chart-card arena-leaderboard"><summary>Leaderboard</summary><div className="battle-heading"><h3>Most wins</h3><div className="battle-period"><button className="btn" aria-pressed={!weekly} onClick={() => setWeekly(false)}>All time</button><button className="btn" aria-pressed={weekly} onClick={() => setWeekly(true)}>This week</button></div></div><p className="inst">Ranked only by game wins · equal wins share a rank · completed games only{weekly ? " · week starts Monday, UTC" : ""}. Nicknames are public and unverified.</p>{leaders === undefined ? <p>Loading rankings…</p> : !leaders.length ? <p>No completed battles yet. Be the first!</p> : <div className="tbl"><table className="hist"><thead><tr><th>Player</th><th>Wins</th><th>Draws</th><th>Played</th></tr></thead><tbody>{leaders.map(p => <tr key={p.id}><td>{p.rank}. {p.name}</td><td>{p.wins}</td><td>{p.draws}</td><td>{p.matches}</td></tr>)}</tbody></table></div>}</details>
+    <BattleLeaderboard />
     <p className="inst">Identity stays in this browser. Clearing storage starts a new profile. Players need separate browsers or devices. Existing solo quizzes and scores are unchanged.</p>
   </div>;
 }

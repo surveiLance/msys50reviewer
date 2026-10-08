@@ -24,6 +24,37 @@ async function setup(start = true) {
   const raw = await t.run(ctx => ctx.db.get(partyId));
   return { t, partyId, raw: raw! };
 }
+test("public live summaries become completed history with accurate stats and no answer leaks", async () => {
+  const { t, partyId, raw } = await setup();
+  const live = await t.query(api.matches.ongoing, {});
+  expect(live).toHaveLength(1);
+  expect(live[0]).toMatchObject({ round: 1, total: 5, players: [{ name: "Alice", score: 0 }, { name: "Bob", score: 0 }, { name: "Charlie", score: 0 }] });
+  expect(JSON.stringify(live)).not.toContain(raw.questions[0].prompt);
+  expect(JSON.stringify(live)).not.toContain(a);
+  expect(await t.query(api.matches.history, {})).toEqual([]);
+  for (let index = 0; index < raw.questions.length; index++) {
+    vi.advanceTimersByTime(100);
+    await t.mutation(api.parties.act, { token: a, partyId, action: "answer", index, answer: raw.questions[index].correct[0] });
+    vi.advanceTimersByTime(100);
+    await t.mutation(api.parties.act, { token: b, partyId, action: "answer", index, answer: raw.questions[index].options.find(o => o !== raw.questions[index].correct[0])! });
+    vi.advanceTimersByTime(60_000);
+    await t.mutation(internal.parties.timeout, { partyId, index });
+    if (index < raw.questions.length - 1) await t.mutation(api.parties.act, { token: a, partyId, action: "next", index });
+  }
+  expect(await t.query(api.matches.ongoing, {})).toEqual([]);
+  const history = await t.query(api.matches.history, {});
+  expect(history[0].winners).toEqual(["Alice"]);
+  expect(history[0].completedAt).toBe(Date.now());
+  expect(history[0].players.find(p => p.name === "Alice")).toMatchObject({ score: 5, rank: 1, stats: { correct: 5, wrong: 0, unanswered: 0, averageMs: 100 } });
+  expect(history[0].players.find(p => p.name === "Bob")?.stats).toMatchObject({ correct: 0, wrong: 5, unanswered: 0, averageMs: 200 });
+  expect(history[0].players.find(p => p.name === "Charlie")?.stats).toMatchObject({ correct: 0, wrong: 0, unanswered: 5, averageMs: null });
+  expect(JSON.stringify(history)).not.toContain(raw.questions[0].prompt);
+  await t.run(ctx => ctx.db.patch(partyId, { settings: { ...raw.settings, showPlayerResults: false } }));
+  expect((await t.query(api.matches.history, {}))[0].players.every(p => p.stats === null)).toBe(true);
+  await t.run(ctx => ctx.db.patch(partyId, { phase: "cancelled" }));
+  expect(await t.query(api.matches.history, {})).toEqual([]);
+});
+
 test("nickname gate, public discovery, approval and host-only start/settings", async () => {
   const { t, partyId } = await setup(false);
   await expect(t.query(api.parties.discover, { token: "unknown" })).rejects.toThrow("nickname");

@@ -48,7 +48,7 @@ async function finish(ctx: MutationCtx, party: Doc<"parties">, people: Doc<"part
       if (prior) await ctx.db.patch(prior._id, values); else await ctx.db.insert("standings", { ...values, player: m.player, period });
     }
   }
-  await ctx.db.patch(party._id, { phase: "finished" });
+  await ctx.db.patch(party._id, { phase: "finished", completedAt: Date.now() });
 }
 async function settle(ctx: MutationCtx, party: Doc<"parties">) {
   if (party.phase !== "question") return;
@@ -187,7 +187,8 @@ export const act = mutation({
         if (q.kind === "match" || q.kind === "multi") {
           if (!Array.isArray(answer) || !answer.length || answer.some(a => !q.options.includes(a)) || q.kind === "match" && answer.length !== q.rows.length || q.kind === "multi" && new Set(answer).size !== answer.length) throw new ConvexError("Complete your answer using the available choices.");
         } else if (typeof answer !== "string" || q.kind !== "tf" && !q.options.includes(answer)) throw new ConvexError("Choose an available answer.");
-        const answers = [...me.answers, { answer, at: Date.now(), correct: false, points: 0 }];
+        const at = Date.now();
+        const answers = [...me.answers, { answer, at, responseMs: Math.max(0, at - party.startedAt), correct: false, points: 0 }];
         await ctx.db.patch(me._id, { answers });
         const active = (await members(ctx, party._id)).filter(m => m.status === "approved");
         if (active.every(m => m.answers.length > party.index)) await settle(ctx, party);

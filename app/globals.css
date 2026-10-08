@@ -741,6 +741,13 @@ mark.peek-hl{background:var(--accent-soft);color:var(--ink);box-shadow:0 0 0 2px
 .qz-type b{font-size:15px}
 .qz-type small{font-size:13px;color:var(--muted)}
 .qz-type:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.battle-match-list{display:grid;gap:12px;margin-top:16px}
+.battle-match{border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.battle-match summary{cursor:pointer;overflow-wrap:anywhere}
+.battle-match summary span{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+.battle-live-scores{display:flex;flex-wrap:wrap;gap:8px 18px}
+.arena-leaderboard [role="tablist"]{margin:18px 0}
+.arena-leaderboard [aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
 .qz-type.off{opacity:.5;cursor:default}
 .qz-mode:disabled{opacity:.45;cursor:default}
 @media (max-width:560px){

@@ -7,8 +7,8 @@ export default defineSchema({
     host: v.id("players"), title: v.string(), settings: settingsType,
     phase: v.union(v.literal("lobby"), v.literal("question"), v.literal("reveal"), v.literal("finished"), v.literal("cancelled")),
     questions: v.array(questionShape), index: v.number(), startedAt: v.number(), deadline: v.number(), expiresAt: v.number(),
-    revision: v.number(),
-  }).index("by_phase", ["phase"]).index("by_host", ["host"]),
+    revision: v.number(), completedAt: v.optional(v.number()),
+  }).index("by_phase", ["phase"]).index("by_phase_completed", ["phase", "completedAt"]).index("by_host", ["host"]),
   partyMembers: defineTable({
     party: v.id("parties"), player: v.id("players"), name: v.string(),
     status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("left")),
