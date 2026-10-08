@@ -39,7 +39,7 @@ export default async function TestsPage({ params }: P) {
             <b>{t.title}</b>
             <span className="meta">{t.subtitle}</span>
             <span className="meta">
-              {t.bank} original questions{t.alternativeBank ? ` · ${t.alternativeBank} alternative` : ""} · pick a set, types, and length
+              {t.bank} original questions{t.alternativeBank ? ` · ${t.alternativeBank} alternative` : ""}{t.scenarioBank ? ` · ${t.scenarioBank} scenarios` : ""} · pick a set, types, and length
             </span>
             <RecordStrip subject={subject.slug} kind={t.kind === "midterm" ? "midterm" : "practice"} module={t.kind === "module" ? t.slug : undefined} compact />
             <span className="go">Start →</span>

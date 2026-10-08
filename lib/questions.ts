@@ -229,6 +229,18 @@ export function poolAlternativeMidterm(items: Record<string, AlternativeQuestion
   return out;
 }
 
+/** Midterm-only practice containing every lesson-validated case scenario. */
+export function poolScenarioMidterm(scenarios: Record<string, McItem[]> = {}): Pool {
+  const out = emptyPool();
+  out.mc = Object.entries(scenarios).flatMap(([module, items]) =>
+    items.map((item, i) => ({
+      ...mcQ(item, "Scenario practice", module),
+      id: `scenario:${module}:${i}`,
+    })),
+  );
+  return out;
+}
+
 /** Matching questions show at most this many rows per round, so one can't take over a short test. */
 export const MATCH_ROWS = 5;
 
@@ -307,6 +319,24 @@ const avgRows = (qs: Question[]) => (qs.length ? Math.round(qs.reduce((s, q) => 
 /** Modified and plain true or false share a statement; treat them as one for "seen" and within a round. */
 const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
 
+/** Scenario rounds rotate across modules instead of clustering randomly in one module. */
+function variedScenarioPick(qs: Question[], n: number): Question[] {
+  if (!qs.some((q) => q.id.startsWith("scenario:"))) return shuffle(qs).slice(0, n);
+  const groups = new Map<string, Question[]>();
+  shuffle(qs).forEach((q) => {
+    const key = q.kind !== "match" && q.mod ? q.mod : "other";
+    groups.set(key, [...(groups.get(key) || []), q]);
+  });
+  const picked: Question[] = [];
+  while (picked.length < n && [...groups.values()].some((group) => group.length)) {
+    shuffle([...groups.keys()]).forEach((key) => {
+      const group = groups.get(key)!;
+      if (picked.length < n && group.length) picked.push(group.pop()!);
+    });
+  }
+  return picked;
+}
+
 /**
  * Builds a round: unseen questions first within each type, never the same statement twice,
  * matching trimmed to MATCH_ROWS random rows. A type whose questions have all been seen starts over.
@@ -321,14 +351,14 @@ export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: strin
     if (!n) return;
     const seenSet = new Set(nextSeen);
     const avail = pool[t].filter((q) => !used.has(baseId(q.id)));
-    let fresh = shuffle(avail.filter((q) => !seenSet.has(baseId(q.id)))).slice(0, n);
+    let fresh = variedScenarioPick(avail.filter((q) => !seenSet.has(baseId(q.id))), n);
     if (fresh.length < n) {
       // Everything of this type has been seen: start this type over.
       restarted = true;
       const ids = new Set(pool[t].map((q) => baseId(q.id)));
       nextSeen = nextSeen.filter((id) => !ids.has(id));
       const have = new Set(fresh.map((q) => q.id));
-      fresh = [...fresh, ...shuffle(avail.filter((q) => !have.has(q.id))).slice(0, n - fresh.length)];
+      fresh = [...fresh, ...variedScenarioPick(avail.filter((q) => !have.has(q.id)), n - fresh.length)];
     }
     fresh.forEach((q) => {
       used.add(baseId(q.id));

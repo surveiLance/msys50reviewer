@@ -1,5 +1,5 @@
 import type { SubjectData, SubjectMeta } from "./types";
-import { QTYPES, poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolSize } from "./questions";
+import { QTYPES, poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolScenarioMidterm, poolSize } from "./questions";
 
 export type TestInfo = {
   slug: string; // "module-2" or "midterm" → /[subject]/test/[slug]
@@ -10,6 +10,8 @@ export type TestInfo = {
   bank: number;
   /** independently authored questions in the optional alternative set */
   alternativeBank?: number;
+  /** lesson-validated cases available in the midterm's scenario-only set */
+  scenarioBank?: number;
 };
 
 const ALL = QTYPES.map((t) => t.key);
@@ -32,6 +34,7 @@ export function listTests(subject: SubjectMeta, data: SubjectData): TestInfo[] {
       subtitle: `All modules · real exam ${subject.exam.when}`,
       bank: poolSize(poolMidterm(data.midterm, data.pools, data.scenarios, data.tests, data.multi, data.blanks), ALL),
       alternativeBank: poolSize(poolAlternativeMidterm(data.alternative), ALL),
+      scenarioBank: poolSize(poolScenarioMidterm(data.scenarios), ALL),
     });
   }
   return tests;

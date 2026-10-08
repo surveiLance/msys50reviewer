@@ -6,7 +6,7 @@ import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, Mult
 import { load, save } from "@/lib/quiz";
 import {
   type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
-  poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule,
+  poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolScenarioMidterm,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
@@ -55,7 +55,7 @@ type Run = {
 };
 
 type LengthKey = "quick" | "short" | "medium" | "long";
-type QuestionSet = "original" | "alternative";
+type QuestionSet = "original" | "alternative" | "scenarios";
 /** The real midterm's size, for scaling the timer of shorter rounds. */
 const EXAM_POINTS = 85;
 const ALL_TYPES = QTYPES.map((t) => t.key);
@@ -177,8 +177,9 @@ export default function Quiz(props: Props) {
     if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
     setInstantFeedback(load<boolean>(`feedback-${subject}`, false));
     const set = load<string | null>(`${storageKey}-question-set`, null);
-    if (set === "alternative" && Object.values(props.alternative || {}).some((items) => items.length)) setQuestionSet("alternative");
-  }, [runKey, storageKey, subject, props.alternative]);
+    if (set === "scenarios" && midterm && Object.values(props.scenarios || {}).some((items) => items.length)) setQuestionSet("scenarios");
+    else if (set === "alternative" && Object.values(props.alternative || {}).some((items) => items.length)) setQuestionSet("alternative");
+  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -207,9 +208,15 @@ export default function Quiz(props: Props) {
       : poolAlternativeModule(props.alternative?.[props.module || ""], props.module || ""),
     [midterm, props.alternative, props.module],
   );
+  const scenarioPool = useMemo(() => poolScenarioMidterm(midterm ? props.scenarios : {}), [midterm, props.scenarios]);
   const hasAlternative = poolSize(alternativePool, ALL_TYPES) > 0;
-  const pool = questionSet === "alternative" && hasAlternative ? alternativePool : originalPool;
-  const seenKey = questionSet === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
+  const hasScenarios = midterm && poolSize(scenarioPool, ALL_TYPES) > 0;
+  const pool = questionSet === "scenarios" && hasScenarios
+    ? scenarioPool
+    : questionSet === "alternative" && hasAlternative ? alternativePool : originalPool;
+  const seenKey = questionSet === "scenarios"
+    ? `${storageKey}-scenario-seen1`
+    : questionSet === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
   useEffect(() => setSeen(load<string[]>(seenKey, [])), [seenKey]);
   const sizes = useMemo(
     () =>
@@ -231,8 +238,10 @@ export default function Quiz(props: Props) {
     const ids = new Set(types.flatMap((t) => pool[t].map((q) => baseId(q.id))));
     return seen.filter((id) => ids.has(id)).length;
   }, [seen, pool, types]);
-  // A shorter timed midterm gets proportionally less time.
-  const minutes = props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / EXAM_POINTS)) : 0;
+  // Scenario practice uses the instructor's one-hour completion target; other midterm rounds scale from the 75-minute exam.
+  const minutes = questionSet === "scenarios"
+    ? Math.max(5, Math.ceil((60 * size.questions) / Math.max(1, poolSize(scenarioPool, ALL_TYPES))))
+    : props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / EXAM_POINTS)) : 0;
 
   const toggleType = (t: QType) => {
     const next = types.includes(t) ? types.filter((x) => x !== t) : ALL_TYPES.filter((x) => x === t || types.includes(x));
@@ -242,9 +251,13 @@ export default function Quiz(props: Props) {
   const typeSummary = activeTypes.length === availableTypes.length ? "All available types" : `${activeTypes.length} type${activeTypes.length === 1 ? "" : "s"}`;
   const chooseQuestionSet = (next: QuestionSet) => {
     setQuestionSet(next);
-    setSeen(load<string[]>(next === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`, []));
+    const nextSeenKey = next === "scenarios"
+      ? `${storageKey}-scenario-seen1`
+      : next === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
+    setSeen(load<string[]>(nextSeenKey, []));
     save(`${storageKey}-question-set`, next);
   };
+  const questionSetLabel = questionSet === "scenarios" ? "Scenario practice" : questionSet === "alternative" ? "Alternative set" : "Original set";
 
   const start = () => {
     if (!size.questions) return;
@@ -257,7 +270,7 @@ export default function Quiz(props: Props) {
     setRun({
       v: 3, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
       deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
-      timed: midterm ? timed : undefined, label: `${questionSet === "alternative" ? "Alternative set" : "Original set"} · ${size.label} · ${typeSummary}`,
+      timed: midterm ? timed : undefined, label: `${questionSetLabel} · ${size.key === "long" && questionSet === "scenarios" ? "All scenarios" : size.label} · ${typeSummary}`,
       feedback: instantFeedback, revealed: false,
       questionSet,
     });
@@ -390,10 +403,10 @@ export default function Quiz(props: Props) {
           </div>
         )}
         <div className="qz-panel">
-          {hasAlternative && (
+          {(hasAlternative || hasScenarios) && (
             <div>
               <h4 className="qz-h">Question set</h4>
-              <div className="qz-set-tabs" role="tablist" aria-label="Question set">
+              <div className={`qz-set-tabs${hasScenarios ? " n3" : ""}`} role="tablist" aria-label="Question set">
                 <button role="tab" aria-selected={questionSet === "original"} onClick={() => chooseQuestionSet("original")}>
                   <b>Original set</b>
                   <span>Your existing bank and progress</span>
@@ -402,9 +415,17 @@ export default function Quiz(props: Props) {
                   <b>Alternative set</b>
                   <span>New past-quiz-style questions</span>
                 </button>
+                {hasScenarios && (
+                  <button role="tab" aria-selected={questionSet === "scenarios"} onClick={() => chooseQuestionSet("scenarios")}>
+                    <b>Scenario practice</b>
+                    <span>Cases from all three modules</span>
+                  </button>
+                )}
               </div>
               <p className="qz-set-note">
-                {questionSet === "alternative"
+                {questionSet === "scenarios"
+                  ? `${poolSize(scenarioPool, ALL_TYPES)} lesson-validated scenarios. Each round balances Modules 1–3 when possible.`
+                  : questionSet === "alternative"
                   ? `${poolSize(alternativePool, ALL_TYPES)} independently written questions based on the lessons. Each concept appears in one format.`
                   : "The question bank you've already been using. Nothing here was reset or removed."}
               </p>
@@ -435,7 +456,7 @@ export default function Quiz(props: Props) {
             <div className={`qz-modes n${shownSizes.length}`} role="radiogroup" aria-label="Test length">
               {shownSizes.map((l) => (
                 <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)} disabled={!l.questions}>
-                  <b>{l.key === "quick" ? l.label : `${l.label} · ${l.pts} pts`}</b>
+                  <b>{l.key === "quick" ? l.label : `${l.key === "long" && questionSet === "scenarios" ? "All scenarios" : l.label} · ${l.pts} pts`}</b>
                   <span>{l.questions} questions{midterm && timed ? "" : ` · about ${estMinutes(l.pts)} min`}</span>
                 </button>
               ))}
@@ -477,7 +498,7 @@ export default function Quiz(props: Props) {
             <div className="qz-modes" role="radiogroup" aria-label="Timer">
               <button className="qz-mode" role="radio" aria-checked={timed} onClick={() => setTimed(true)}>
                 <b>Timed · {minutes} min</b>
-                <span>{size.key === "long" ? "Like the real exam." : "Scaled to this length."} Submits when time runs out.</span>
+                <span>{size.key === "long" && questionSet === "scenarios" ? "A one-hour scenario target." : size.key === "long" ? "Like the real exam." : questionSet === "scenarios" ? "Scaled from the one-hour scenario target." : "Scaled to this length."} Submits when time runs out.</span>
               </button>
               <button className="qz-mode" role="radio" aria-checked={!timed} onClick={() => setTimed(false)}>
                 <b>Untimed</b>
@@ -488,7 +509,7 @@ export default function Quiz(props: Props) {
 
           {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round picks questions you haven&apos;t seen yet{midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}.
+              Every round picks questions you haven&apos;t seen yet{questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (
