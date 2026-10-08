@@ -40,7 +40,11 @@ test("nickname gate, public discovery, approval and host-only start/settings", a
   const target = changed!.roster.find(m => m.name === "Charlie")!;
   await t.mutation(api.parties.moderate, { token: a, partyId, memberId: target.id, approve: false });
   await t.mutation(api.parties.act, { token: c, partyId, action: "leave" });
-  await expect(t.mutation(api.parties.requestJoin, { token: c, partyId })).rejects.toThrow("declined");
+  await t.mutation(api.parties.requestJoin, { token: c, partyId });
+  expect((await t.query(api.parties.get, { token: c, partyId }))?.status).toBe("pending");
+  await expect(t.mutation(api.parties.act, { token: c, partyId, action: "ready", revision: 1 })).rejects.toThrow("approve");
+  await t.mutation(api.parties.moderate, { token: a, partyId, memberId: target.id, approve: true });
+  expect((await t.query(api.parties.get, { token: c, partyId }))?.status).toBe("approved");
 });
 test("pending players cannot see questions or act; capacity is enforced at approval", async () => {
   const { t, partyId } = await setup(false);
@@ -164,4 +168,30 @@ test("custom counts persist in a lobby and survive into the started game", async
   expect(raw!.questions.filter(q => q.module === "M1")).toHaveLength(2);
   expect(raw!.questions.filter(q => q.module === "M3")).toHaveLength(5);
   expect((await t.query(api.parties.get, { token: b, partyId }))?.total).toBe(7);
+});
+
+test.each(["correct", "fastest", "ranked"] as const)("%s scoring awards server-calculated points, excludes wrong answers, and handles ties", async scoring => {
+  const { t, partyId } = await setup(false);
+  await t.mutation(api.parties.configure, { token: a, partyId, settings: { ...settings, scoring } });
+  for (const token of [b, c]) await t.mutation(api.parties.act, { token, partyId, action: "ready", revision: 1 });
+  await t.mutation(api.parties.act, { token: a, partyId, action: "start" });
+  const raw = (await t.run(ctx => ctx.db.get(partyId)))!;
+  const scores = () => t.query(api.parties.get, { token: a, partyId });
+  for (const token of [a, b, c]) {
+    vi.advanceTimersByTime(100);
+    await t.mutation(api.parties.act, { token, partyId, action: "answer", index: 0, answer: raw.questions[0].correct[0] });
+  }
+  expect((await scores())?.result?.players.map(p => p.points)).toEqual(scoring === "correct" ? [1, 1, 1] : scoring === "fastest" ? [1, 0, 0] : [3, 2, 1]);
+  await expect(t.mutation(api.parties.configure, { token: a, partyId, settings: { ...settings, scoring: "correct" } })).rejects.toThrow("locked");
+  await t.mutation(api.parties.act, { token: a, partyId, action: "next", index: 0 });
+  const correct = raw.questions[1].correct[0], wrong = raw.questions[1].options.find(o => o !== correct)!;
+  await t.mutation(api.parties.act, { token: a, partyId, action: "answer", index: 1, answer: wrong });
+  for (const token of [b, c]) await t.mutation(api.parties.act, { token, partyId, action: "answer", index: 1, answer: correct });
+  expect((await scores())?.result?.players.map(p => p.points)).toEqual(scoring === "ranked" ? [0, 3, 3] : [0, 1, 1]);
+  await t.mutation(api.parties.act, { token: a, partyId, action: "next", index: 1 });
+  await t.mutation(api.parties.act, { token: b, partyId, action: "answer", index: 2, answer: raw.questions[2].correct[0] });
+  vi.advanceTimersByTime(60_001);
+  await t.mutation(internal.parties.timeout, { partyId, index: 2 });
+  expect((await scores())?.result?.players.map(p => p.points)).toEqual(scoring === "ranked" ? [0, 3, 0] : [0, 1, 0]);
+  expect((await scores())?.roster.map(p => p.score)).toEqual(scoring === "ranked" ? [3, 8, 4] : scoring === "correct" ? [1, 3, 2] : [1, 2, 1]);
 });

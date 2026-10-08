@@ -25,7 +25,8 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
 
 - Register a nickname before discovering, creating, or requesting to join a party.
 - Open parties appear on the Battle page without room codes. The host approves
-  or declines requests and can remove players before starting.
+  or declines requests and can remove players before starting. Declined or
+  removed players may request again while the lobby is open; approval is still required.
 - The host checks which Modules 1–3 to include and enters 1–20 questions per
   selected module. The total is automatic (up to 60); games draw those exact
   counts and exclude unchecked modules. Insufficient banks require lowering
@@ -36,8 +37,12 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
   Changing settings resets readiness. The roster locks when the game starts.
 - Everyone gets the same shuffled choices. Answers are immutable once locked;
   answers and grading remain hidden until everyone locks or time expires.
-- The fastest fully correct submission earns 1 point. Exact server-timestamp
-  ties share the point. Incorrect, missing, or partially correct answers earn 0.
+- Scoring is chosen by the host before starting: every fully correct answer
+  gets 1 point; fastest correct only gets 1 point (the default for old lobbies);
+  or speed-ranked points, where a correct answer earns the active player count
+  minus the number of earlier correct submissions (3/2/1 with three players).
+  Exact server-timestamp ties get equal points. Incorrect, missing, or partially
+  correct answers earn 0 in every mode. Settings cannot change mid-game.
   Server receipt time is authoritative, so network latency can affect close races.
 - The final question ends the game automatically after all locks or timeout.
   Leaderboards rank only by game wins, with equal wins sharing a rank. Accuracy

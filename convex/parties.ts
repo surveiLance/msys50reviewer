@@ -4,6 +4,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { answerType, settingsType } from "./partyTypes";
 import { isCorrect, selectQuestions, validateSettings } from "./partyQuestions";
+import { roundPoints } from "../lib/battleScoring";
 
 async function player(ctx: MutationCtx | QueryCtx, token: string) {
   const p = await ctx.db.query("players").withIndex("by_token", q => q.eq("token", token)).unique();
@@ -56,13 +57,13 @@ async function settle(ctx: MutationCtx, party: Doc<"parties">) {
   if (active.length < 2) { await ctx.db.patch(party._id, { phase: "cancelled" }); return; }
   const q = party.questions[party.index];
   const right = active.filter(m => m.answers[party.index] && isCorrect(q, m.answers[party.index].answer));
-  const fastest = right.length ? Math.min(...right.map(m => m.answers[party.index].at)) : -1;
+  const correctTimes = right.map(m => m.answers[party.index].at);
   const updated: Doc<"partyMembers">[] = [];
   for (const m of people) {
     if (!m.participated) { updated.push(m); continue; }
     const answer = m.answers[party.index] ?? { answer: q.kind === "match" || q.kind === "multi" ? [] : "", at: party.deadline, correct: false, points: 0 };
     const correct = isCorrect(q, answer.answer);
-    const points = Number(m.status === "approved" && correct && answer.at === fastest);
+    const points = m.status === "approved" && correct ? roundPoints(party.settings.scoring, answer.at, correctTimes, active.length) : 0;
     const answers = [...m.answers]; answers[party.index] = { ...answer, correct, points };
     const score = m.score + points;
     await ctx.db.patch(m._id, { answers, score }); updated.push({ ...m, answers, score });
@@ -107,7 +108,6 @@ export const requestJoin = mutation({
     const p = await player(ctx, token), party = await getParty(ctx, partyId);
     if (party.phase !== "lobby" || party.expiresAt < Date.now()) throw new ConvexError("This party is no longer accepting players.");
     const existing = await member(ctx, partyId, p._id);
-    if (existing?.status === "rejected") throw new ConvexError("The leader declined your request for this party.");
     if (existing?.status === "approved" || existing?.status === "pending") return partyId;
     const list = await members(ctx, partyId);
     if (list.filter(m => m.status === "approved").length >= party.settings.capacity) throw new ConvexError("This party is full.");
