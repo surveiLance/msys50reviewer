@@ -105,7 +105,7 @@ header.top{padding-block:32px 8px}
 .swatches button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
 
 /* section tabs */
-nav.tabs{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px;display:flex;gap:2px}
+nav.tabs{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px;display:flex;gap:2px;overflow-x:auto}
 nav.tabs a{flex:1;text-align:center;text-decoration:none;color:var(--muted);font:600 15px/1 var(--f-body);padding:16px 4px 13px;border-bottom:3px solid transparent;white-space:nowrap}
 nav.tabs a:hover{color:var(--ink)}
 nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
@@ -507,6 +507,42 @@ table.hist th:last-child{text-align:right}
 .hist-review-btn:hover{text-decoration:underline}
 .hist-delete-btn{display:block;appearance:none;border:0;background:none;color:var(--bad);font:600 13px/1.4 var(--f-body);padding:8px 0 0;cursor:pointer}
 .hist-delete-btn:hover{text-decoration:underline}
+
+/* Multiplayer arena uses the same shell and theme as solo tests. */
+.battle{display:grid;gap:20px;margin:24px 0 32px}
+.battle .chart-card{padding:22px;display:grid;gap:14px}
+.battle h4,.battle p{margin:0}
+.battle-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.battle-heading>.btn{flex:0 0 auto}
+.battle label{display:grid;gap:8px;font-size:14px;font-weight:600}
+.battle input:not([type="radio"]),.battle select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;min-width:0}
+.battle-form{display:grid;gap:14px;max-width:420px}
+.battle-lobby-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.battle-lobby-grid>div,.battle-lobby-grid>form{display:grid;gap:14px;align-content:start}
+.battle-versus{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.battle-versus>div{display:grid;gap:6px;text-align:center;border:1px solid var(--line);border-radius:12px;padding:18px 10px;min-width:0;overflow-wrap:anywhere}
+.battle-versus .is-you{border-color:var(--accent-line);background:var(--accent-soft)}
+.battle-versus span,.battle-versus small{color:var(--muted);font-size:12px}
+.battle-versus b{font-size:18px}
+.battle-versus strong{font-size:32px;font-variant-numeric:tabular-nums}
+.battle-vs{font-weight:800;color:var(--accent-ink)!important}
+.battle-prompt{font-size:20px;line-height:1.5;overflow-wrap:anywhere}
+.battle-options{display:grid;gap:10px;border:0;margin:0;padding:0;min-width:0}
+.battle-options label{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:500}
+.battle-options input{accent-color:var(--accent);flex-shrink:0}
+.battle-options label:has(input:checked){background:var(--accent-soft);border-color:var(--accent-line)}
+.battle-result{display:grid;gap:12px;padding:18px;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:12px;overflow-wrap:anywhere;line-height:1.65}
+.battle-right{color:var(--ok)}
+.battle-wrong,.battle-error{color:var(--bad)}
+.battle-error{padding:12px;background:var(--bad-bg);border-radius:10px}
+.battle-status{padding:12px;background:var(--warn-bg);color:var(--warn);border-radius:10px}
+.battle-outcome{font-size:28px;color:var(--accent-ink)}
+.battle-period{display:flex;gap:8px}
+.battle-period .btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-ink)}
+.battle-review article{padding-block:18px;border-bottom:1px solid var(--line);display:grid;gap:10px;overflow-wrap:anywhere}
+.battle-review summary{cursor:pointer;color:var(--accent-ink);font-weight:700;padding:10px 0}
+.battle .tbl{overflow-x:auto}
+@media(max-width:600px){.battle-lobby-grid{grid-template-columns:1fr}.battle .chart-card{padding:16px}.battle-versus{gap:7px}.battle-versus b{font-size:15px}.battle-period .btn{padding:10px;font-size:13px}}
 .hist-old{display:block;margin-top:4px;font-size:12.5px;color:var(--faint)}
 .hist-back{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.58);backdrop-filter:blur(4px)}
 .hist-dialog{width:min(820px,100%);max-height:min(88vh,900px);display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:18px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);overflow:hidden}
