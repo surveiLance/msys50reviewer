@@ -7,5 +7,6 @@ export const settingsType = v.object({ mode: modeType, types: v.array(questionTy
 export const questionShape = v.object({
   kind: questionType, module: v.string(), prompt: v.string(), options: v.array(v.string()),
   correct: v.array(v.string()), accept: v.array(v.string()), rows: v.array(v.string()), explanation: v.string(), source: v.string(),
+  rotationKey: v.optional(v.string()),
 });
 export const submissionShape = v.object({ answer: answerType, at: v.number(), correct: v.boolean(), points: v.number(), responseMs: v.optional(v.number()) });

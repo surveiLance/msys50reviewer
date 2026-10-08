@@ -3,7 +3,7 @@ import { convexTest } from "convex-test";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { api, internal } from "../convex/_generated/api";
 import schema from "../convex/schema";
-import { isCorrect, questionBank, selectQuestions, type PartySettings } from "../convex/partyQuestions";
+import { isCorrect, questionBank, questionKey, selectQuestions, type PartySettings } from "../convex/partyQuestions";
 
 const modules = import.meta.glob("../convex/**/*.{ts,js}");
 const a = "a".repeat(64), b = "b".repeat(64), c = "c".repeat(64);
@@ -53,6 +53,20 @@ test("public live summaries become completed history with accurate stats and no 
   expect((await t.query(api.matches.history, {}))[0].players.every(p => p.stats === null)).toBe(true);
   await t.run(ctx => ctx.db.patch(partyId, { phase: "cancelled" }));
   expect(await t.query(api.matches.history, {})).toEqual([]);
+});
+
+test("a new host's match avoids questions recently assigned to returning opponents", async () => {
+  const { t, partyId, raw } = await setup();
+  await t.run(ctx => ctx.db.patch(partyId, { phase: "finished" }));
+  const nextId = await t.mutation(api.parties.create, { token: b, title: "Rematch", settings });
+  await t.mutation(api.parties.requestJoin, { token: a, partyId: nextId });
+  const next = await t.query(api.parties.get, { token: b, partyId: nextId });
+  const alice = next!.roster.find(m => m.name === "Alice")!;
+  await t.mutation(api.parties.moderate, { token: b, partyId: nextId, memberId: alice.id, approve: true });
+  await t.mutation(api.parties.act, { token: a, partyId: nextId, action: "ready", revision: 0 });
+  await t.mutation(api.parties.act, { token: b, partyId: nextId, action: "start" });
+  const second = await t.run(ctx => ctx.db.get(nextId));
+  expect(second!.questions.some(q => raw.questions.map(questionKey).includes(questionKey(q)))).toBe(false);
 });
 
 test("nickname gate, public discovery, approval and host-only start/settings", async () => {
@@ -186,7 +200,8 @@ test("custom module counts are exact, omit unchecked modules, and cover selected
   expect(selectQuestions({ ...settings, count: 1, moduleCounts: { M3: 1 } })).toHaveLength(1);
   for (const moduleCounts of [{}, { M1: 0 }, { M1: -1 }, { M1: 1.5 }, { M1: 21 }]) expect(() => selectQuestions({ ...settings, moduleCounts })).toThrow("Select at least one module");
   expect(() => selectQuestions({ ...settings, count: 6, moduleCounts: { M1: 5 } })).toThrow("total");
-  expect(() => selectQuestions({ ...settings, count: 20, moduleCounts: { M1: 20 } })).toThrow("Module 1");
+  expect(selectQuestions({ ...settings, count: 20, moduleCounts: { M1: 20 } })).toHaveLength(20);
+  expect(() => selectQuestions({ ...settings, types: ["match"], count: 20, moduleCounts: { M1: 20 } })).toThrow("Module 1");
 });
 test("custom counts persist in a lobby and survive into the started game", async () => {
   const { t, partyId } = await setup(false);

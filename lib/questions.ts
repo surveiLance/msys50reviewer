@@ -83,6 +83,7 @@ function fromSection(sec: Section, scenarios?: Record<string, McItem[]>): Questi
     options: shuffle(x.o),
     answer: x.a,
     why: x.w,
+    source: x.r,
     mod: x.mod,
   }));
 }
@@ -122,7 +123,7 @@ export function grade(q: Question, a: Answer | undefined): Graded {
 /* ---------- Quick rounds: 10 single questions at a time, rotating through everything ---------- */
 
 const mcQ = (x: McItem, section: string, mod?: string): Question => ({
-  kind: "mc", id: `c:${x.q}`, section, prompt: x.q, options: shuffle(x.o), answer: x.a, why: x.w, mod,
+  kind: "mc", id: `c:${x.q}`, section, prompt: x.q, options: shuffle(x.o), answer: x.a, why: x.w, source: x.r, mod,
 });
 
 function dedupeQs(qs: Question[]): Question[] {

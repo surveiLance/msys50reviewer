@@ -2,10 +2,12 @@ import type { Infer } from "convex/values";
 import { ConvexError } from "convex/values";
 import { questionShape, settingsType } from "./partyTypes";
 import raw from "../content/msys-50/data.json";
+import alternative from "../content/msys-50/alternative.json";
+import { expandQuestionData } from "../content/msys-50/fresh";
 import type { SubjectData } from "../lib/types";
 import { norm } from "../lib/quiz";
 
-const data = raw as unknown as SubjectData;
+const data = expandQuestionData({ ...raw, alternative } as unknown as SubjectData);
 export type PartyQuestion = Infer<typeof questionShape>;
 export type PartySettings = Infer<typeof settingsType>;
 export function shuffle<T>(items: T[]): T[] {
@@ -21,7 +23,7 @@ export function questionBank(): PartyQuestion[] {
   const bank: PartyQuestion[] = [];
   for (const module of ["M1", "M2", "M3"]) {
     const slug = `module-${module.slice(1)}`;
-    for (const q of data.scenarios[module] ?? []) bank.push(base("scenario", module, q.q, q.o, [q.a], q.w));
+    for (const q of data.scenarios[module] ?? []) bank.push(base("scenario", module, q.q, q.o, [q.a], q.w, q.r));
     const seen = new Set<string>();
     for (const set of Object.values(data.tests[slug] ?? {})) {
       for (const q of set.mtf) {
@@ -33,7 +35,7 @@ export function questionBank(): PartyQuestion[] {
       }
       for (const sec of set.secs) {
         if (sec.kind === "mc") {
-          for (const q of sec.items ?? []) bank.push(base("mc", module, q.q, q.o, [q.a], q.w));
+          for (const q of sec.items ?? []) bank.push(base("mc", module, q.q, q.o, [q.a], q.w, q.r));
         } else {
           const items = sec.items;
           bank.push({ ...base("match", module, sec.inst, sec.kind === "letter" ? [...items.map(q => q[0]), ...(sec.extra ?? [])] : sec.opts, [], "Match each description with its correct term.", `${module.slice(1)} notes`), rows: items.map(q => sec.kind === "letter" ? q[1] : q[0]), correct: items.map(q => sec.kind === "letter" ? q[0] : q[1]) });
@@ -42,6 +44,12 @@ export function questionBank(): PartyQuestion[] {
     }
     for (const q of data.multi?.[slug] ?? []) bank.push(base("multi", module, q.q, q.o, q.a, q.w, q.r));
     for (const q of data.blanks?.[slug] ?? []) bank.push(base("blank", module, q.s, q.bank, [q.a], q.w, q.r));
+    for (const q of data.alternative?.[slug] ?? []) {
+      if (q.kind === "tf2") bank.push(base("tf2", module, q.prompt, ["True", "False"], [q.isTrue ? "True" : "False"], q.why, q.source));
+      else if (q.kind === "mc") bank.push(base("mc", module, q.prompt, q.options, [q.answer], q.why, q.source));
+      else if (q.kind === "multi") bank.push(base("multi", module, q.prompt, q.options, q.correct, q.why, q.source));
+      else bank.push(base("blank", module, q.prompt, q.bank, [q.answer], q.why, q.source));
+    }
   }
   // Repeated sections across original sets should not inflate the battle bank.
   const seen = new Set<string>();
@@ -61,34 +69,40 @@ export function validateSettings(s: PartySettings) {
   if (![30, 60, 90, 120].includes(s.seconds) || !Number.isInteger(s.capacity) || s.capacity < 2 || s.capacity > 12) throw new ConvexError("Choose 30–120 seconds and 2–12 players from the settings.");
   if (s.types.length > s.count) throw new ConvexError("Choose at least as many questions as question types.");
 }
-export function selectQuestions(s: PartySettings): PartyQuestion[] {
+export function questionKey(q: PartyQuestion): string {
+  return q.rotationKey ?? `${q.module}:${q.prompt.replace(/<[^>]*>/g, "").toLowerCase().replace(/\s+/g, " ").trim()}:${q.kind === "match" ? [...q.rows].sort().join("|") : ""}`;
+}
+export function selectQuestions(s: PartySettings, recentlyUsed: string[] = []): PartyQuestion[] {
   validateSettings(s);
   const quotas = s.moduleCounts;
   const pool = shuffle(questionBank().filter(q => (quotas ? !!quotas[q.module as keyof typeof quotas] : s.mode === "mixed" || q.module === s.mode) && s.types.includes(q.kind)));
   const chosen: PartyQuestion[] = [];
   const seen = new Set<string>();
-  const fingerprint = (q: PartyQuestion) => q.prompt.replace(/<[^>]*>/g, "").toLowerCase().replace(/\s+/g, " ").trim() + q.rows.join("|");
+  const recency = new Map(recentlyUsed.map((key, i) => [key, i]));
+  const age = (q: PartyQuestion) => recency.get(questionKey(q)) ?? -1;
+  pool.sort((a, b) => age(a) - age(b));
   const hasSpace = (q: PartyQuestion) => !quotas || chosen.filter(x => x.module === q.module).length < (quotas[q.module as keyof typeof quotas] ?? 0);
   const take = (candidates: PartyQuestion[]) => {
-    const q = candidates.find(q => hasSpace(q) && !seen.has(fingerprint(q)));
-    if (q) { chosen.push(q); seen.add(fingerprint(q)); }
+    const q = candidates.find(q => hasSpace(q) && !seen.has(questionKey(q)));
+    if (q) { chosen.push(q); seen.add(questionKey(q)); }
     return !!q;
   };
   // Cover each selected type; distribute the rest across types and modules.
   for (const type of shuffle(s.types)) if (!take(pool.filter(q => q.kind === type))) throw new ConvexError(`No ${type} questions available for this module. Change the selected types.`);
   while (chosen.length < s.count) {
-    const remaining = pool.filter(q => hasSpace(q) && !seen.has(fingerprint(q)));
+    const remaining = pool.filter(q => hasSpace(q) && !seen.has(questionKey(q)));
     if (!remaining.length) {
       const short = quotas ? Object.entries(quotas).filter(([m, n]) => chosen.filter(q => q.module === m).length < n).map(([m]) => `Module ${m.slice(1)}`).join(", ") : "this selection";
       throw new ConvexError(`Not enough distinct questions for ${short}. Lower its question count or select more question types.`);
     }
     remaining.sort((a, b) => {
       const weight = (q: PartyQuestion) => chosen.filter(x => x.kind === q.kind).length * 3 + chosen.filter(x => x.module === q.module).length;
-      return weight(a) - weight(b);
+      return age(a) - age(b) || weight(a) - weight(b);
     });
     take(remaining);
   }
   return shuffle(chosen).map(q => {
+    q = { ...q, rotationKey: questionKey(q) };
     if (q.kind === "match") {
       const indices = shuffle(q.rows.map((_, i) => i)).slice(0, 3);
       return { ...q, options: shuffle([...new Set(q.options)]), rows: indices.map(i => q.rows[i]), correct: indices.map(i => q.correct[i]) };

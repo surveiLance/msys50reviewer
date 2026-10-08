@@ -1,6 +1,7 @@
 import type { SubjectData, SubjectMeta } from "./types";
 import msys50 from "@/content/msys-50/data.json";
 import msys50Alternative from "@/content/msys-50/alternative.json";
+import { expandQuestionData } from "@/content/msys-50/fresh";
 
 /**
  * Subject registry. To add a subject:
@@ -28,7 +29,7 @@ export const SUBJECTS: SubjectMeta[] = [
 ];
 
 const DATA: Record<string, SubjectData> = {
-  "msys-50": { ...msys50, alternative: msys50Alternative } as unknown as SubjectData,
+  "msys-50": expandQuestionData({ ...msys50, alternative: msys50Alternative } as unknown as SubjectData),
 };
 
 export function getSubject(slug: string): SubjectMeta | undefined {

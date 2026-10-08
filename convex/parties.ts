@@ -3,7 +3,7 @@ import { mutation, query, internalMutation, type MutationCtx, type QueryCtx } fr
 import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { answerType, settingsType } from "./partyTypes";
-import { isCorrect, selectQuestions, validateSettings } from "./partyQuestions";
+import { isCorrect, questionKey, selectQuestions, validateSettings } from "./partyQuestions";
 import { roundPoints } from "../lib/battleScoring";
 
 async function player(ctx: MutationCtx | QueryCtx, token: string) {
@@ -169,7 +169,14 @@ export const act = mutation({
       if (party.phase !== "lobby") return;
       const list = await members(ctx, party._id), active = list.filter(m => m.status === "approved");
       if (active.length < 2 || !active.every(m => m.ready)) throw new ConvexError("At least two approved players must be ready.");
-      const questions = selectQuestions(party.settings);
+      // Prefer unseen questions for everyone in the approved roster, not only the host.
+      const recentIds = new Set<Id<"parties">>();
+      for (const m of active) {
+        const history = await ctx.db.query("partyMembers").withIndex("by_player", q => q.eq("player", m.player)).order("desc").take(9);
+        for (const previous of history) if (previous.participated && previous.party !== party._id) recentIds.add(previous.party);
+      }
+      const recent = (await Promise.all([...recentIds].map(id => ctx.db.get(id)))).filter((p): p is Doc<"parties"> => p !== null).sort((a, b) => a._creationTime - b._creationTime);
+      const questions = selectQuestions(party.settings, recent.flatMap(p => p.questions.map(questionKey)));
       await ctx.db.patch(party._id, { questions });
       for (const m of active) await ctx.db.patch(m._id, { participated: true });
       await begin(ctx, { ...party, questions }, 0);
