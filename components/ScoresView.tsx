@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SubjectMeta } from "@/lib/types";
 import {
-  SCORES_EVENT, clearAttempts, fmtDate, fmtDuration, loadAttempts, moduleAccuracy, pct, type Attempt,
+  SCORES_EVENT, clearAttempts, deleteAttempt, fmtDate, fmtDuration, loadAttempts, moduleAccuracy, pct, type Attempt,
 } from "@/lib/scores";
 
 const TREND_MAX = 12;
@@ -31,6 +31,10 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
       window.removeEventListener("storage", read);
     };
   }, [subject.slug]);
+
+  useEffect(() => {
+    if (reviewing && all && !all.some((attempt) => attempt.id === reviewing.id)) setReviewing(null);
+  }, [all, reviewing]);
 
   useEffect(() => {
     if (!reviewing) return;
@@ -73,6 +77,13 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
 
   const reset = () => {
     if (window.confirm("Delete all your saved scores for this subject? This can't be undone.")) clearAttempts(subject.slug);
+  };
+
+  const remove = (attempt: Attempt) => {
+    const name = attempt.kind === "midterm" ? examName : `${modName(attempt.module)} test`;
+    if (window.confirm(`Delete ${name} from ${fmtDate(attempt.at)} (${pct(attempt.score, attempt.max)}%)? Its score and saved answers will be removed. This can't be undone.`)) {
+      deleteAttempt(subject.slug, attempt.id);
+    }
   };
 
   return (
@@ -203,6 +214,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
                     ) : (
                       <span className="hist-old">Summary only · completed before answer history was added</span>
                     )}
+                    <button className="hist-delete-btn" type="button" aria-label={`Delete ${a.kind === "midterm" ? examName : `${modName(a.module)} test`} from ${fmtDate(a.at)}`} onClick={() => remove(a)}>Delete attempt</button>
                   </td>
                   <td className="hist-score"><b>{pct(a.score, a.max)}%</b><span className="hist-meta">{a.score} of {a.max}</span></td>
                 </tr>

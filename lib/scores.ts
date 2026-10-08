@@ -65,6 +65,12 @@ export function clearAttempts(subject: string): void {
   window.dispatchEvent(new Event(SCORES_EVENT));
 }
 
+/** Remove one score and its answer snapshot, leaving other attempts intact. */
+export function deleteAttempt(subject: string, id: string): void {
+  save(key(subject), loadAttempts(subject).filter((attempt) => attempt.id !== id));
+  window.dispatchEvent(new Event(SCORES_EVENT));
+}
+
 export const pct = (score: number, max: number) => (max ? Math.round((score / max) * 100) : 0);
 
 /** "M2" ↔ "module-2" */
