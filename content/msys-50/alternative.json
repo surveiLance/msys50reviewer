@@ -1,0 +1,413 @@
+{
+  "module-1": [
+    {
+      "kind": "tf2",
+      "prompt": "Once an enterprise approves a future-state architecture, its architecture work is complete.",
+      "isTrue": false,
+      "underlined": "complete",
+      "fix": "continuous",
+      "why": "EA keeps evolving with the enterprise. Architecture is a lifecycle, not a one-time plan.",
+      "source": "1.1 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "Culture and informal relationships are soft organizational components because they are difficult to document and measure.",
+      "isTrue": true,
+      "why": "Soft components often spread through the work environment or word of mouth, unlike formal job descriptions and policies.",
+      "source": "1.2 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "In the city-planning analogy, IT project teams play a role similar to construction teams.",
+      "isTrue": true,
+      "why": "Business executives resemble city governors, architects resemble city planners, and IT project teams carry out construction-like work.",
+      "source": "1.3 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "Sales and operations use different meanings for the same customer data, causing their plans to conflict. What should EA establish first?",
+      "options": [
+        "A common language shared by the stakeholders",
+        "A new technology vendor for each department",
+        "Separate architectures that never interact",
+        "A rule that only IT may define business terms"
+      ],
+      "answer": "A common language shared by the stakeholders",
+      "why": "Communication and mutual understanding are central to EA, especially when domains use different concerns and language.",
+      "source": "1.1 and 1.3 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A team wants to adopt a popular EA framework before examining its own organization. What is the soundest response?",
+      "options": [
+        "Check whether the framework fits the organization's goals and context",
+        "Adopt it because every successful EA effort begins with a framework",
+        "Avoid all frameworks because none can ever help",
+        "Let the software vendor define the enterprise's goals"
+      ],
+      "answer": "Check whether the framework fits the organization's goals and context",
+      "why": "EA is not about implementing frameworks. A framework is useful only when it is applicable and worthwhile for the organization.",
+      "source": "1.1 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A company executes its internal processes well, but those processes repeatedly fail to meet customer needs. Which alignment is weakest?",
+      "options": [
+        "Horizontal alignment",
+        "Vertical alignment",
+        "Strategic fit",
+        "Technology standardization"
+      ],
+      "answer": "Horizontal alignment",
+      "why": "Labovitz and Rosansky describe horizontal alignment as the connection between internal processes and external customers.",
+      "source": "1.2 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which activities belong to the architecture lifecycle described in the lessons?",
+      "options": [
+        "Turn an idea into a design",
+        "Use the architecture to guide implementation",
+        "Maintain and revise architecture artifacts",
+        "Freeze the architecture after its first release",
+        "Ignore operational feedback"
+      ],
+      "correct": [
+        "Turn an idea into a design",
+        "Use the architecture to guide implementation",
+        "Maintain and revise architecture artifacts"
+      ],
+      "why": "The lifecycle moves through idea, design, use, and management, then continues as the enterprise changes.",
+      "source": "1.1 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which are responsibilities of an enterprise architect?",
+      "options": [
+        "Mediate between stakeholders",
+        "Maintain the repository of EA artifacts",
+        "Establish and improve EA processes",
+        "Write every application in the enterprise",
+        "Approve every department's operating budget"
+      ],
+      "correct": [
+        "Mediate between stakeholders",
+        "Maintain the repository of EA artifacts",
+        "Establish and improve EA processes"
+      ],
+      "why": "Architects connect stakeholders, manage artifacts and tools, and operate the EA practice. They do not replace every developer or budget owner.",
+      "source": "1.3 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which characteristics make an enterprise more like a living city than a finished building?",
+      "options": [
+        "It keeps operating while it changes",
+        "It normally changes through incremental modifications",
+        "Its future needs can be anticipated but not specified perfectly",
+        "It can be rebuilt completely overnight",
+        "There is one universally best way for it to evolve"
+      ],
+      "correct": [
+        "It keeps operating while it changes",
+        "It normally changes through incremental modifications",
+        "Its future needs can be anticipated but not specified perfectly"
+      ],
+      "why": "Organizations are dynamic socio-technical systems. Their evolution is continuous, gradual, and shaped by many concerns.",
+      "source": "1.3 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "The management layer that explains why an organization exists is its ___.",
+      "bank": ["mission", "vision", "strategy", "operations"],
+      "answer": "mission",
+      "why": "Mission is the organization's reason for existing; vision describes where it wants to go.",
+      "source": "1.2 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "In the Strategic Alignment Model, the horizontal connection between business and IT is called ___.",
+      "bank": ["functional integration", "strategic fit", "vertical alignment", "process standardization"],
+      "answer": "functional integration",
+      "why": "Functional integration links business and IT; strategic fit connects external strategy to internal infrastructure.",
+      "source": "1.2 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "A new government rule that pressures a company to change its architecture is an ___ driver.",
+      "bank": ["external", "internal", "informal", "technical"],
+      "answer": "external",
+      "why": "The pressure originates outside the organization, and external regulations can have substantial impact.",
+      "source": "1.2 notes"
+    }
+  ],
+  "module-2": [
+    {
+      "kind": "tf2",
+      "prompt": "An operating model is intended to remain relatively stable even when individual business strategies change.",
+      "isTrue": true,
+      "why": "It reflects fundamental choices about process standardization and data integration that are not expected to change frequently.",
+      "source": "2.2 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "Replication combines highly standardized processes with highly integrated data across business units.",
+      "isTrue": false,
+      "underlined": "highly integrated data",
+      "fix": "low data integration",
+      "why": "Replication repeats similar processes in independent units, so standardization is high while integration is low.",
+      "source": "2.2 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "Architectural initiatives are primarily justified by the new business functionality they deliver.",
+      "isTrue": false,
+      "underlined": "new business functionality",
+      "fix": "improvements to the IT landscape",
+      "why": "Architectural initiatives improve the quality of the IT landscape and do not directly address a specific business need.",
+      "source": "2.3 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A hotel chain requires every branch to follow the same check-in process, but each branch keeps its own customer records. Which operating model fits best?",
+      "options": ["Replication", "Coordination", "Unification", "Diversification"],
+      "answer": "Replication",
+      "why": "The units use standardized processes but remain independent and do not share highly integrated data.",
+      "source": "2.2 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A regulator unexpectedly requires a company to launch a compliance-reporting system within weeks. What type of IT initiative is this?",
+      "options": ["Urgent", "Strategic", "Fundamental", "Local"],
+      "answer": "Urgent",
+      "why": "Urgent initiatives are unplanned, often triggered by the external environment, and respond to immediate operational demands.",
+      "source": "2.3 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A team is defining detailed functional and non-functional behavior for a system to be delivered within the next year. Which discussion point are they using?",
+      "options": ["Business requirements", "Business capabilities", "Operating model", "Specific business needs"],
+      "answer": "Business requirements",
+      "why": "Business requirements are the most detailed discussion point and are actionable within roughly 6 to 12 months.",
+      "source": "2.2 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which information belongs in the definition of an IT initiative?",
+      "options": [
+        "The business need",
+        "Goals and scope",
+        "A business case and sponsor",
+        "Budget",
+        "The favorite programming language of the project team",
+        "The personal goals of the vendor's salesperson"
+      ],
+      "correct": [
+        "The business need",
+        "Goals and scope",
+        "A business case and sponsor",
+        "Budget"
+      ],
+      "why": "An initiative is described by its need, goals, scope, business case, sponsors, and budget—not by incidental technology or vendor preferences.",
+      "source": "2.3 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which delivery choices can EA compare when deciding how to implement an approved initiative?",
+      "options": [
+        "Build in-house",
+        "Outsource development",
+        "Buy an off-the-shelf or open-source solution",
+        "Skip the business case",
+        "Ignore the existing IT landscape"
+      ],
+      "correct": [
+        "Build in-house",
+        "Outsource development",
+        "Buy an off-the-shelf or open-source solution"
+      ],
+      "why": "EA helps identify the optimal delivery approach while keeping the business case and existing landscape in view.",
+      "source": "2.3 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which are enablers in the EFQM model?",
+      "options": [
+        "Leadership",
+        "People",
+        "Policy and strategy",
+        "Partnerships and resources",
+        "Processes",
+        "Customer results"
+      ],
+      "correct": [
+        "Leadership",
+        "People",
+        "Policy and strategy",
+        "Partnerships and resources",
+        "Processes"
+      ],
+      "why": "Customer results belongs to the results side. The five listed organizational factors are EFQM enablers.",
+      "source": "2.1 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "COBIT describes what should be controlled, while ___ provides guidance on how to deliver and support IT services.",
+      "bank": ["ITIL", "CMMI", "EFQM", "ISO 9001"],
+      "answer": "ITIL",
+      "why": "COBIT supplies control objectives; ITIL supplies service-delivery and service-support practices.",
+      "source": "2.1 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "The buildup of isolated systems that become liabilities when strategy changes is called the ___.",
+      "bank": ["alignment trap", "operating model", "strategic fit", "maturity gap"],
+      "answer": "alignment trap",
+      "why": "Systems built only for the current strategy can become disconnected legacy systems under the next strategy.",
+      "source": "2.2 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "Business architecture begins with what the organization must be able to do before deciding how; this is ___ planning.",
+      "bank": ["capability-based", "project-based", "technology-led", "budget-first"],
+      "answer": "capability-based",
+      "why": "Capability-based planning identifies current and desired capabilities before choosing delivery mechanisms.",
+      "source": "2.1 notes"
+    }
+  ],
+  "module-3": [
+    {
+      "kind": "tf2",
+      "prompt": "The right modeling tool can eliminate every integration problem between architectural domains.",
+      "isTrue": false,
+      "underlined": "eliminate every integration problem",
+      "fix": "make integration problems easier to manage",
+      "why": "Some integration problems cannot be solved completely; concepts and tools help architects deal with them.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "An architecture description is the tangible representation of an architecture in models and text.",
+      "isTrue": true,
+      "why": "The architecture is the stakeholder conception; its documented representation is the architecture description.",
+      "source": "3.2 notes"
+    },
+    {
+      "kind": "tf2",
+      "prompt": "Any picture of an enterprise qualifies as a model as long as it is visually detailed.",
+      "isTrue": false,
+      "underlined": "Any picture",
+      "fix": "Only an abstract and unambiguous representation",
+      "why": "Pictures may allow several interpretations. A model uses formal language and should have one interpretation.",
+      "source": "3.2 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A team cannot map BPMN process steps cleanly to UML application components because the domains use different notations. Which integration problem is this?",
+      "options": [
+        "Different modeling languages and standards",
+        "Structural versus behavioral models",
+        "A missing business strategy",
+        "A lack of process standardization"
+      ],
+      "answer": "Different modeling languages and standards",
+      "why": "The first typical integration problem is aligning elements created in different domain languages such as BPMN and UML.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "Changing a data architecture may disrupt several applications. Which lifecycle support should help architects evaluate the snowball effect?",
+      "options": ["Change support", "Communication support", "Design support", "Realization support"],
+      "answer": "Change support",
+      "why": "Change support assesses consequences when a change in one domain affects architectures in other domains.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "mc",
+      "prompt": "A finance manager needs only the elements relevant to financial controls, not the full enterprise architecture. What should define that selection?",
+      "options": ["A viewpoint", "A complete enterprise model", "A technology standard", "A project budget"],
+      "answer": "A viewpoint",
+      "why": "A viewpoint defines where the stakeholder is looking from; the resulting view contains the visible relevant elements.",
+      "source": "3.2 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which questions should architects ask when choosing architectural domains?",
+      "options": [
+        "Who are the major stakeholders?",
+        "What are the organization's priority areas?",
+        "What capabilities and limitations does the organization have?",
+        "How easily can the domains be integrated?",
+        "Which diagram color is most fashionable?"
+      ],
+      "correct": [
+        "Who are the major stakeholders?",
+        "What are the organization's priority areas?",
+        "What capabilities and limitations does the organization have?",
+        "How easily can the domains be integrated?"
+      ],
+      "why": "Domain choice depends on stakeholder concerns, priorities, organizational capability, approach flexibility, and integration difficulty.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which capabilities support the design phase of the architecture lifecycle?",
+      "options": [
+        "A common, well-defined vocabulary",
+        "Organization-wide guidelines and standards",
+        "Tracking architectural decisions and changes",
+        "Filtering a view for one stakeholder group",
+        "Assessing the consequences of a proposed change"
+      ],
+      "correct": [
+        "A common, well-defined vocabulary",
+        "Organization-wide guidelines and standards",
+        "Tracking architectural decisions and changes"
+      ],
+      "why": "Filtering views supports communication, while consequence assessment supports change.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "multi",
+      "prompt": "Which statements correctly describe symbolic models?",
+      "options": [
+        "They use symbols that refer to reality",
+        "They follow a formal syntax or notation",
+        "They can be too technical for some stakeholders",
+        "They are one interpretation of a symbolic model",
+        "ArchiMate is presented as emphasizing them over semantic models"
+      ],
+      "correct": [
+        "They use symbols that refer to reality",
+        "They follow a formal syntax or notation",
+        "They can be too technical for some stakeholders"
+      ],
+      "why": "A semantic model is one interpretation of a symbolic model. The lessons associate UML with symbolic models and ArchiMate with semantic models.",
+      "source": "3.2 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "Breaking a complex system into parts and studying the relations among those parts is called ___.",
+      "bank": ["compositionality", "visualization", "standardization", "governance"],
+      "answer": "compositionality",
+      "why": "The compositional approach manages complexity by distinguishing parts while preserving how they work together.",
+      "source": "3.1 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "The act of abstracting a model from part of the real-world enterprise is called ___.",
+      "bank": ["modeling", "viewing", "integration", "description"],
+      "answer": "modeling",
+      "why": "A model is the abstraction; modeling is the act that produces it using a language and medium.",
+      "source": "3.2 notes"
+    },
+    {
+      "kind": "blank",
+      "prompt": "ArchiMate emphasizes the ___ model, which is generally easier for stakeholders to understand than a highly technical symbolic model.",
+      "bank": ["semantic", "structural", "behavioral", "physical"],
+      "answer": "semantic",
+      "why": "The semantic model represents one possible interpretation of the symbolic model and is especially important in EA communication.",
+      "source": "3.2 notes"
+    }
+  ]
+}

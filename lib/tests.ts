@@ -1,5 +1,5 @@
 import type { SubjectData, SubjectMeta } from "./types";
-import { QTYPES, poolMidterm, poolModule, poolSize } from "./questions";
+import { QTYPES, poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolSize } from "./questions";
 
 export type TestInfo = {
   slug: string; // "module-2" or "midterm" → /[subject]/test/[slug]
@@ -8,6 +8,8 @@ export type TestInfo = {
   subtitle: string; // module title, or the exam date
   /** how many questions the test can draw from, across every question type */
   bank: number;
+  /** independently authored questions in the optional alternative set */
+  alternativeBank?: number;
 };
 
 const ALL = QTYPES.map((t) => t.key);
@@ -20,6 +22,7 @@ export function listTests(subject: SubjectMeta, data: SubjectData): TestInfo[] {
     title: `Module ${m.num} test`,
     subtitle: m.title,
     bank: poolSize(poolModule(data.tests[m.slug] || {}, m.slug, data.multi?.[m.slug], data.blanks?.[m.slug]), ALL),
+    alternativeBank: poolSize(poolAlternativeModule(data.alternative?.[m.slug], m.slug), ALL),
   }));
   if (subject.exam) {
     tests.push({
@@ -28,6 +31,7 @@ export function listTests(subject: SubjectMeta, data: SubjectData): TestInfo[] {
       title: `${subject.exam.title} test`,
       subtitle: `All modules · real exam ${subject.exam.when}`,
       bank: poolSize(poolMidterm(data.midterm, data.pools, data.scenarios, data.tests, data.multi, data.blanks), ALL),
+      alternativeBank: poolSize(poolAlternativeMidterm(data.alternative), ALL),
     });
   }
   return tests;

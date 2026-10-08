@@ -38,7 +38,9 @@ export default async function TestsPage({ params }: P) {
           <Link key={t.slug} href={`/${subject.slug}/test/${t.slug}`} className={"test-item" + (t.kind === "midterm" ? " exam" : "")}>
             <b>{t.title}</b>
             <span className="meta">{t.subtitle}</span>
-            <span className="meta">{t.bank} questions to practice · pick the types and length</span>
+            <span className="meta">
+              {t.bank} original questions{t.alternativeBank ? ` · ${t.alternativeBank} alternative` : ""} · pick a set, types, and length
+            </span>
             <RecordStrip subject={subject.slug} kind={t.kind === "midterm" ? "midterm" : "practice"} module={t.kind === "module" ? t.slug : undefined} compact />
             <span className="go">Start →</span>
           </Link>

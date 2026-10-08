@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
+import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points, poolMidterm, poolModule,
+  type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
+  poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
 import { pct, recordAttempt } from "@/lib/scores";
@@ -30,6 +31,8 @@ type Props = {
   /** Multiple Answer and Fill in the Blank questions for every module. */
   multi?: Record<string, MultiItem[]>;
   blanks?: Record<string, BlankItem[]>;
+  /** Independently authored, past-quiz-style questions for each module. */
+  alternative?: Record<string, AlternativeQuestion[]>;
   /** Every module slug in the subject, for "Review in notes" on questions without a source. */
   modules: string[];
 };
@@ -48,9 +51,11 @@ type Run = {
   feedback?: boolean;
   /** Whether the current answer has been checked in study mode. */
   revealed?: boolean;
+  questionSet?: QuestionSet;
 };
 
 type LengthKey = "quick" | "short" | "medium" | "long";
+type QuestionSet = "original" | "alternative";
 /** The real midterm's size, for scaling the timer of shorter rounds. */
 const EXAM_POINTS = 85;
 const ALL_TYPES = QTYPES.map((t) => t.key);
@@ -104,6 +109,7 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
         <>
           <p className="qz-rv-line">Your answer: <span className={"y" + (full ? " ok" : "")}>{a.choice || "No answer"}</span> · Correct: <span className="c">{q.isTrue ? "True" : "False"}</span></p>
           {!q.isTrue && q.underlined && q.fix && <p className="qz-why">It&apos;s false: &ldquo;{q.underlined}&rdquo; should be &ldquo;{q.fix}&rdquo;.</p>}
+          {q.why && <p className="qz-why">{q.why}</p>}
         </>
       ) : q.kind === "blank" ? (
         <>
@@ -152,6 +158,7 @@ export default function Quiz(props: Props) {
   const [showAll, setShowAll] = useState(false);
   const [recordedAt, setRecordedAt] = useState<number | null>(null);
   const [length, setLength] = useState<LengthKey>(midterm ? "long" : "quick");
+  const [questionSet, setQuestionSet] = useState<QuestionSet>("original");
   const [types, setTypes] = useState<QType[]>(ALL_TYPES);
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
@@ -164,13 +171,14 @@ export default function Quiz(props: Props) {
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
     if (r && r.v === 3 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
-    setSeen(load<string[]>(`${storageKey}-seen3`, []));
     const len = load<string | null>(`${storageKey}-len`, null);
     if (len === "quick" || len === "short" || len === "medium" || len === "long") setLength(len);
     const ts = load<string[] | null>(`types-${subject}`, null);
     if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
     setInstantFeedback(load<boolean>(`feedback-${subject}`, false));
-  }, [runKey, storageKey, subject]);
+    const set = load<string | null>(`${storageKey}-question-set`, null);
+    if (set === "alternative" && Object.values(props.alternative || {}).some((items) => items.length)) setQuestionSet("alternative");
+  }, [runKey, storageKey, subject, props.alternative]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -184,8 +192,8 @@ export default function Quiz(props: Props) {
 
   const toTop = () => setTimeout(() => window.scrollTo({ top: 0 }), 0);
 
-  // Everything this test can draw from, by question type.
-  const pool = useMemo(
+  // The original bank remains untouched; the alternative bank has its own questions and seen history.
+  const originalPool = useMemo(
     () =>
       midterm
         ? poolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}, props.tests || {}, props.multi, props.blanks)
@@ -193,6 +201,16 @@ export default function Quiz(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [midterm, props.sets, props.midterm, props.multi, props.blanks],
   );
+  const alternativePool = useMemo(
+    () => midterm
+      ? poolAlternativeMidterm(props.alternative)
+      : poolAlternativeModule(props.alternative?.[props.module || ""], props.module || ""),
+    [midterm, props.alternative, props.module],
+  );
+  const hasAlternative = poolSize(alternativePool, ALL_TYPES) > 0;
+  const pool = questionSet === "alternative" && hasAlternative ? alternativePool : originalPool;
+  const seenKey = questionSet === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
+  useEffect(() => setSeen(load<string[]>(seenKey, [])), [seenKey]);
   const sizes = useMemo(
     () =>
       lengths.map((l) => {
@@ -207,6 +225,8 @@ export default function Quiz(props: Props) {
   const shownSizes = sizes.filter((l, i) => i === 0 || l.questions > sizes[i - 1].questions);
   const size = shownSizes.find((x) => x.key === length) || shownSizes[shownSizes.length - 1];
   const bank = poolSize(pool, types);
+  const availableTypes = ALL_TYPES.filter((type) => pool[type].length);
+  const activeTypes = types.filter((type) => pool[type].length);
   const seenCount = useMemo(() => {
     const ids = new Set(types.flatMap((t) => pool[t].map((q) => baseId(q.id))));
     return seen.filter((id) => ids.has(id)).length;
@@ -219,21 +239,27 @@ export default function Quiz(props: Props) {
     setTypes(next);
     save(`types-${subject}`, next); // remembered for every test in this subject
   };
-  const typeSummary = types.length === ALL_TYPES.length ? "All types" : `${types.length} type${types.length === 1 ? "" : "s"}`;
+  const typeSummary = activeTypes.length === availableTypes.length ? "All available types" : `${activeTypes.length} type${activeTypes.length === 1 ? "" : "s"}`;
+  const chooseQuestionSet = (next: QuestionSet) => {
+    setQuestionSet(next);
+    setSeen(load<string[]>(next === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`, []));
+    save(`${storageKey}-question-set`, next);
+  };
 
   const start = () => {
     if (!size.questions) return;
     const r = pickTypes(pool, size.counts, seen);
     setSeen(r.seen);
     setRestarted(r.restarted);
-    save(`${storageKey}-seen3`, r.seen);
+    save(seenKey, r.seen);
     save(`${storageKey}-len`, size.key);
     const t = Date.now();
     setRun({
       v: 3, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
       deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
-      timed: midterm ? timed : undefined, label: `${size.label} · ${typeSummary}`,
+      timed: midterm ? timed : undefined, label: `${questionSet === "alternative" ? "Alternative set" : "Original set"} · ${size.label} · ${typeSummary}`,
       feedback: instantFeedback, revealed: false,
+      questionSet,
     });
     setNow(t);
     setTimeUp(false);
@@ -245,6 +271,7 @@ export default function Quiz(props: Props) {
 
   const resume = () => {
     if (!saved) return;
+    setQuestionSet(saved.questionSet || "original");
     setRun(saved);
     setNow(Date.now());
     setSaved(null);
@@ -346,7 +373,7 @@ export default function Quiz(props: Props) {
 
   // ================= SETUP =================
   if (phase === "setup") {
-    const has = (t: QType) => types.includes(t);
+    const has = (t: QType) => activeTypes.includes(t);
     return (
       <div className="qz">
         {saved && (
@@ -363,6 +390,26 @@ export default function Quiz(props: Props) {
           </div>
         )}
         <div className="qz-panel">
+          {hasAlternative && (
+            <div>
+              <h4 className="qz-h">Question set</h4>
+              <div className="qz-set-tabs" role="tablist" aria-label="Question set">
+                <button role="tab" aria-selected={questionSet === "original"} onClick={() => chooseQuestionSet("original")}>
+                  <b>Original set</b>
+                  <span>Your existing bank and progress</span>
+                </button>
+                <button role="tab" aria-selected={questionSet === "alternative"} onClick={() => chooseQuestionSet("alternative")}>
+                  <b>Alternative set</b>
+                  <span>New past-quiz-style questions</span>
+                </button>
+              </div>
+              <p className="qz-set-note">
+                {questionSet === "alternative"
+                  ? `${poolSize(alternativePool, ALL_TYPES)} independently written questions based on the lessons. Each concept appears in one format.`
+                  : "The question bank you've already been using. Nothing here was reset or removed."}
+              </p>
+            </div>
+          )}
           <div>
             <div className="qz-h-row">
               <h4 className="qz-h">Question types</h4>
@@ -415,7 +462,7 @@ export default function Quiz(props: Props) {
             </div>
           </div>
 
-          {types.length > 0 && (
+          {activeTypes.length > 0 && (
             <ul className="qz-rules">
               <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
               {has("tf") && <li>Modified true or false: type <code>{TRUE_MARK}</code> if true. If false, type the word that should replace the underlined part.</li>}
@@ -439,9 +486,9 @@ export default function Quiz(props: Props) {
             </div>
           )}
 
-          {types.length > 0 ? (
+          {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round picks questions you haven&apos;t seen yet{midterm ? ", from every module" : ", from all of this module's question sets"}.
+              Every round picks questions you haven&apos;t seen yet{midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (
@@ -488,6 +535,7 @@ export default function Quiz(props: Props) {
         deadline: null, timed: midterm ? false : undefined,
         label: `Retry wrong answers · ${qs.length} question${qs.length === 1 ? "" : "s"}`,
         feedback: run.feedback, revealed: false,
+        questionSet: run.questionSet,
       });
       setTimeUp(false);
       setShowAll(false);
@@ -608,6 +656,7 @@ export default function Quiz(props: Props) {
                         {!q.isTrue && q.underlined && q.fix && (
                           <p className="qz-why">It&apos;s false: &ldquo;{q.underlined}&rdquo; should be &ldquo;{q.fix}&rdquo;.</p>
                         )}
+                        {q.why && <p className="qz-why">{q.why}</p>}
                       </>
                     ) : q.kind === "blank" ? (
                       <>

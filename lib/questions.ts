@@ -1,4 +1,4 @@
-import type { BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, Section, TestSet } from "./types";
+import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, Section, TestSet } from "./types";
 import { norm, sample, shuffle } from "./quiz";
 
 /**
@@ -12,7 +12,7 @@ export type Question =
   | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string }
   | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[] }
   // Mixed style (Canvas "classic" quiz types):
-  | { kind: "tf2"; id: string; section: string; prompt: string; isTrue: boolean; underlined?: string; fix?: string; source?: string; mod?: string }
+  | { kind: "tf2"; id: string; section: string; prompt: string; isTrue: boolean; underlined?: string; fix?: string; why?: string; source?: string; mod?: string }
   | { kind: "multi"; id: string; section: string; prompt: string; options: string[]; correct: string[]; why?: string; source?: string; mod?: string }
   | { kind: "blank"; id: string; section: string; prompt: string; bank: string[]; answer: string; why?: string; source?: string; mod?: string };
 
@@ -199,6 +199,35 @@ export const QTYPES: { key: QType; label: string; hint: string }[] = [
   { key: "match", label: "Matching", hint: "Dropdowns" },
 ];
 export type Pool = Record<QType, Question[]>;
+
+const emptyPool = (): Pool => ({ tf: [], tf2: [], mc: [], multi: [], blank: [], match: [] });
+
+/** Converts independently authored alternatives without cloning one fact into multiple question types. */
+function alternativePool(items: AlternativeQuestion[], module: string): Pool {
+  const pool = emptyPool();
+  const mod = modTagOf(module);
+  items.forEach((item, i) => {
+    const id = `alt:${module}:${item.kind}:${i}`;
+    if (item.kind === "tf2") pool.tf2.push({ ...item, id, section: "Alternative set", mod });
+    if (item.kind === "mc") pool.mc.push({ ...item, id, section: "Alternative set", options: shuffle(item.options), mod });
+    if (item.kind === "multi") pool.multi.push({ ...item, id, section: "Alternative set", options: shuffle(item.options), mod });
+    if (item.kind === "blank") pool.blank.push({ ...item, id, section: "Alternative set", bank: shuffle(item.bank), mod });
+  });
+  return pool;
+}
+
+export function poolAlternativeModule(items: AlternativeQuestion[] = [], module: string): Pool {
+  return alternativePool(items, module);
+}
+
+export function poolAlternativeMidterm(items: Record<string, AlternativeQuestion[]> = {}): Pool {
+  const out = emptyPool();
+  Object.entries(items).forEach(([module, questions]) => {
+    const pool = alternativePool(questions, module);
+    (Object.keys(out) as QType[]).forEach((type) => out[type].push(...pool[type]));
+  });
+  return out;
+}
 
 /** Matching questions show at most this many rows per round, so one can't take over a short test. */
 export const MATCH_ROWS = 5;

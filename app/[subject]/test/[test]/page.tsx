@@ -54,8 +54,9 @@ export default async function TestPage({ params }: P) {
             tests={data.tests}
             timerMinutes={subject.exam?.minutes}
             modules={subject.modules.map((m) => m.slug)}
-          multi={data.multi}
-          blanks={data.blanks}
+            multi={data.multi}
+            blanks={data.blanks}
+            alternative={data.alternative}
           />
         </div>
         {clues && (
@@ -90,6 +91,7 @@ export default async function TestPage({ params }: P) {
           modules={subject.modules.map((m) => m.slug)}
           multi={data.multi}
           blanks={data.blanks}
+          alternative={data.alternative}
         />
       </div>
     </>

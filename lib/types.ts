@@ -9,6 +9,13 @@ export type MultiItem = { q: string; o: string[]; a: string[]; w?: string; r?: s
 /** Fill in the blank with a word bank: `s` contains one "___". */
 export type BlankItem = { s: string; bank: string[]; a: string; w?: string; r?: string };
 
+/** A separately authored question for the alternative, past-quiz-style bank. */
+export type AlternativeQuestion =
+  | { kind: "tf2"; prompt: string; isTrue: boolean; underlined?: string; fix?: string; why: string; source: string }
+  | { kind: "mc"; prompt: string; options: string[]; answer: string; why: string; source: string }
+  | { kind: "multi"; prompt: string; options: string[]; correct: string[]; why: string; source: string }
+  | { kind: "blank"; prompt: string; bank: string[]; answer: string; why: string; source: string };
+
 export type Draw = { pool: string; n: number };
 
 export type Section =
@@ -34,6 +41,8 @@ export type SubjectData = {
   /** Mixed-style questions per module (Multiple Answer, Fill in the Blank). */
   multi?: Record<string, MultiItem[]>;
   blanks?: Record<string, BlankItem[]>;
+  /** Independent Canvas-style bank; does not replace or reset the original questions. */
+  alternative?: Record<string, AlternativeQuestion[]>;
 };
 
 export type ModuleMeta = { slug: string; num: number; title: string; parts: string[] };
