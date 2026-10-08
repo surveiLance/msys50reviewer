@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
@@ -110,6 +110,8 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
           <p className="qz-rv-line">Your answer: <span className={"y" + (full ? " ok" : "")}>{a.choice || "No answer"}</span> · Correct: <span className="c">{q.isTrue ? "True" : "False"}</span></p>
           {!q.isTrue && q.underlined && q.fix && <p className="qz-why">It&apos;s false: &ldquo;{q.underlined}&rdquo; should be &ldquo;{q.fix}&rdquo;.</p>}
           {q.why && <p className="qz-why">{q.why}</p>}
+          {!q.why && q.isTrue && <p className="qz-why">The statement is correct as written.</p>}
+          {!q.why && !q.isTrue && (!q.underlined || !q.fix) && <p className="qz-why">The statement is false based on the lesson.</p>}
         </>
       ) : q.kind === "blank" ? (
         <>
@@ -124,7 +126,7 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
           </p>
           {q.kind === "tf" && q.isTrue && <p className="qz-why">The statement is true, so <b>{TRUE_MARK}</b> is the answer.</p>}
           {q.kind === "tf" && !q.isTrue && <p className="qz-why">Replace the underlined part with &ldquo;{q.answer}&rdquo;.</p>}
-          {q.kind === "mc" && q.why && <p className="qz-why">{q.why}</p>}
+          {q.kind === "mc" && <p className="qz-why">{q.why || "This is the best answer based on the related lesson. Use Review in notes below for the full context."}</p>}
         </>
       )}
       {q.kind !== "match" && (
@@ -162,6 +164,7 @@ export default function Quiz(props: Props) {
   const [types, setTypes] = useState<QType[]>(ALL_TYPES);
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
+  const feedbackRef = useRef<HTMLDivElement>(null);
   // "Review in notes" window: a whole question, or one row of a matching question.
   const [peek, setPeek] = useState<{ q: Question; a?: Answer } | null>(null);
   const closePeek = useCallback(() => setPeek(null), []);
@@ -190,6 +193,14 @@ export default function Quiz(props: Props) {
   useEffect(() => {
     if (phase === "run" && run) save(runKey, run);
   }, [phase, run, runKey]);
+
+  // Long questions can place the newly revealed feedback below the viewport.
+  // Bring only the missing portion into view so the question stays visible for context.
+  useEffect(() => {
+    if (phase !== "run" || !run?.feedback || !run.revealed) return;
+    const frame = requestAnimationFrame(() => feedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+    return () => cancelAnimationFrame(frame);
+  }, [phase, run?.feedback, run?.revealed, run?.idx]);
 
   const toTop = () => setTimeout(() => window.scrollTo({ top: 0 }), 0);
 
@@ -757,7 +768,7 @@ export default function Quiz(props: Props) {
           <b>Question {run.idx + 1} <span>of {run.qs.length}</span></b>
           <span>{pts} pt{pts === 1 ? "" : "s"}</span>
         </div>
-        <div className="qz-q-body">
+        <div className={`qz-q-body${checked ? " has-feedback" : ""}`}>
           <span className="qz-section">
             {typeLabel(q)}
             {q.section.toLowerCase() !== typeLabel(q).toLowerCase() ? ` · ${q.section}` : ""}
@@ -881,7 +892,11 @@ export default function Quiz(props: Props) {
               </div>
             </>
           )}
-          {checked && <QuestionFeedback q={q} a={a} g={g} onReview={() => setPeek({ q, a })} />}
+          {checked && (
+            <div className="qz-feedback-wrap" ref={feedbackRef}>
+              <QuestionFeedback q={q} a={a} g={g} onReview={() => setPeek({ q, a })} />
+            </div>
+          )}
         </div>
         <div className="qz-foot">
           <p>
