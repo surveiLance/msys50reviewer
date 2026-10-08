@@ -40,7 +40,8 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
   ties share the point. Incorrect, missing, or partially correct answers earn 0.
   Server receipt time is authoritative, so network latency can affect close races.
 - The final question ends the game automatically after all locks or timeout.
-  Leaderboard accuracy counts all correct answers, including slower answers.
+  Leaderboards rank only by game wins, with equal wins sharing a rank. Accuracy
+  is not displayed; existing win totals are preserved.
 - Only completed games count. Host departure cancels the game; other departures
   let the game continue if at least two players remain. Departed players cannot
   earn further points; they still receive a completed-game record if it finishes.

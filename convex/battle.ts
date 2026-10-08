@@ -219,6 +219,8 @@ export const leaderboard = query({
   handler: async (ctx, { weekly }) => {
     const period = weekly ? week() : "all";
     const rows = await ctx.db.query("standings").withIndex("by_period_wins", (q) => q.eq("period", period)).order("desc").take(50);
-    return rows.map((r) => ({ id: r.player, name: r.name, wins: r.wins, draws: r.draws, matches: r.matches, accuracy: Math.round(100 * r.correct / r.answered) }));
+    // Wins alone determine rank; equal win totals share a place. Accuracy is
+    // retained in this response for older clients, but isn't a ranking factor.
+    return rows.map((r) => ({ id: r.player, name: r.name, rank: rows.findIndex(row => row.wins === r.wins) + 1, wins: r.wins, draws: r.draws, matches: r.matches, accuracy: Math.round(100 * r.correct / r.answered) }));
   },
 });

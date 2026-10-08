@@ -146,3 +146,22 @@ test("scenario bank has valid, distinct choices and lesson explanations", () => 
     expect(q.w).toBeTruthy();
   }
 });
+
+test("leaderboard ranks only by wins and equal wins share a rank in both periods", async () => {
+  const { t } = await setup();
+  const date = new Date(Date.now());
+  date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 6) % 7);
+  for (const period of ["all", date.toISOString().slice(0, 10)]) {
+    await t.run(async ctx => {
+      for (const [token, wins, correct, draws, matches] of [[a, 2, 1, 0, 2], [b, 2, 10, 10, 20], [c, 1, 10, 20, 30]] as const) {
+        const p = await ctx.db.query("players").withIndex("by_token", q => q.eq("token", token)).unique();
+        await ctx.db.insert("standings", { player: p!._id, name: p!.name, period, wins, correct, answered: 10, draws, matches });
+      }
+    });
+  }
+  for (const weekly of [false, true]) {
+    const rows = await t.query(api.battle.leaderboard, { weekly });
+    expect(rows.map(r => [r.wins, r.rank])).toEqual([[2, 1], [2, 1], [1, 3]]);
+    expect(rows.filter(r => r.rank === 1).map(r => r.name).sort()).toEqual(["Alice", "Bob"]);
+  }
+});
