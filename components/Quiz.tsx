@@ -559,7 +559,7 @@ export default function Quiz(props: Props) {
 
           {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round picks questions you haven&apos;t seen yet{questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}.
+              Every round prioritizes fresh questions{questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (
@@ -627,8 +627,8 @@ export default function Quiz(props: Props) {
           <p className="qz-msg">{msg}</p>
           <p className="qz-note">
             {restarted
-              ? "You've been through every question of at least one type, so those started over."
-              : `You've practiced ${seenCount} of ${bank} questions. The next round picks ones you haven't seen.`}
+              ? `Some questions needed to repeat. Future rounds prioritize fresh questions, then the ones you practiced longest ago.${hasAlternative && questionSet !== "alternative" ? " Try the Alternative set for a different bank." : ""}`
+              : `You've practiced ${seenCount} of ${bank} questions. The next round prioritizes fresh questions, then the least recently practiced ones.`}
           </p>
           {midterm && mods.length > 0 && (
             <div className="qz-breakdown">

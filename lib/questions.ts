@@ -319,9 +319,8 @@ const avgRows = (qs: Question[]) => (qs.length ? Math.round(qs.reduce((s, q) => 
 /** Modified and plain true or false share a statement; treat them as one for "seen" and within a round. */
 const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
 
-/** Scenario rounds rotate across modules instead of clustering randomly in one module. */
+/** Rotate across modules instead of clustering randomly in one module. */
 function variedScenarioPick(qs: Question[], n: number): Question[] {
-  if (!qs.some((q) => q.id.startsWith("scenario:"))) return shuffle(qs).slice(0, n);
   const groups = new Map<string, Question[]>();
   shuffle(qs).forEach((q) => {
     const key = q.kind !== "match" && q.mod ? q.mod : "other";
@@ -383,10 +382,16 @@ function varyTruthOrder(qs: Question[]): Question[] {
 
 /**
  * Builds a round: unseen questions first within each type, never the same statement twice,
- * matching trimmed to MATCH_ROWS random rows. A type whose questions have all been seen starts over.
+ * Previously practiced questions rotate oldest-first once fresh questions run out.
+ * Matching rows rotate independently, rather than re-randomizing the same handful of rows.
  */
 export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: string[]) {
-  let nextSeen = seen.slice();
+  // Keep a unique, oldest-to-newest history, including histories from earlier versions.
+  let nextSeen = [...new Set(seen.map(baseId))];
+  const remember = (ids: string[]) => {
+    const selected = new Set(ids);
+    nextSeen = [...nextSeen.filter(id => !selected.has(id)), ...ids];
+  };
   const used = new Set<string>();
   let restarted = false;
   const qs: Question[] = [];
@@ -397,17 +402,21 @@ export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: strin
     const avail = pool[t].filter((q) => !used.has(baseId(q.id)));
     let fresh = variedPick(avail.filter((q) => !seenSet.has(baseId(q.id))), n, t);
     if (fresh.length < n) {
-      // Everything of this type has been seen: start this type over.
+      // Exhaustion should not reset the bank and immediately repeat the last round.
       restarted = true;
-      const ids = new Set(pool[t].map((q) => baseId(q.id)));
-      nextSeen = nextSeen.filter((id) => !ids.has(id));
-      const have = new Set(fresh.map((q) => q.id));
-      fresh = [...fresh, ...variedPick(avail.filter((q) => !have.has(q.id)), n - fresh.length, t)];
+      const have = new Set(fresh.map((q) => baseId(q.id)));
+      const oldest = avail.filter(q => !have.has(baseId(q.id))).sort((a, b) => nextSeen.indexOf(baseId(a.id)) - nextSeen.indexOf(baseId(b.id)));
+      fresh = [...fresh, ...oldest.slice(0, n - fresh.length)];
     }
     fresh.forEach((q) => {
       used.add(baseId(q.id));
-      nextSeen.push(baseId(q.id));
-      qs.push(q.kind === "match" ? { ...q, rows: shuffle(q.rows).slice(0, MATCH_ROWS) } : q);
+      remember([baseId(q.id)]);
+      if (q.kind === "match") {
+        const rowId = (row: typeof q.rows[number]) => `row:${q.id}:${row.prompt}`;
+        const rows = shuffle(q.rows).sort((a, b) => nextSeen.indexOf(rowId(a)) - nextSeen.indexOf(rowId(b))).slice(0, MATCH_ROWS);
+        remember(rows.map(rowId));
+        qs.push({ ...q, rows: shuffle(rows) });
+      } else qs.push(q);
     });
   });
   return { qs: varyAnswerPositions(varyTruthOrder(shuffle(qs))), seen: nextSeen, restarted };
