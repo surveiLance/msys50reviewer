@@ -170,6 +170,28 @@ test("custom counts persist in a lobby and survive into the started game", async
   expect((await t.query(api.parties.get, { token: b, partyId }))?.total).toBe(7);
 });
 
+test.each([true, false])("player results visibility %s is enforced for the host and opponents without changing scoring", async showPlayerResults => {
+  const { t, partyId } = await setup(false);
+  await t.mutation(api.parties.configure, { token: a, partyId, settings: { ...settings, showPlayerResults, scoring: "correct" } });
+  for (const token of [b, c]) await t.mutation(api.parties.act, { token, partyId, action: "ready", revision: 1 });
+  await t.mutation(api.parties.act, { token: a, partyId, action: "start" });
+  const raw = (await t.run(ctx => ctx.db.get(partyId)))!;
+  for (let index = 0; index < 5; index++) {
+    for (const token of [a, b, c]) {
+      if (token === a) expect((await t.query(api.parties.get, { token: c, partyId }))?.result).toBeNull();
+      await t.mutation(api.parties.act, { token, partyId, action: "answer", index, answer: raw.questions[index].correct[0] });
+    }
+    for (const token of [a, b, c]) {
+      const state = await t.query(api.parties.get, { token, partyId });
+      expect(state?.result?.players).toHaveLength(showPlayerResults ? 3 : 0);
+      expect(state?.result?.correct).toEqual(raw.questions[index].correct);
+      expect(state?.roster.every(p => p.score === index + 1)).toBe(true);
+      if (index === 4) expect(state?.review?.every(q => q.ok)).toBe(true);
+    }
+    if (index < 4) await t.mutation(api.parties.act, { token: a, partyId, action: "next", index });
+  }
+});
+
 test.each(["correct", "fastest", "ranked"] as const)("%s scoring awards server-calculated points, excludes wrong answers, and handles ties", async scoring => {
   const { t, partyId } = await setup(false);
   await t.mutation(api.parties.configure, { token: a, partyId, settings: { ...settings, scoring } });

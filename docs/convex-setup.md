@@ -37,6 +37,11 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
   Changing settings resets readiness. The roster locks when the game starts.
 - Everyone gets the same shuffled choices. Answers are immutable once locked;
   answers and grading remain hidden until everyone locks or time expires.
+- The host can turn off "Show who got each question right" before starting.
+  This hides all players' answer/correctness/timing/round-point breakdowns in
+  the API and UI, including the final round. The correct answer and explanation,
+  total scoreboard, final winner, and each player's own final review remain.
+  Scores can still allow correctness to be inferred; this isn't score secrecy.
 - Scoring is chosen by the host before starting: every fully correct answer
   gets 1 point; fastest correct only gets 1 point (the default for old lobbies);
   or speed-ranked points, where a correct answer earns the active player count

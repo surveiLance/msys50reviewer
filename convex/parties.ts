@@ -227,7 +227,7 @@ export const get = query({
       roster: list.filter(m => m.status === "approved" || m.participated || host && m.status === "pending").map(m => ({ id: m._id, name: m.name, status: m.status, host: m.player === party.host, ready: m.ready, score: m.score, answered: m.answers.length > party.index })),
       readyToStart: active.length >= 2 && active.every(m => m.ready),
       question: q && canPlay ? { kind: q.kind, module: q.module, prompt: q.prompt, options: q.options, rows: q.rows } : null,
-      result: q && revealed && canPlay ? { correct: q.correct, explanation: q.explanation, source: q.source, players: list.filter(m => m.participated).map(m => {
+      result: q && revealed && canPlay ? { correct: q.correct, explanation: q.explanation, source: q.source, players: list.filter(m => m.participated && party.settings.showPlayerResults !== false).map(m => {
         const answer = m.answers[party.index];
         return { id: m._id, name: m.name, answer: answer?.answer ?? null, correct: answer?.correct ?? false, points: answer?.points ?? 0, milliseconds: answer && (typeof answer.answer === "string" ? !!answer.answer : !!answer.answer.length) ? answer.at - party.startedAt : null };
       }) } : null,
