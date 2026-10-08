@@ -337,6 +337,50 @@ function variedScenarioPick(qs: Question[], n: number): Question[] {
   return picked;
 }
 
+/** Keep true/false-only rounds from becoming a long run of the same answer. */
+function variedTruthPick(qs: Question[], n: number): Question[] {
+  const truthQuestions = qs.filter((q) => (q.kind === "tf" || q.kind === "tf2") && q.isTrue);
+  const falseQuestions = qs.filter((q) => (q.kind === "tf" || q.kind === "tf2") && !q.isTrue);
+  if (!truthQuestions.length || !falseQuestions.length) return shuffle(qs).slice(0, n);
+  const groups = [shuffle(truthQuestions), shuffle(falseQuestions)];
+  if (Math.random() < 0.5) groups.reverse();
+  const picked: Question[] = [];
+  while (picked.length < n && groups.some((group) => group.length)) {
+    groups.forEach((group) => {
+      if (picked.length < n && group.length) picked.push(group.pop()!);
+    });
+  }
+  return picked;
+}
+
+function variedPick(qs: Question[], n: number, type: QType): Question[] {
+  if (type === "tf" || type === "tf2") return variedTruthPick(qs, n);
+  return variedScenarioPick(qs, n);
+}
+
+/** Rotate correct MC choices through the available positions, then shuffle distractors. */
+function varyAnswerPositions(qs: Question[]): Question[] {
+  const positions = new Map<number, number[]>();
+  return qs.map((q) => {
+    if (q.kind !== "mc" || q.options.length < 2) return q;
+    const answerIndex = q.options.indexOf(q.answer);
+    if (answerIndex < 0) return q;
+    let queue = positions.get(q.options.length) || [];
+    if (!queue.length) queue = shuffle(q.options.map((_, i) => i));
+    const target = queue.pop()!;
+    positions.set(q.options.length, queue);
+    const rest = q.options.slice();
+    rest.splice(answerIndex, 1);
+    const options = shuffle(rest);
+    options.splice(target, 0, q.answer);
+    return { ...q, options };
+  });
+}
+
+function varyTruthOrder(qs: Question[]): Question[] {
+  return qs.every((q) => q.kind === "tf" || q.kind === "tf2") ? variedTruthPick(qs, qs.length) : qs;
+}
+
 /**
  * Builds a round: unseen questions first within each type, never the same statement twice,
  * matching trimmed to MATCH_ROWS random rows. A type whose questions have all been seen starts over.
@@ -351,14 +395,14 @@ export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: strin
     if (!n) return;
     const seenSet = new Set(nextSeen);
     const avail = pool[t].filter((q) => !used.has(baseId(q.id)));
-    let fresh = variedScenarioPick(avail.filter((q) => !seenSet.has(baseId(q.id))), n);
+    let fresh = variedPick(avail.filter((q) => !seenSet.has(baseId(q.id))), n, t);
     if (fresh.length < n) {
       // Everything of this type has been seen: start this type over.
       restarted = true;
       const ids = new Set(pool[t].map((q) => baseId(q.id)));
       nextSeen = nextSeen.filter((id) => !ids.has(id));
       const have = new Set(fresh.map((q) => q.id));
-      fresh = [...fresh, ...variedScenarioPick(avail.filter((q) => !have.has(q.id)), n - fresh.length)];
+      fresh = [...fresh, ...variedPick(avail.filter((q) => !have.has(q.id)), n - fresh.length, t)];
     }
     fresh.forEach((q) => {
       used.add(baseId(q.id));
@@ -366,5 +410,5 @@ export function pickTypes(pool: Pool, counts: Record<QType, number>, seen: strin
       qs.push(q.kind === "match" ? { ...q, rows: shuffle(q.rows).slice(0, MATCH_ROWS) } : q);
     });
   });
-  return { qs: shuffle(qs), seen: nextSeen, restarted };
+  return { qs: varyAnswerPositions(varyTruthOrder(shuffle(qs))), seen: nextSeen, restarted };
 }
