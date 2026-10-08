@@ -515,7 +515,7 @@ table.hist th:last-child{text-align:right}
 .battle-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .battle-heading>.btn{flex:0 0 auto}
 .battle label{display:grid;gap:8px;font-size:14px;font-weight:600}
-.battle input:not([type="radio"]),.battle select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;min-width:0}
+.battle input:not([type="radio"]):not([type="checkbox"]),.battle select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;min-width:0}
 .battle-form{display:grid;gap:14px;max-width:420px}
 .battle-lobby-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
 .battle-lobby-grid>div,.battle-lobby-grid>form{display:grid;gap:14px;align-content:start}
@@ -542,6 +542,26 @@ table.hist th:last-child{text-align:right}
 .battle-review article{padding-block:18px;border-bottom:1px solid var(--line);display:grid;gap:10px;overflow-wrap:anywhere}
 .battle-review summary{cursor:pointer;color:var(--accent-ink);font-weight:700;padding:10px 0}
 .battle .tbl{overflow-x:auto}
+.party-setting-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.party-settings{display:grid;gap:18px}
+.party-types{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.party-types legend{font-weight:700;padding-inline:5px}
+.party-types label{display:flex;align-items:center;gap:9px;font-weight:500}
+.party-types input,.battle-options input[type="checkbox"]{accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}
+.battle input[type="checkbox"]{padding:0}
+.party-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.party-roster>div{display:grid;gap:5px;text-align:center;padding:15px 10px;border:1px solid var(--line);border-radius:12px;min-width:0;overflow-wrap:anywhere}
+.party-roster .is-you{background:var(--accent-soft);border-color:var(--accent-line)}
+.party-roster span,.party-roster small{font-size:12px;color:var(--muted)}
+.party-roster strong{font-size:28px;font-variant-numeric:tabular-nums}
+.party-lobbies{display:grid;gap:14px}
+.party-lobbies article{display:flex;align-items:center;gap:16px;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:16px;overflow-wrap:anywhere}
+.party-lobbies article>.btn{flex:0 0 auto}
+.party-request{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.party-request>b{flex:1}
+.party-request>.btn{flex:0 1 auto}
+.party-matching{display:grid;gap:14px}
+@media(max-width:600px){.party-types{grid-template-columns:1fr}.party-lobbies article{align-items:stretch;flex-direction:column}.party-request>b{flex-basis:100%}.party-setting-grid{gap:10px}}
 @media(max-width:600px){.battle-lobby-grid{grid-template-columns:1fr}.battle .chart-card{padding:16px}.battle-versus{gap:7px}.battle-versus b{font-size:15px}.battle-period .btn{padding:10px;font-size:13px}}
 .hist-old{display:block;margin-top:4px;font-size:12.5px;color:var(--faint)}
 .hist-back{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.58);backdrop-filter:blur(4px)}

@@ -1,8 +1,8 @@
 # Convex setup
 
-Convex powers the Battle tab: nickname-only two-player rooms, 10 scenario
-questions, server-enforced 60-second deadlines, answer reveals, and weekly and
-all-time leaderboards. Existing solo quizzes and scores still use browser
+Convex powers the Battle tab: nickname-only public parties for 2–12 players,
+host approval and game settings, speed scoring, server-enforced deadlines,
+answer reveals, and weekly and all-time leaderboards. Existing solo quizzes and scores still use browser
 storage. No player sign-in is required.
 
 ## Local development
@@ -23,11 +23,24 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
 
 ## Rules and privacy
 
-- A host occupies Side 1; joining occupies Side 2. Both must press Ready.
-- Both players see the same shuffled options. Both must press Next after reveal.
-- A correct answer earns 1 point, with no speed bonus. Missing answers earn 0.
-- Only completed matches count. Leaving a running match cancels it for both.
-- Rooms expire after 2 hours. Reloading resumes the room in the same browser.
+- Register a nickname before discovering, creating, or requesting to join a party.
+- Open parties appear on the Battle page without room codes. The host approves
+  or declines requests and can remove players before starting.
+- The host selects Modules 1–3, seven question types, 5/10/15/20 questions,
+  30/60/90/120 seconds per question, and a capacity of 2–12 players.
+- Approved players press Ready; only the host can Start or advance Next.
+  Changing settings resets readiness. The roster locks when the game starts.
+- Everyone gets the same shuffled choices. Answers are immutable once locked;
+  answers and grading remain hidden until everyone locks or time expires.
+- The fastest fully correct submission earns 1 point. Exact server-timestamp
+  ties share the point. Incorrect, missing, or partially correct answers earn 0.
+  Server receipt time is authoritative, so network latency can affect close races.
+- The final question ends the game automatically after all locks or timeout.
+  Leaderboard accuracy counts all correct answers, including slower answers.
+- Only completed games count. Host departure cancels the game; other departures
+  let the game continue if at least two players remain. Departed players cannot
+  earn further points; they still receive a completed-game record if it finishes.
+- Parties expire after 2 hours. Reloading resumes the party in the same browser.
 - Nicknames and leaderboard totals are public; browser identity tokens are not.
 - Nicknames are unverified and can be duplicated. This is a casual leaderboard,
   not a competition-grade identity or anti-cheat system. Clearing storage creates
@@ -36,6 +49,9 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
 
 Run `npm test` for backend tests. Development test matches are separate from
 production standings.
+
+Legacy `battle` room functions and data remain for compatibility with older
+clients. New parties use `parties` and `partyMembers`; existing standings survive.
 
 See the [Convex Next.js setup](https://docs.convex.dev/quickstart/nextjs) and
 [Vercel hosting guide](https://docs.convex.dev/production/hosting/vercel).

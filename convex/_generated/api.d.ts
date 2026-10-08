@@ -10,6 +10,9 @@
 
 import type * as battle from "../battle.js";
 import type * as health from "../health.js";
+import type * as parties from "../parties.js";
+import type * as partyQuestions from "../partyQuestions.js";
+import type * as partyTypes from "../partyTypes.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +23,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   battle: typeof battle;
   health: typeof health;
+  parties: typeof parties;
+  partyQuestions: typeof partyQuestions;
+  partyTypes: typeof partyTypes;
 }>;
 
 /**

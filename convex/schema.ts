@@ -1,7 +1,19 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { settingsType, questionShape, submissionShape } from "./partyTypes";
 
 export default defineSchema({
+  parties: defineTable({
+    host: v.id("players"), title: v.string(), settings: settingsType,
+    phase: v.union(v.literal("lobby"), v.literal("question"), v.literal("reveal"), v.literal("finished"), v.literal("cancelled")),
+    questions: v.array(questionShape), index: v.number(), startedAt: v.number(), deadline: v.number(), expiresAt: v.number(),
+    revision: v.number(),
+  }).index("by_phase", ["phase"]).index("by_host", ["host"]),
+  partyMembers: defineTable({
+    party: v.id("parties"), player: v.id("players"), name: v.string(),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("left")),
+    ready: v.boolean(), score: v.number(), answers: v.array(submissionShape), participated: v.boolean(),
+  }).index("by_party", ["party"]).index("by_party_player", ["party", "player"]).index("by_player", ["player"]),
   players: defineTable({ token: v.string(), name: v.string(), lastRoomAt: v.number() }).index("by_token", ["token"]),
   standings: defineTable({
     player: v.id("players"), period: v.string(), name: v.string(), wins: v.number(),
