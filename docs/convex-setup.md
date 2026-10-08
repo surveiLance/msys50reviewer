@@ -26,7 +26,11 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
 - Register a nickname before discovering, creating, or requesting to join a party.
 - Open parties appear on the Battle page without room codes. The host approves
   or declines requests and can remove players before starting.
-- The host selects Modules 1–3, seven question types, 5/10/15/20 questions,
+- The host checks which Modules 1–3 to include and enters 1–20 questions per
+  selected module. The total is automatic (up to 60); games draw those exact
+  counts and exclude unchecked modules. Insufficient banks require lowering
+  the module count or adding question types. Older lobbies remain compatible.
+- The host also selects seven question types,
   30/60/90/120 seconds per question, and a capacity of 2–12 players.
 - Approved players press Ready; only the host can Start or advance Next.
   Changing settings resets readiness. The roster locks when the game starts.

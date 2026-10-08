@@ -137,3 +137,31 @@ test("all seven types cover Modules 1–3, validate their answers, and avoid rep
     expect(q.correct.every(a => a.length <= 150)).toBe(true);
   }
 });
+
+test("custom module counts are exact, omit unchecked modules, and cover selected types", () => {
+  const custom: PartySettings = { ...settings, count: 15, moduleCounts: { M1: 5, M2: 10 }, types: ["scenario", "mc", "tf2", "tf", "multi", "blank", "match"] };
+  for (let draw = 0; draw < 40; draw++) {
+    const qs = selectQuestions(custom);
+    expect(qs).toHaveLength(15);
+    expect(qs.filter(q => q.module === "M1")).toHaveLength(5);
+    expect(qs.filter(q => q.module === "M2")).toHaveLength(10);
+    expect(qs.some(q => q.module === "M3")).toBe(false);
+    expect(new Set(qs.map(q => q.kind)).size).toBe(7);
+  }
+  expect(selectQuestions({ ...settings, count: 1, moduleCounts: { M3: 1 } })).toHaveLength(1);
+  for (const moduleCounts of [{}, { M1: 0 }, { M1: -1 }, { M1: 1.5 }, { M1: 21 }]) expect(() => selectQuestions({ ...settings, moduleCounts })).toThrow("Select at least one module");
+  expect(() => selectQuestions({ ...settings, count: 6, moduleCounts: { M1: 5 } })).toThrow("total");
+  expect(() => selectQuestions({ ...settings, count: 20, moduleCounts: { M1: 20 } })).toThrow("Module 1");
+});
+test("custom counts persist in a lobby and survive into the started game", async () => {
+  const { t, partyId } = await setup(false);
+  const custom: PartySettings = { ...settings, count: 7, moduleCounts: { M1: 2, M3: 5 } };
+  await t.mutation(api.parties.configure, { token: a, partyId, settings: custom });
+  expect((await t.query(api.parties.discover, { token: b }))[0].settings.moduleCounts).toEqual({ M1: 2, M3: 5 });
+  for (const token of [b, c]) await t.mutation(api.parties.act, { token, partyId, action: "ready", revision: 1 });
+  await t.mutation(api.parties.act, { token: a, partyId, action: "start" });
+  const raw = await t.run(ctx => ctx.db.get(partyId));
+  expect(raw!.questions.filter(q => q.module === "M1")).toHaveLength(2);
+  expect(raw!.questions.filter(q => q.module === "M3")).toHaveLength(5);
+  expect((await t.query(api.parties.get, { token: b, partyId }))?.total).toBe(7);
+});

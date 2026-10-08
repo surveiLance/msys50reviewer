@@ -53,25 +53,35 @@ export function questionBank(): PartyQuestion[] {
 }
 export function validateSettings(s: PartySettings) {
   if (!s.types.length || new Set(s.types).size !== s.types.length) throw new ConvexError("Choose at least one question type, without duplicates.");
-  if (![5, 10, 15, 20].includes(s.count) || ![30, 60, 90, 120].includes(s.seconds) || !Number.isInteger(s.capacity) || s.capacity < 2 || s.capacity > 12) throw new ConvexError("Choose 5–20 questions, 30–120 seconds, and 2–12 players from the settings.");
+  if (s.moduleCounts) {
+    const counts = Object.values(s.moduleCounts);
+    if (!counts.length || counts.some(n => !Number.isInteger(n) || n < 1 || n > 20)) throw new ConvexError("Select at least one module and enter 1–20 questions for each selected module.");
+    if (counts.reduce((a, b) => a + b, 0) !== s.count) throw new ConvexError("The total must match your module question counts.");
+  } else if (![5, 10, 15, 20].includes(s.count)) throw new ConvexError("Choose a valid question count.");
+  if (![30, 60, 90, 120].includes(s.seconds) || !Number.isInteger(s.capacity) || s.capacity < 2 || s.capacity > 12) throw new ConvexError("Choose 30–120 seconds and 2–12 players from the settings.");
   if (s.types.length > s.count) throw new ConvexError("Choose at least as many questions as question types.");
 }
 export function selectQuestions(s: PartySettings): PartyQuestion[] {
   validateSettings(s);
-  const pool = shuffle(questionBank().filter(q => (s.mode === "mixed" || q.module === s.mode) && s.types.includes(q.kind)));
+  const quotas = s.moduleCounts;
+  const pool = shuffle(questionBank().filter(q => (quotas ? !!quotas[q.module as keyof typeof quotas] : s.mode === "mixed" || q.module === s.mode) && s.types.includes(q.kind)));
   const chosen: PartyQuestion[] = [];
   const seen = new Set<string>();
   const fingerprint = (q: PartyQuestion) => q.prompt.replace(/<[^>]*>/g, "").toLowerCase().replace(/\s+/g, " ").trim() + q.rows.join("|");
+  const hasSpace = (q: PartyQuestion) => !quotas || chosen.filter(x => x.module === q.module).length < (quotas[q.module as keyof typeof quotas] ?? 0);
   const take = (candidates: PartyQuestion[]) => {
-    const q = candidates.find(q => !seen.has(fingerprint(q)));
+    const q = candidates.find(q => hasSpace(q) && !seen.has(fingerprint(q)));
     if (q) { chosen.push(q); seen.add(fingerprint(q)); }
     return !!q;
   };
   // Cover each selected type; distribute the rest across types and modules.
   for (const type of shuffle(s.types)) if (!take(pool.filter(q => q.kind === type))) throw new ConvexError(`No ${type} questions available for this module. Change the selected types.`);
   while (chosen.length < s.count) {
-    const remaining = pool.filter(q => !seen.has(fingerprint(q)));
-    if (!remaining.length) throw new ConvexError("Not enough distinct questions. Choose a shorter game or more types.");
+    const remaining = pool.filter(q => hasSpace(q) && !seen.has(fingerprint(q)));
+    if (!remaining.length) {
+      const short = quotas ? Object.entries(quotas).filter(([m, n]) => chosen.filter(q => q.module === m).length < n).map(([m]) => `Module ${m.slice(1)}`).join(", ") : "this selection";
+      throw new ConvexError(`Not enough distinct questions for ${short}. Lower its question count or select more question types.`);
+    }
     remaining.sort((a, b) => {
       const weight = (q: PartyQuestion) => chosen.filter(x => x.kind === q.kind).length * 3 + chosen.filter(x => x.module === q.module).length;
       return weight(a) - weight(b);
