@@ -25,7 +25,7 @@ export default async function ScoresPage({ params }: P) {
       <div className="mod-head">
         <div className="eyebrow">{subject.code} · Progress</div>
         <h2>My scores</h2>
-        <p>How you&apos;re doing on the module tests and the midterm test, and where to focus next.</p>
+        <p>See your progress, revisit answers from completed tests, and find where to focus next.</p>
       </div>
       <div className="sub">
         <ScoresView subject={subject} />

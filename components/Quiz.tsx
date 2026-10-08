@@ -9,7 +9,7 @@ import {
   poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolScenarioMidterm,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
-import { pct, recordAttempt } from "@/lib/scores";
+import { pct, recordAttempt, type AttemptReviewItem } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
 import NotesPeek from "./NotesPeek";
 
@@ -137,6 +137,44 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
       )}
     </div>
   );
+}
+
+function reviewSnapshot(q: Question, a: Answer, g: Graded): AttemptReviewItem {
+  const base = {
+    type: typeLabel(q), section: q.section, points: g.points, max: g.max,
+    module: q.kind === "match" ? undefined : q.mod,
+  };
+  if (q.kind === "match") return {
+    ...base,
+    prompt: q.inst,
+    rows: q.rows.map((row, i) => ({
+      prompt: row.prompt,
+      your: a.picks?.[i] || "No answer",
+      correct: row.answer,
+      ok: !!g.rows?.[i],
+    })),
+  };
+  if (q.kind === "multi") return {
+    ...base, prompt: q.prompt, your: a.checks?.length ? a.checks : ["No answer"], correct: q.correct,
+    explanation: q.why, source: q.source,
+  };
+  if (q.kind === "tf2") return {
+    ...base, prompt: q.prompt, your: [a.choice || "No answer"], correct: [q.isTrue ? "True" : "False"],
+    explanation: q.why || (q.isTrue ? "The statement is correct as written." : q.underlined && q.fix ? `“${q.underlined}” should be “${q.fix}”.` : "The statement is false based on the lesson."),
+    source: q.source,
+  };
+  if (q.kind === "blank") return {
+    ...base, prompt: q.prompt, your: [a.choice || "No answer"], correct: [q.answer], explanation: q.why, source: q.source,
+  };
+  if (q.kind === "tf") return {
+    ...base, prompt: q.prompt, your: [a.text?.trim() || "No answer"], correct: [q.answer],
+    explanation: q.isTrue ? `The statement is true, so ${TRUE_MARK} is the answer.` : `Replace the underlined part with “${q.answer}”.`,
+    source: q.source,
+  };
+  return {
+    ...base, prompt: q.prompt, your: [a.choice || "No answer"], correct: [q.answer],
+    explanation: q.why || "This is the best answer based on the related lesson.", source: q.source,
+  };
 }
 
 export default function Quiz(props: Props) {
@@ -365,6 +403,7 @@ export default function Quiz(props: Props) {
       timed: run.timed,
       byModule,
       parts: [...parts].map(([k, [c, t]]) => [k, c, t]),
+      review: run.qs.map((q, i) => reviewSnapshot(q, run.answers[i], graded[i])),
     });
   }, [phase, run, graded, recordedAt, subject, midterm, props.module, timeUp]);
 

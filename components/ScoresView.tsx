@@ -17,6 +17,7 @@ function level(p: number) {
 
 export default function ScoresView({ subject }: { subject: SubjectMeta }) {
   const [all, setAll] = useState<Attempt[] | null>(null);
+  const [reviewing, setReviewing] = useState<Attempt | null>(null);
   const base = `/${subject.slug}`;
   const examName = subject.exam ? `${subject.exam.title} test` : "Exam";
 
@@ -30,6 +31,17 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
       window.removeEventListener("storage", read);
     };
   }, [subject.slug]);
+
+  useEffect(() => {
+    if (!reviewing) return;
+    const close = (e: KeyboardEvent) => { if (e.key === "Escape") setReviewing(null); };
+    document.body.classList.add("history-open");
+    window.addEventListener("keydown", close);
+    return () => {
+      document.body.classList.remove("history-open");
+      window.removeEventListener("keydown", close);
+    };
+  }, [reviewing]);
 
   if (!all) return <p className="inst">Loading your scores…</p>;
 
@@ -169,6 +181,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
 
       <section className="chart-card">
         <h3>Every attempt</h3>
+        <p className="inst">Open a saved attempt to compare every response with the correct answer and explanation.</p>
         <div className="tbl">
           <table className="hist">
             <thead>
@@ -185,6 +198,11 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
                       {a.kind === "midterm" ? (a.timed ? " · timed" : " · untimed") : ""}
                       {a.answered < a.max ? ` · ${a.max - a.answered} left blank` : ""}
                     </span>
+                    {a.review?.length ? (
+                      <button className="hist-review-btn" type="button" onClick={() => setReviewing(a)}>Review answers →</button>
+                    ) : (
+                      <span className="hist-old">Summary only · completed before answer history was added</span>
+                    )}
                   </td>
                   <td className="hist-score"><b>{pct(a.score, a.max)}%</b><span className="hist-meta">{a.score} of {a.max}</span></td>
                 </tr>
@@ -198,6 +216,54 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
         <p className="inst">Scores are saved in this browser only. They won&apos;t follow you to another device, and clearing your browser data erases them.</p>
         <button className="btn danger" type="button" onClick={reset}>Delete all scores</button>
       </div>
+
+      {reviewing && (
+        <div className="hist-back" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setReviewing(null); }}>
+          <section className="hist-dialog" role="dialog" aria-modal="true" aria-labelledby="hist-title">
+            <header className="hist-dialog-head">
+              <div>
+                <span className="eyebrow">{fmtDate(reviewing.at)} · {fmtDuration(reviewing.seconds)}</span>
+                <h3 id="hist-title">{reviewing.kind === "midterm" ? examName : `${modName(reviewing.module)} test`} · {pct(reviewing.score, reviewing.max)}%</h3>
+                {reviewing.set && <p>{reviewing.set}</p>}
+              </div>
+              <button className="peek-x" type="button" aria-label="Close answer history" onClick={() => setReviewing(null)}>×</button>
+            </header>
+            <div className="hist-dialog-body">
+              <ol className="qz-rv hist-answers">
+                {reviewing.review!.map((item, i) => {
+                  const full = item.points === item.max;
+                  return (
+                    <li key={i} className={full ? "ok" : ""}>
+                      <div className="qz-rv-top">
+                        <span>Question {i + 1} · {item.type}{item.module ? ` · Module ${item.module.slice(1)}` : ""}</span>
+                        <b>{item.points} / {item.max} pt{item.max === 1 ? "" : "s"}</b>
+                      </div>
+                      <div className="qz-rv-prompt" dangerouslySetInnerHTML={{ __html: item.prompt }} />
+                      {item.rows ? (
+                        <ul className="qz-rv-rows">
+                          {item.rows.map((row, ri) => (
+                            <li key={ri} className={row.ok ? "is-right" : "is-wrong"}>
+                              <span dangerouslySetInnerHTML={{ __html: row.prompt }} />
+                              <span className="qz-rv-line">Your answer: <span className={"y" + (row.ok ? " ok" : "")}>{row.your}</span>{!row.ok && <> · Correct: <span className="c">{row.correct}</span></>}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <>
+                          <p className="qz-rv-line">Your answer: <span className={"y" + (full ? " ok" : "")}>{item.your?.join(" · ") || "No answer"}</span></p>
+                          {!full && <p className="qz-rv-line">Correct answer: <span className="c">{item.correct?.join(" · ")}</span></p>}
+                        </>
+                      )}
+                      {item.explanation && <p className="qz-why">{item.explanation}</p>}
+                      {item.source && <p className="qz-src"><span>Source: {item.source}</span></p>}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

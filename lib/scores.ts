@@ -1,5 +1,27 @@
 import { load, save } from "./quiz";
 
+export type AttemptReviewRow = {
+  prompt: string;
+  your: string;
+  correct: string;
+  ok: boolean;
+};
+
+/** A compact question snapshot so a completed attempt can be reviewed later. */
+export type AttemptReviewItem = {
+  type: string;
+  section?: string;
+  prompt: string;
+  your?: string[];
+  correct?: string[];
+  explanation?: string;
+  source?: string;
+  module?: string;
+  points: number;
+  max: number;
+  rows?: AttemptReviewRow[];
+};
+
 /** One checked test. Saved in this browser only. */
 export type Attempt = {
   id: string;
@@ -16,6 +38,8 @@ export type Attempt = {
   byModule: Record<string, [number, number]>;
   /** Per test part: [label, correct, total]. */
   parts: [string, number, number][];
+  /** Question-level snapshot. Older attempts predate this field. */
+  review?: AttemptReviewItem[];
 };
 
 const key = (subject: string) => `scores-${subject}`;
@@ -29,7 +53,10 @@ export function loadAttempts(subject: string): Attempt[] {
 export function recordAttempt(subject: string, a: Omit<Attempt, "id" | "at">): void {
   const all = loadAttempts(subject);
   all.push({ ...a, id: Math.random().toString(36).slice(2, 10), at: Date.now() });
-  save(key(subject), all.slice(-200));
+  const kept = all.slice(-200);
+  // Keep every score summary, but limit bulky question snapshots to protect localStorage.
+  kept.slice(0, -50).forEach((attempt) => delete attempt.review);
+  save(key(subject), kept);
   window.dispatchEvent(new Event(SCORES_EVENT));
 }
 
