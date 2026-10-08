@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { scoringInfo } from "@/lib/battleScoring";
+import BattlePodium from "./BattlePodium";
 
 export default function BattleLeaderboard() {
   const [tab, setTab] = useState("rankings"), [weekly, setWeekly] = useState(false);
@@ -20,6 +21,7 @@ export default function BattleLeaderboard() {
       {matches === undefined ? <p>Loading matches…</p> : !matches.length ? <p>No completed party battles yet.</p> : <div className="battle-match-list">{matches.map(m => <details className="battle-match" key={m.id}><summary><b>{m.title}</b><span>{m.winners.length > 1 ? `Draw: ${m.winners.join(" & ")}` : `${m.winners[0] ?? "Nobody"} won`}</span></summary>
         <p className="inst">{m.completedAt ? new Date(m.completedAt).toLocaleString() : "Earlier match · completion time unavailable"} · {m.total} questions · {scoringInfo(m.scoring).label}</p>
         {m.resultsHidden && <p className="inst">Individual answer stats were hidden by the leader.</p>}
+        <BattlePodium players={m.players.filter(p => !p.left)} />
         <div className="tbl"><table className="hist"><thead><tr><th>Player</th><th>Points</th>{!m.resultsHidden && <><th>Correct</th><th>Wrong</th><th>No answer</th><th>Avg. time</th></>}</tr></thead><tbody>{m.players.map(p => <tr key={p.name}><td>{p.left ? "Left · " : `${p.rank}. `}{p.name}</td><td>{p.score}</td>{p.stats && <><td>{p.stats.correct}</td><td>{p.stats.wrong}</td><td>{p.stats.unanswered}</td><td>{p.stats.averageMs === null ? "—" : `${(p.stats.averageMs / 1000).toFixed(2)}s`}</td></>}</tr>)}</tbody></table></div>
         {!m.resultsHidden && <p className="inst">Average time includes submitted answers only, measured at the server. Earlier matches may not have timing data.</p>}
       </details>)}</div>}

@@ -742,6 +742,22 @@ mark.peek-hl{background:var(--accent-soft);color:var(--ink);box-shadow:0 0 0 2px
 .qz-type small{font-size:13px;color:var(--muted)}
 .qz-type:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
 .battle-match-list{display:grid;gap:12px;margin-top:16px}
+.battle-podium{margin:24px 0;padding:22px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.podium-title{text-align:center;margin-bottom:22px}
+.podium-title>span{font-size:32px}
+.podium-title h3{margin:6px 0}
+.podium-title .inst{margin:0}
+.podium-steps{display:flex;align-items:flex-end;justify-content:center;gap:10px}
+.podium-place{flex:0 1 30%;min-width:0;text-align:center;display:grid;gap:8px;padding:18px 10px;border:1px solid var(--line);border-radius:14px 14px 6px 6px;background:var(--bg);overflow-wrap:anywhere}
+.podium-place-1{order:2;min-height:260px;padding-top:52px;border-color:var(--accent);background:var(--accent-soft)}
+.podium-place-2{order:1;min-height:220px;padding-top:32px}
+.podium-place-3{order:3;min-height:155px}
+.podium-medal{font-size:32px;line-height:1}
+.podium-label{font-size:12px;color:var(--muted)}
+.podium-names{display:grid;gap:5px;align-content:center}
+.podium-score{font-size:28px;font-variant-numeric:tabular-nums}
+.podium-score small{font-size:12px;color:var(--muted);font-weight:400;display:block}
+@media(max-width:560px){.battle-podium{padding:18px 8px}.podium-steps{gap:6px}.podium-place{flex-basis:33%;padding:14px 6px;font-size:13px}.podium-place-1{min-height:245px;padding-top:44px}.podium-place-2{min-height:210px;padding-top:28px}.podium-place-3{min-height:175px}}
 .battle-match{border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
 .battle-match summary{cursor:pointer;overflow-wrap:anywhere}
 .battle-match summary span{display:block;color:var(--muted);font-size:14px;margin-top:4px}
