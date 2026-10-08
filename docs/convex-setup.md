@@ -24,6 +24,9 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
 ## Rules and privacy
 
 - Register a nickname before discovering, creating, or requesting to join a party.
+- The Battle landing screen puts "Join a party" first with a prominent request
+  button. Creation settings, game details and leaderboard start collapsed.
+  Ended parties provide a "Back to parties" button rather than a waiting prompt.
 - Open parties appear on the Battle page without room codes. The host approves
   or declines requests and can remove players before starting. Declined or
   removed players may request again while the lobby is open; approval is still required.
@@ -57,7 +60,13 @@ Vercel build command in the linked hosting guide. No deploy keys are committed.
   earn further points; they still receive a completed-game record if it finishes.
 - Parties expire after 2 hours. Reloading resumes the party in the same browser.
 - Nicknames and leaderboard totals are public; browser identity tokens are not.
-- Nicknames are unverified and can be duplicated. This is a casual leaderboard,
+- Nicknames are globally reserved per browser profile, ignoring case, repeated
+  spaces and compatibility Unicode. The server rejects a name owned by another
+  profile. Existing duplicates receive numbered suffixes via the internal
+  `battle:dedupeNicknames` migration; IDs, wins and other statistics are preserved.
+  The browser refreshes its stored name from `battle:profile`. Renaming updates
+  leaderboard and party roster names together. Nicknames are still unverified.
+  This is a casual leaderboard,
   not a competition-grade identity or anti-cheat system. Clearing storage creates
   a new profile. Never share the browser identity token.
 - Weekly standings reset on Monday at 00:00 UTC. Historical weeks remain stored.

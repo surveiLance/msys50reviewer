@@ -554,6 +554,12 @@ table.hist th:last-child{text-align:right}
 .party-module-count{display:flex!important;align-items:center;gap:10px;font-size:.9rem;color:var(--muted)}
 .party-module-count input{width:80px!important}
 .party-total{font-weight:700;margin-bottom:4px}
+.arena-identity{margin:0 0 16px;padding:0 4px}.arena-identity p{margin:0}
+.arena-join{border-color:var(--accent)!important}
+.arena-create>summary,.arena-leaderboard>summary{font-size:1.15rem;font-weight:700;cursor:pointer;padding:4px 0}
+.arena-create>summary span{display:block;font-size:.9rem;font-weight:400;color:var(--muted);margin-top:4px}
+.arena-create[open]>summary,.arena-leaderboard[open]>summary{margin-bottom:20px}
+.arena-game-details summary{cursor:pointer;color:var(--muted);font-size:.9rem;margin-top:10px}
 .party-types label{display:flex;align-items:center;gap:9px;font-weight:500}
 .party-types input,.battle-options input[type="checkbox"]{accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}
 .battle input[type="checkbox"]{padding:0}

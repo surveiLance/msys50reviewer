@@ -25,10 +25,16 @@ const week = () => {
   return d.toISOString().slice(0, 10);
 };
 const cleanName = (name: string) => {
-  const cleaned = name.trim().replace(/\s+/g, " ");
+  const cleaned = name.normalize("NFKC").replace(/[\u200b-\u200f\ufeff]/g, "").trim().replace(/\s+/g, " ");
   if (cleaned.length < 1 || cleaned.length > 24 || /[\x00-\x1f<>]/.test(cleaned)) throw new ConvexError("Use a nickname of 1–24 characters, without angle brackets.");
   return cleaned;
 };
+const nameKey = (name: string) => cleanName(name).toLowerCase();
+async function updatePlayerName(ctx: MutationCtx, p: Doc<"players">, name: string) {
+  await ctx.db.patch(p._id, { name, nameKey: nameKey(name) });
+  for (const row of await ctx.db.query("standings").withIndex("by_player_period", q => q.eq("player", p._id)).collect()) await ctx.db.patch(row._id, { name });
+  for (const row of await ctx.db.query("partyMembers").withIndex("by_player", q => q.eq("player", p._id)).collect()) await ctx.db.patch(row._id, { name });
+}
 async function player(ctx: QueryCtx | MutationCtx, token: string) {
   const p = await ctx.db.query("players").withIndex("by_token", (q) => q.eq("token", token)).unique();
   if (!p) throw new ConvexError("Enter your nickname first.");
@@ -80,12 +86,44 @@ export const register = mutation({
     if (!/^[a-f0-9]{64}$/.test(args.token)) throw new ConvexError("Invalid browser identity. Please reload.");
     const name = cleanName(args.name);
     const p = await ctx.db.query("players").withIndex("by_token", (q) => q.eq("token", args.token)).unique();
+    const key = nameKey(name);
+    const reserved = await ctx.db.query("players").withIndex("by_name", q => q.eq("nameKey", key)).collect();
+    const legacy = await ctx.db.query("players").withIndex("by_name", q => q.eq("nameKey", undefined)).collect();
+    if ([...reserved, ...legacy.filter(other => nameKey(other.name) === key)].some(other => other._id !== p?._id)) throw new ConvexError("That nickname is already taken. Add a number or choose a different nickname.");
     if (p) {
-      await ctx.db.patch(p._id, { name });
-      const standings = await ctx.db.query("standings").withIndex("by_player_period", (q) => q.eq("player", p._id)).collect();
-      for (const row of standings) await ctx.db.patch(row._id, { name });
-    } else await ctx.db.insert("players", { token: args.token, name, lastRoomAt: 0 });
+      await updatePlayerName(ctx, p, name);
+    } else await ctx.db.insert("players", { token: args.token, name, nameKey: key, lastRoomAt: 0 });
     return { name };
+  },
+});
+export const profile = query({
+  args: { token: v.string() },
+  handler: async (ctx, { token }) => {
+    const p = await ctx.db.query("players").withIndex("by_token", q => q.eq("token", token)).unique();
+    return p ? { name: p.name } : null;
+  },
+});
+// One-time repair for legacy duplicates. Preserve player IDs and every score;
+// reserve existing names first so generated suffixes cannot take someone's name.
+export const dedupeNicknames = internalMutation({
+  args: {},
+  handler: async ctx => {
+    const people = await ctx.db.query("players").order("asc").take(1001);
+    if (people.length > 1000) throw new ConvexError("Use a batched nickname migration for more than 1000 profiles.");
+    const reserved = new Set(people.map(p => nameKey(p.name))), seen = new Set<string>();
+    let renamed = 0;
+    for (const p of people) {
+      const base = cleanName(p.name), key = nameKey(base);
+      let name = base;
+      if (seen.has(key)) {
+        let suffix = 2;
+        do { const tail = ` ${suffix++}`; name = base.slice(0, 24 - tail.length).trimEnd() + tail; } while (reserved.has(nameKey(name)));
+        reserved.add(nameKey(name)); renamed++;
+      }
+      seen.add(key);
+      await updatePlayerName(ctx, p, name);
+    }
+    return { profiles: people.length, renamed };
   },
 });
 export const create = mutation({

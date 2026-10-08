@@ -165,3 +165,30 @@ test("leaderboard ranks only by wins and equal wins share a rank in both periods
     expect(rows.filter(r => r.rank === 1).map(r => r.name).sort()).toEqual(["Alice", "Bob"]);
   }
 });
+
+test("nicknames are globally unique across case, spacing and normalized Unicode; edits keep scores and party names in sync", async () => {
+  const { t, code } = await setup();
+  for (const name of [" ALICE ", "alice", "Ａｌｉｃｅ", "Ali\u200bce"]) await expect(t.mutation(api.battle.register, { token: c, name })).rejects.toThrow("already taken");
+  await expect(t.mutation(api.battle.register, { token: "d".repeat(64), name: "Bob" })).rejects.toThrow("already taken");
+  await t.mutation(api.battle.register, { token: a, name: "ALICE" });
+  expect(await t.query(api.battle.profile, { token: a })).toEqual({ name: "ALICE" });
+  await t.mutation(api.battle.register, { token: b, name: "Bobby" });
+  await t.mutation(api.battle.register, { token: c, name: "Bob" });
+  expect((await t.query(api.battle.getRoom, { token: a, code }))?.guest?.name).toBe("Bobby");
+});
+
+test("legacy duplicate repair preserves wins, avoids occupied suffixes, and is idempotent", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(api.battle.register, { token: a, name: "Alice" });
+  vi.advanceTimersByTime(10);
+  const duplicate = await t.run(ctx => ctx.db.insert("players", { token: b, name: " alice ", lastRoomAt: 0 }));
+  vi.advanceTimersByTime(10);
+  await t.mutation(api.battle.register, { token: c, name: "Alice 2" });
+  await expect(t.mutation(api.battle.register, { token: "d".repeat(64), name: "ALICE" })).rejects.toThrow("taken");
+  await t.run(ctx => ctx.db.insert("standings", { player: duplicate, period: "all", name: " alice ", wins: 7, draws: 2, matches: 9, correct: 20, answered: 30 }));
+  expect(await t.mutation(internal.battle.dedupeNicknames, {})).toEqual({ profiles: 3, renamed: 1 });
+  expect(await t.query(api.battle.profile, { token: b })).toEqual({ name: "alice 3" });
+  expect((await t.query(api.battle.leaderboard, { weekly: false }))[0]).toMatchObject({ name: "alice 3", wins: 7, draws: 2, matches: 9 });
+  expect((await t.mutation(internal.battle.dedupeNicknames, {})).renamed).toBe(0);
+  await expect(t.mutation(api.battle.register, { token: "d".repeat(64), name: "ALICE 3" })).rejects.toThrow("taken");
+});

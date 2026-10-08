@@ -14,7 +14,7 @@ export default defineSchema({
     status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("left")),
     ready: v.boolean(), score: v.number(), answers: v.array(submissionShape), participated: v.boolean(),
   }).index("by_party", ["party"]).index("by_party_player", ["party", "player"]).index("by_player", ["player"]),
-  players: defineTable({ token: v.string(), name: v.string(), lastRoomAt: v.number() }).index("by_token", ["token"]),
+  players: defineTable({ token: v.string(), name: v.string(), nameKey: v.optional(v.string()), lastRoomAt: v.number() }).index("by_token", ["token"]).index("by_name", ["nameKey"]),
   standings: defineTable({
     player: v.id("players"), period: v.string(), name: v.string(), wins: v.number(),
     draws: v.number(), matches: v.number(), correct: v.number(), answered: v.number(),
