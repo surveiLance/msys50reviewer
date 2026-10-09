@@ -109,6 +109,27 @@ nav.tabs{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px
 nav.tabs a{flex:1;text-align:center;text-decoration:none;color:var(--muted);font:600 15px/1 var(--f-body);padding:16px 4px 13px;border-bottom:3px solid transparent;white-space:nowrap}
 nav.tabs a:hover{color:var(--ink)}
 nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs a[aria-current="location"]{color:var(--ink);border-bottom-color:var(--accent)}
+.study-page-title{font-size:clamp(26px,5.5vw,34px);margin:4px 0 8px}
+.study-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:24px 0 32px}
+.study-shortcuts a{display:grid;gap:6px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-decoration:none;color:var(--ink)}
+.study-shortcuts a:hover{border-color:var(--accent)}
+.study-shortcuts span{color:var(--muted);font-size:13px;line-height:1.5}
+.study-section{margin:28px 0 32px;scroll-margin-top:65px}
+.study-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.study-section h2,.study-upcoming h2,.study-exam h2{font-size:22px;margin:6px 0 10px}
+.study-section>.inst{margin:0 0 18px}
+.study-badge{font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:99px;padding:6px 10px;color:var(--muted);display:inline-block}
+.study-upcoming{padding:24px;margin:28px 0;border:1px dashed var(--line);border-radius:16px;background:var(--surface)}
+.study-upcoming p{margin:10px 0 0}
+.study-exam{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:20px;margin-top:28px}
+.module-switcher{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:20px}
+.module-switcher>a{font-size:14px;text-decoration:none;color:var(--accent-ink);white-space:nowrap}
+.module-switcher label{display:grid;gap:4px;font-size:12px;color:var(--muted);min-width:0;max-width:430px;flex:1}
+.module-switcher select{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--ink);background:var(--surface);font:inherit;font-size:14px}
+.study-modules{scroll-margin-top:65px}
+.test-tools a{min-height:44px}
+@media(max-width:600px){.study-shortcuts{grid-template-columns:1fr}.study-shortcuts a{padding:15px}.study-exam{align-items:flex-start;flex-direction:column}.module-switcher{align-items:flex-start;flex-direction:column;gap:10px}.module-switcher label{max-width:none;width:100%}.study-upcoming{padding:20px}}
 .mod-head{padding-top:28px}
 .mod-head h2{margin:4px 0 4px;font-size:clamp(24px,5.5vw,30px)}
 .mod-head p{margin:0;color:var(--muted);font-size:15px}

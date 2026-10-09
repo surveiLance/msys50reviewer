@@ -13,7 +13,7 @@ export const SUBJECTS: SubjectMeta[] = [
     slug: "msys-50",
     code: "MSYS 50",
     title: "Enterprise Architecture",
-    blurb: "Notes, flashcards, and tests for Modules 1–3, plus a midterm test that mixes them.",
+    blurb: "Your course study hub: find a module, review its notes and flashcards, then test yourself. More lessons will be added as the course progresses.",
     modules: [
       { slug: "module-1", num: 1, title: "Overview, Drivers, and Complexity of EA", parts: ["1.1 Overview of EA", "1.2 EA Drivers", "1.3 The Complexity of EA"] },
       { slug: "module-2", num: 2, title: "Governance, Alignment, and IT Initiatives", parts: ["2.1 EA and Other Governance Instruments", "2.2 The Problem of Business and IT Alignment", "2.3 The IT Initiative"] },
@@ -24,7 +24,9 @@ export const SUBJECTS: SubjectMeta[] = [
       when: "Thursday, October 8, 8:00–9:15 PM",
       rooms: ["Section D: F-227", "Section E: F-228", "Section F: CTC-214", "Section G1: CTC-215"],
       minutes: 75,
+      modules: ["module-1", "module-2", "module-3"],
     },
+    finals: { when: "Late November · exact date to be confirmed", description: "The next modules will appear here as their lesson materials and quizzes are added. Finals coverage will be confirmed separately." },
   },
 ];
 

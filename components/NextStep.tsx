@@ -19,7 +19,7 @@ export default function NextStep({ subject, module, view }: { subject: SubjectMe
         {subject.exam && (
           <Link href={`${base}/test/midterm`} className="next-opt">
             <b>Take the {subject.exam.title.toLowerCase()} test →</b>
-            <span>Every module, mixed</span>
+            <span>{subject.exam.modules ? subject.exam.modules.map(slug => `Module ${slug.replace("module-", "")}`).join(" · ") : "Midterm coverage, mixed"}</span>
           </Link>
         )}
         {view === "notes" ? (

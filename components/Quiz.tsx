@@ -652,7 +652,7 @@ export default function Quiz(props: Props) {
             <button className={"btn" + (wrong.length ? "" : " primary")} onClick={start}>Another round →</button>
             <button className="btn" onClick={() => { setRun(null); setPhase("setup"); toTop(); }}>Change settings</button>
             <Link className="btn" href={`/${subject}/test`}>Other tests</Link>
-            <Link className="btn" href={`/${subject}/scores`}>My scores</Link>
+            <Link className="btn" href={`/${subject}/test/scores`}>Scores &amp; history</Link>
           </div>
         </div>
 

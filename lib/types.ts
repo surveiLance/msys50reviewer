@@ -45,13 +45,15 @@ export type SubjectData = {
   alternative?: Record<string, AlternativeQuestion[]>;
 };
 
-export type ModuleMeta = { slug: string; num: number; title: string; parts: string[] };
+export type ModuleMeta = { slug: string; num: number; title: string; parts: string[]; period?: "midterm" | "finals" };
 
 export type ExamMeta = {
   title: string;
   when: string;
   rooms: string[];
   minutes: number;
+  /** Explicit coverage prevents future modules from entering an earlier exam's bank. */
+  modules?: string[];
 };
 
 export type SubjectMeta = {
@@ -61,4 +63,5 @@ export type SubjectMeta = {
   blurb: string;
   modules: ModuleMeta[];
   exam?: ExamMeta;
+  finals?: { when: string; description: string };
 };

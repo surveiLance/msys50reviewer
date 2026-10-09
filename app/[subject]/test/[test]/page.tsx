@@ -5,6 +5,7 @@ import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
 import { listTests } from "@/lib/tests";
+import { examData, examModules } from "@/lib/studyStructure";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -33,6 +34,7 @@ export default async function TestPage({ params }: P) {
   if (!info) notFound();
 
   if (info.kind === "midterm") {
+    const exam = examData(subject, data);
     // The clue sheet brings its own heading; the fold-out supplies one instead.
     const clues = readContent(subject.slug, "clues.html").replace(/^<h3[^>]*>.*?<\/h3>/, "");
     return (
@@ -48,15 +50,15 @@ export default async function TestPage({ params }: P) {
             title={info.title}
             subject={subject.slug}
             storageKey={`mid-${subject.slug}`}
-            midterm={data.midterm}
-            pools={data.pools}
-            scenarios={data.scenarios}
-            tests={data.tests}
+            midterm={exam.midterm}
+            pools={exam.pools}
+            scenarios={exam.scenarios}
+            tests={exam.tests}
             timerMinutes={subject.exam?.minutes}
-            modules={subject.modules.map((m) => m.slug)}
-            multi={data.multi}
-            blanks={data.blanks}
-            alternative={data.alternative}
+            modules={examModules(subject)}
+            multi={exam.multi}
+            blanks={exam.blanks}
+            alternative={exam.alternative}
           />
         </div>
         {clues && (

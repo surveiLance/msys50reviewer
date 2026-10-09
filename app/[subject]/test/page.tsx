@@ -5,6 +5,7 @@ import SubjectNav from "@/components/SubjectNav";
 import RecordStrip from "@/components/RecordStrip";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { listTests } from "@/lib/tests";
+import { studyGroups } from "@/lib/studyStructure";
 
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -30,11 +31,16 @@ export default async function TestsPage({ params }: P) {
       <SubjectNav subject={subject} active={{ test: true }} />
       <div className="mod-head">
         <div className="eyebrow">{subject.code} · Practice</div>
-        <h2>Take a test</h2>
-        <p>Pick a module, or the midterm for every module mixed. Choose the question types and length; tests work like Canvas, one question at a time.</p>
+        <h1 className="study-page-title">Practice tests</h1>
+        <p>Choose a module below, then pick your question types and length. Finished tests appear in Scores &amp; history above.</p>
       </div>
+      {studyGroups(subject).map(group => {
+        const items = tests.filter(t => t.kind === "module" && group.modules.some(m => m.slug === t.slug));
+        if (!items.length) return null;
+        return <section className="study-section" key={group.id} aria-labelledby={`tests-${group.id}`}>
+          <h2 id={`tests-${group.id}`}>{group.title}</h2>
       <div className="test-list">
-        {tests.map((t) => (
+        {items.map((t) => (
           <Link key={t.slug} href={`/${subject.slug}/test/${t.slug}`} className={"test-item" + (t.kind === "midterm" ? " exam" : "")}>
             <b>{t.title}</b>
             <span className="meta">{t.subtitle}</span>
@@ -46,6 +52,10 @@ export default async function TestsPage({ params }: P) {
           </Link>
         ))}
       </div>
+        </section>;
+      })}
+      {tests.some(t => t.kind === "midterm") && <section className="study-section" aria-labelledby="review-exams"><h2 id="review-exams">Review exams</h2><p className="inst">Revisit earlier coverage without mixing in newer modules.</p><div className="test-list">{tests.filter(t => t.kind === "midterm").map(t => <Link key={t.slug} href={`/${subject.slug}/test/${t.slug}`} className="test-item exam"><b>{t.title}</b><span className="meta">{t.subtitle}</span><span className="meta">{t.bank} questions · original, alternative, and scenario practice</span><RecordStrip subject={subject.slug} kind="midterm" compact /><span className="go">Start →</span></Link>)}</div></section>}
+      {subject.finals && !subject.modules.some(m => m.period === "finals") && <aside className="study-upcoming"><span className="study-badge">Coming next</span><h2>Finals quizzes</h2><p>Module 4 and later quizzes will appear here when ready.</p><p className="inst">{subject.finals.when}. Coverage and lessons are not published yet.</p></aside>}
     </>
   );
 }

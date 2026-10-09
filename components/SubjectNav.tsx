@@ -1,31 +1,32 @@
 import Link from "next/link";
 import type { SubjectMeta } from "@/lib/types";
+import ModuleSwitcher from "./ModuleSwitcher";
 
 export type View = "notes" | "flashcards";
-type Active = { module?: string; view?: View; test?: boolean; scores?: boolean; battle?: boolean };
+type Active = { modules?: boolean; module?: string; view?: View; test?: boolean; scores?: boolean; battle?: boolean };
 
-/** Section tabs (Module 1 · 2 · 3 · Test · Scores), plus Notes / Flashcards inside a module. */
+/** Stable top-level sections; the number of modules no longer crowds navigation. */
 export default function SubjectNav({ subject, active }: { subject: SubjectMeta; active: Active }) {
   const base = `/${subject.slug}`;
   const mod = subject.modules.find((m) => m.slug === active.module);
   return (
     <>
       <nav className="tabs" aria-label={`${subject.code} sections`}>
-        {subject.modules.map((m) => (
-          <Link key={m.slug} href={`${base}/${m.slug}`} aria-current={m.slug === active.module ? "page" : undefined}>
-            <span className="lg">Module </span><span className="sm">M</span>{m.num}
-          </Link>
-        ))}
-        <Link href={`${base}/test`} aria-current={active.test ? "page" : undefined}>Test</Link>
-        <Link href={`${base}/scores`} aria-current={active.scores ? "page" : undefined}>Scores</Link>
+        <Link href={base} aria-current={active.modules ? "page" : mod ? "location" : undefined}>Modules</Link>
+        <Link href={`${base}/test`} aria-current={active.test || active.scores ? "location" : undefined}>Test</Link>
         <Link href={`${base}/battle`} aria-current={active.battle ? "page" : undefined}>Battle</Link>
       </nav>
+      {(active.test || active.scores) && <nav className="subnav test-tools hide-in-quiz" aria-label={`${subject.code} test tools`}>
+        <Link href={`${base}/test`} aria-current={active.test && !active.scores ? "page" : undefined}>Practice tests</Link>
+        <Link href={`${base}/test/scores`} aria-current={active.scores ? "page" : undefined}>Scores &amp; history</Link>
+      </nav>}
 
       {mod && (
         <>
+          <ModuleSwitcher subject={subject.slug} modules={subject.modules} current={mod.slug} />
           <div className="mod-head">
             <div className="eyebrow">Module {mod.num}</div>
-            <h2>{mod.title}</h2>
+            <h1 className="study-page-title">{mod.title}</h1>
             <p>{mod.parts.join(" · ")}</p>
           </div>
           <nav className="subnav" aria-label={`Module ${mod.num} views`}>

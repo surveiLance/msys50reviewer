@@ -15,7 +15,7 @@ export default function Home() {
             <span className="eyebrow">{s.code}</span>
             <span className="subject-title">{s.title}</span>
             <span className="subject-blurb">{s.blurb}</span>
-            <span className="subject-meta">{s.modules.length} modules{s.exam ? ` · ${s.exam.title}: ${s.exam.when}` : ""}</span>
+            <span className="subject-meta">{s.modules.length} modules available{s.finals ? " · Finals preparation coming next" : ""}</span>
           </Link>
         ))}
       </div>

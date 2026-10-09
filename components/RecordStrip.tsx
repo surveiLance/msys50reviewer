@@ -33,7 +33,7 @@ export default function RecordStrip({ subject, kind, module, compact }: { subjec
       <div><b>{list.length}</b><span>attempt{list.length === 1 ? "" : "s"}</span></div>
       <div><b>{best}%</b><span>best</span></div>
       <div><b>{pct(last.score, last.max)}%</b><span>latest</span></div>
-      <Link href={`/${subject}/scores`}>See all scores →</Link>
+      <Link href={`/${subject}/test/scores`}>See all scores →</Link>
     </div>
   );
 }
