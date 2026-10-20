@@ -8,7 +8,7 @@ import { norm, sample, shuffle } from "./quiz";
  * - "match": several statements, each with a dropdown (one point per dropdown).
  */
 export type Question =
-  | { kind: "tf"; id: string; section: string; prompt: string; isTrue: boolean; accept: string[]; answer: string; source?: string; mod?: string }
+  | { kind: "tf"; id: string; section: string; prompt: string; isTrue: boolean; accept: string[]; answer: string; source?: string; mod?: string; why?: string }
   | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string }
   | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[] }
   // Mixed style (Canvas "classic" quiz types):
@@ -47,6 +47,7 @@ function tf(it: MtfItem): Question {
     answer: it.t ? TRUE_MARK : it.d || (it.a || [])[0] || "",
     source: it.r,
     mod: it.m,
+    why: it.w,
   };
 }
 
@@ -176,7 +177,7 @@ function tf2(it: MtfItem): Question {
   const underlined = it.s.match(/<u>(.*?)<\/u>/)?.[1];
   return {
     kind: "tf2", id: "t2:" + it.s, section: "True or False", prompt: it.s.replace(/<\/?u>/g, ""),
-    isTrue: !!it.t, underlined, fix: it.t ? undefined : it.d || it.a?.[0], source: it.r, mod: it.m,
+    isTrue: !!it.t, underlined, fix: it.t ? undefined : it.d || it.a?.[0], source: it.r, mod: it.m, why: it.w,
   };
 }
 const multiQ = (x: MultiItem, mod?: string): Question => ({

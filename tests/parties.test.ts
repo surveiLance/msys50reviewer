@@ -24,6 +24,23 @@ async function setup(start = true) {
   const raw = await t.run(ctx => ctx.db.get(partyId));
   return { t, partyId, raw: raw! };
 }
+test("hosts can create and start a Module 4-only party through the validated API", async () => {
+  const t = convexTest(schema, modules);
+  for (const [token, name] of [[a, "Alice"], [b, "Bob"]]) await t.mutation(api.battle.register, { token, name });
+  const partyId = await t.mutation(api.parties.create, { token: a, title: "Module 4 review", settings: { ...settings, moduleCounts: { M4: 5 } } });
+  await t.mutation(api.parties.requestJoin, { token: b, partyId });
+  const lobby = await t.query(api.parties.get, { token: a, partyId });
+  const bob = lobby!.roster.find(m => m.name === "Bob")!;
+  await t.mutation(api.parties.moderate, { token: a, partyId, memberId: bob.id, approve: true });
+  await t.mutation(api.parties.act, { token: b, partyId, action: "ready", revision: 0 });
+  await t.mutation(api.parties.act, { token: a, partyId, action: "start" });
+  const raw = await t.run(ctx => ctx.db.get(partyId));
+  expect(raw?.phase).toBe("question");
+  expect(raw?.questions).toHaveLength(5);
+  expect(raw?.questions.every(q => q.module === "M4" && q.source.startsWith("4."))).toBe(true);
+  const question = (await t.query(api.parties.get, { token: b, partyId }))!.question!;
+  expect("correct" in question).toBe(false);
+});
 test("public live summaries become completed history with accurate stats and no answer leaks", async () => {
   const { t, partyId, raw } = await setup();
   const live = await t.query(api.matches.ongoing, {});

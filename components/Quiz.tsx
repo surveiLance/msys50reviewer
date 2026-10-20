@@ -126,6 +126,7 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
           </p>
           {q.kind === "tf" && q.isTrue && <p className="qz-why">The statement is true, so <b>{TRUE_MARK}</b> is the answer.</p>}
           {q.kind === "tf" && !q.isTrue && <p className="qz-why">Replace the underlined part with &ldquo;{q.answer}&rdquo;.</p>}
+          {q.kind === "tf" && q.why && <p className="qz-why">{q.why}</p>}
           {q.kind === "mc" && <p className="qz-why">{q.why || "This is the best answer based on the related lesson. Use Review in notes below for the full context."}</p>}
         </>
       )}
@@ -168,7 +169,7 @@ function reviewSnapshot(q: Question, a: Answer, g: Graded): AttemptReviewItem {
   };
   if (q.kind === "tf") return {
     ...base, prompt: q.prompt, your: [a.text?.trim() || "No answer"], correct: [q.answer],
-    explanation: q.isTrue ? `The statement is true, so ${TRUE_MARK} is the answer.` : `Replace the underlined part with “${q.answer}”.`,
+    explanation: q.why || (q.isTrue ? `The statement is true, so ${TRUE_MARK} is the answer.` : `Replace the underlined part with “${q.answer}”.`),
     source: q.source,
   };
   return {
@@ -752,6 +753,7 @@ export default function Quiz(props: Props) {
                           </p>
                         )}
                         {q.kind === "mc" && q.why && <p className="qz-why">{q.why}</p>}
+                        {q.kind === "tf" && q.why && <p className="qz-why">{q.why}</p>}
                       </>
                     )}
                     {q.kind !== "match" && (

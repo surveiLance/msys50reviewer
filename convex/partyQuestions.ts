@@ -21,7 +21,7 @@ export function shuffle<T>(items: T[]): T[] {
 const base = (kind: PartyQuestion["kind"], module: string, prompt: string, options: string[], correct: string[], explanation = "", source = ""): PartyQuestion => ({ kind, module, prompt, options, correct, explanation, source, rows: [], accept: [] });
 export function questionBank(): PartyQuestion[] {
   const bank: PartyQuestion[] = [];
-  for (const module of ["M1", "M2", "M3"]) {
+  for (const module of ["M1", "M2", "M3", "M4"]) {
     const slug = `module-${module.slice(1)}`;
     for (const q of data.scenarios[module] ?? []) bank.push(base("scenario", module, q.q, q.o, [q.a], q.w, q.r));
     const seen = new Set<string>();
@@ -30,8 +30,8 @@ export function questionBank(): PartyQuestion[] {
         if (seen.has(q.s)) continue;
         seen.add(q.s);
         const answer = q.t ? "!" : q.d ?? q.a?.[0] ?? "";
-        bank.push({ ...base("tf", module, q.s, [], [answer], q.t ? "The statement is true." : `Replace the underlined term with ${answer}.`, q.r), accept: q.t ? ["!"] : q.a ?? [answer] });
-        bank.push(base("tf2", module, q.s.replace(/<\/?u>/g, ""), ["True", "False"], [q.t ? "True" : "False"], q.t ? "The statement is true." : `The statement is false. The correct replacement is ${answer}.`, q.r));
+        bank.push({ ...base("tf", module, q.s, [], [answer], q.w ?? (q.t ? "The statement is true." : `Replace the underlined term with ${answer}.`), q.r), accept: q.t ? ["!"] : q.a ?? [answer] });
+        bank.push(base("tf2", module, q.s.replace(/<\/?u>/g, ""), ["True", "False"], [q.t ? "True" : "False"], q.w ?? (q.t ? "The statement is true." : `The statement is false. The correct replacement is ${answer}.`), q.r));
       }
       for (const sec of set.secs) {
         if (sec.kind === "mc") {
@@ -75,7 +75,8 @@ export function questionKey(q: PartyQuestion): string {
 export function selectQuestions(s: PartySettings, recentlyUsed: string[] = []): PartyQuestion[] {
   validateSettings(s);
   const quotas = s.moduleCounts;
-  const pool = shuffle(questionBank().filter(q => (quotas ? !!quotas[q.module as keyof typeof quotas] : s.mode === "mixed" || q.module === s.mode) && s.types.includes(q.kind)));
+  // Existing mixed lobbies without quotas retain their original Modules 1–3 coverage.
+  const pool = shuffle(questionBank().filter(q => (quotas ? !!quotas[q.module as keyof typeof quotas] : s.mode === "mixed" ? ["M1", "M2", "M3"].includes(q.module) : q.module === s.mode) && s.types.includes(q.kind)));
   const chosen: PartyQuestion[] = [];
   const seen = new Set<string>();
   const recency = new Map(recentlyUsed.map((key, i) => [key, i]));

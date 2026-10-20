@@ -18,6 +18,7 @@ export const SUBJECTS: SubjectMeta[] = [
       { slug: "module-1", num: 1, title: "Overview, Drivers, and Complexity of EA", parts: ["1.1 Overview of EA", "1.2 EA Drivers", "1.3 The Complexity of EA"] },
       { slug: "module-2", num: 2, title: "Governance, Alignment, and IT Initiatives", parts: ["2.1 EA and Other Governance Instruments", "2.2 The Problem of Business and IT Alignment", "2.3 The IT Initiative"] },
       { slug: "module-3", num: 3, title: "Architectural Complexity and Description", parts: ["3.1 Architectural Complexity and Domains", "3.2 Describing Enterprise Architectures"] },
+      { slug: "module-4", num: 4, title: "Architecture Approaches, TOGAF, and CSVLOD", parts: ["4.1 Architecture Approaches, Methods, and Frameworks", "4.2 The Open Group Architecture Framework (TOGAF)", "4.3 The CSVLOD Model"], period: "finals" },
     ],
     exam: {
       title: "Midterm",

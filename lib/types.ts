@@ -1,5 +1,5 @@
 /** A modified true-or-false item. `t` = statement is true; otherwise `a` lists accepted replacements and `d` is the displayed answer. */
-export type MtfItem = { s: string; t?: true; a?: string[]; d?: string; r?: string; m?: string };
+export type MtfItem = { s: string; t?: true; a?: string[]; d?: string; r?: string; m?: string; w?: string };
 
 export type McItem = { q: string; o: string[]; a: string; w?: string; r?: string };
 

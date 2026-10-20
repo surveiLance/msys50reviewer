@@ -23,7 +23,7 @@ test("new authored questions have valid answers, explanations, sources, and no o
 });
 test("expanded banks reach module, midterm, scenario and battle pools without replacing originals", () => {
   const original = raw as unknown as SubjectData, data = expandQuestionData(original);
-  expect(data.cards).toBe(original.cards);
+  for (const slug of ["module-1", "module-2", "module-3"]) expect(data.cards[slug]).toBe(original.cards[slug]);
   for (const [slug, bank] of Object.entries(freshBanks)) {
     expect(data.tests[slug]["1"]).toBe(original.tests[slug]["1"]);
     const pool = poolModule(data.tests[slug], slug, data.multi?.[slug], data.blanks?.[slug]);

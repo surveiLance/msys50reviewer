@@ -6,7 +6,7 @@ Read this first. It explains what MAGS is, what the owner wants, where the study
 
 **MAGS** is a study reviewer website for **MSYS 50: Enterprise Architecture**, built by a student (repo owner: GitHub `surveiLance`) for their classmates. Next.js 15 App Router, TypeScript, no backend. Planned deploy target: Vercel (with Vercel Web Analytics already wired in). Repo: `github.com/surveiLance/msys50reviewer` (private), branch `main`.
 
-- **Scope: Modules 1–3 only.** The midterm covers Modules 1–3. `docs/source/year-3-notes.*` also contains Module 4 — **ignore Module 4**; do not add it.
+- **Scope: Modules 1–4.** The owner supplied Module 4 slides and updated class notes on October 20 and requested notes, guide answers, flashcards, tests, and Battle support. The archived midterm remains Modules 1–3 only; keep `exam.modules` explicit. Do not add Module 5 or a cumulative finals exam without materials/confirmed coverage.
 - Real midterm: Thursday, October 8, 8:00–9:15 PM (rooms in `lib/subjects.ts`).
 - The original content (notes, flashcards, test banks) was generated earlier in a Claude chat artifact from the professor's slides and the owner's class notes. The owner **likes the notes content** — don't rewrite it. They did **not** like the old "Claude chat" visual style (grid paper, highlighter underlines, monospace caps labels); that has been replaced.
 
@@ -25,11 +25,13 @@ npm run build    # must pass before every push
 
 | Path | What |
 |---|---|
-| `docs/source/year-3-notes.pdf` | The owner's own class notes (32 pages). Modules 1–3 are in scope; Module 4 (from line ~862 of the .txt) is **not**. |
+| `docs/source/year-3-notes.pdf` | The owner's earlier class notes. Module 4 was subsequently supplied with updated notes and slides on October 20. |
 | `docs/source/year-3-notes.txt` | Plain-text extraction of the PDF (`pdftotext -layout`). Diagrams are images in the PDF and are not in the text. |
 | `content/msys-50/module-1.html` … `module-3.html` | The finished notes shown on the site: pre-rendered HTML with inline SVG diagrams, fold-out guide questions, scenario cards. Anchors per part: `#p-1-1`, `#p-2-3`, etc. |
 | `content/msys-50/clues.html` | "Scenario clue sheet" shown before the midterm test. |
 | `content/msys-50/data.json` | Flashcards, module test sets, midterm question pools and scenarios. Shape is `SubjectData` in `lib/types.ts`. |
+| `content/msys-50/module-4.html` | Parts 4.1–4.3, all 22 supplied guide questions answered. Original paraphrases/illustrations from the supplied slides; do not commit the original PDFs. |
+| `content/msys-50/module4.ts` | Module 4 cards, original/alternative questions and all 24 CSVLOD subtypes. Merged by `expandQuestionData` for both solo tests and Convex parties. Analytical Reports' popularity label is missing on slide 13 and deliberately not quizzed. |
 
 Module outline (from `lib/subjects.ts`):
 - **Module 1 — Overview, Drivers, and Complexity of EA**: 1.1 Overview of EA · 1.2 EA Drivers · 1.3 The Complexity of EA
