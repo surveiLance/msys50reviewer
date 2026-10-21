@@ -52,7 +52,14 @@ The eight-essential review and connected-usage explanation are supplementary, ba
 
 ## Study-bank reconciliation
 
-Pending Task 2: audit existing flashcards, original/alternative/essential questions, generated subtype items, and Battle-shared content in place. No bank identity or saved-progress migration is planned.
+Completed: all 58 flashcards, 30 modified true/false statements (also used as plain true/false), 30 scenarios, 24 generated subtype-classification items, 10 direct MC items, 12 multiple-answer items, 16 blanks, five matching groups, 12 alternative questions, and 44 essential-practice items were compared with the lesson and the identified supplementary references.
+
+- No graded-answer contradiction was established; existing questions, options, answers, and explanations are preserved. The generated classifications for all 24 subtypes are additionally checked against an independently listed lecture mapping.
+- Clarified five existing flashcard backs: Zachman's slide-specific row sets; MDA's workflow/platform examples and bidirectional mappings; Requirements Management's place within ADM; and the Changes-artifact lifecycle. No fronts, indices, or deck lengths change.
+- The matching group titled TOGAF components includes Requirements Management as a related ADM activity. The four-main-components question and new notes/card explicitly distinguish this from a fifth main component; no group is recreated or renamed.
+- Original, alternative, essential, matching-row, card-order, and Battle-rotation identities are fingerprinted against the unmodified banks at 25d90ba. All fingerprints remain unchanged. Existing quizzes/history store their own question snapshots; no storage migration or deletion was introduced.
+- Essential-practice terminology such as TRMs identifying standardized technologies and capability models supporting investment decisions remains labeled supplementary. These are not represented as verbatim slide wording or guaranteed quiz coverage.
+- Battle's question data and grading are unchanged, so no Convex deployment is required for this content-only pass.
 
 ## Notes verification
 

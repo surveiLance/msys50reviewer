@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
+import { createHash } from "node:crypto";
 import { readNotes } from "../lib/notes";
+import raw from "../content/msys-50/data.json";
+import { expandQuestionData } from "../content/msys-50/fresh";
+import { poolModule, poolAlternativeModule, poolEssentialModule, type Pool } from "../lib/questions";
+import { questionBank, questionKey } from "../convex/partyQuestions";
+import type { SubjectData } from "../lib/types";
 
 // These assertions consume the parsed material delivered to NotesReader/NotesPeek.
 // They catch lost intersections and arrow directions, not editorial wording changes.
@@ -82,4 +88,46 @@ test("CSVLOD matrix associates each artifact with the correct focus and planning
   ]);
   const headings = [...matrix.matchAll(/<th scope="col">([\s\S]*?)<\/th>/g)].map(m => text(m[1]));
   expect(headings).toEqual(["How? Focus / audience", "Rules", "Structures", "Changes"]);
+});
+
+test("the fidelity pass preserves the identities used by saved quiz rotation and known-card progress", () => {
+  const data = expandQuestionData(raw as unknown as SubjectData);
+  const pool = poolModule(data.tests["module-4"], "module-4", data.multi?.["module-4"], data.blanks?.["module-4"]);
+  const ids = (p: Pool) => Object.values(p).flat().map(q => q.id).sort();
+  const hash = (items: unknown) => createHash("sha256").update(JSON.stringify(items)).digest("hex");
+  // Captured from the pre-edit banks at 25d90ba; exclude shuffled options and editable explanations.
+  // These identities are an explicit compatibility contract, not a prose snapshot.
+  expect({
+    original: hash(ids(pool)),
+    alternative: hash(ids(poolAlternativeModule(data.alternative?.["module-4"], "module-4"))),
+    essential: hash(ids(poolEssentialModule(data.essentials?.["module-4"], "module-4"))),
+    matchingRows: hash(pool.match.flatMap(q => q.kind === "match" ? q.rows.map(r => q.id + ":" + r.prompt + ":" + r.answer) : []).sort()),
+    cardOrder: hash(data.cards["module-4"].map(c => c.slice(0, 2))),
+    battle: hash(questionBank().filter(q => q.module === "M4").map(questionKey).sort()),
+  }).toEqual({
+    original: "58f27d186667509285070a1bdfbc86f5a85cf406847eb8019d1ed43241e24055",
+    alternative: "2b7a375ebcfded09d581f20f1cb963f2c127382462226d159559394288b2e44a",
+    essential: "672486291e40cf02d485f77ce7f31e4f56fd656c1ca393fd563adc8b13eae3f9",
+    matchingRows: "6bf4206c16829fe1ae8f6fa45694b9daf1fef5e60123331eb2ae668bb8797ffa",
+    cardOrder: "ea56cdac853634d2785f473a05e23ffd6f9b890aef32be1fa40dea5973f373af",
+    battle: "fc788b208452305e58007f67e4a7f309dd5ab243b3decafb80f061ca881240af",
+  });
+});
+
+test("generated subtype quiz answers match all 24 classifications in the supplied lecture", () => {
+  const data = expandQuestionData(raw as unknown as SubjectData);
+  const pool = poolModule(data.tests["module-4"], "module-4", data.multi?.["module-4"], data.blanks?.["module-4"]);
+  const groups: [string, string[]][] = [
+    ["Considerations", ["Principles", "Policies", "Conceptual Data Models", "Analytical Reports", "Direction Statements"]],
+    ["Standards", ["Technology Reference Models", "Guidelines", "Patterns", "IT Principles", "Logical Data Models"]],
+    ["Visions", ["Business Capability Models", "Roadmaps", "Target States", "Value Chains", "Context Diagrams"]],
+    ["Landscapes", ["Landscape Diagrams", "Inventories", "Enterprise Systems Portfolios", "IT Roadmaps"]],
+    ["Outlines", ["Solution Overviews", "Options Assessments", "Initiative Proposals"]],
+    ["Designs", ["Solution Designs", "Preliminary Solution Designs"]],
+  ];
+  for (const [parent, terms] of groups) for (const term of terms) {
+    const q = pool.mc.find(q => q.prompt.startsWith(`In CSVLOD, which general type contains ${term},`));
+    expect(q?.kind).toBe("mc");
+    if (q?.kind === "mc") { expect(q.answer, term).toBe(parent); expect(q.options).toContain(parent); }
+  }
 });
