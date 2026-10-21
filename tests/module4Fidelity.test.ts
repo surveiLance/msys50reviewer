@@ -40,10 +40,12 @@ test("MDA exposes mappings both ways between adjacent models, with accessible ex
     expect(tag).toMatch(/marker-start="url\(#/);
     expect(tag).toMatch(/marker-end="url\(#/);
   }
-  // Supplied slide 17 distinguishes workflow-engine independence from a Java model.
-  expect(text(mda)).toContain("BPMN");
-  expect(text(mda)).toContain("WS-BPEL");
-  expect(text(mda)).toContain("Java");
+  // role=img makes the ARIA title/description, not every SVG text node, the accessible representation.
+  const labelIds = mda.match(/aria-labelledby="([^"]+)"/)?.[1].split(" ") ?? [];
+  const accessibleCopy = labelIds.map(id => text(mda.match(new RegExp(`<(?:title|desc) id="${id}">([\\s\\S]*?)</(?:title|desc)>`))?.[1] ?? "")).join(" ");
+  expect(accessibleCopy).toContain("BPMN");
+  expect(accessibleCopy).toContain("WS-BPEL");
+  expect(accessibleCopy).toContain("Java");
 });
 
 test("Zachman's academic example preserves all six question intersections per perspective", () => {

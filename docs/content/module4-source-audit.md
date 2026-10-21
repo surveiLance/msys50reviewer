@@ -69,3 +69,7 @@ Completed: all 58 flashcards, 30 modified true/false statements (also used as pl
 - Expanded the slide-10 row distinction; navigated directly to existing part/section anchors; the Part 4.2 Show all answers control opens all three guide answers.
 - Browser regression found during a disposable 127.0.0.1-origin blank-question run: Review in notes for CIM inserted two HTML `<mark>` elements into the SVG, leaving visible `Model ()`. Skipping SVG text in NotesPeek highlighting fixes this: after rebuilding, the same saved question produces zero SVG marks, the intact `Model (CIM)` label, and one HTML answer highlight. The existing localhost-origin unfinished practice run was not replaced.
 - Full test suite and production build pass before the notes commit. Final independent review and live deployment verification remain for Task 2.
+
+## Independent review
+
+An independent reviewer inspected the full change, source renders, and desktop output, and independently ran the 50-test suite. No blocking correctness or compatibility issue was found. The reviewer identified one accessibility omission: MDA's individual SVG labels are not exposed under `role="img"`, so the accessible description must name the BPMN, UML/platform, Java, and WS-BPEL examples. A regression check against the ARIA title/description failed before correction; the full examples are now included in the description.
