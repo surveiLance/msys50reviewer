@@ -12,7 +12,7 @@ const loadModule = (subject: string, module: string) => {
   return cache.get(key)!;
 };
 
-/** Wraps each occurrence of the terms in <mark>, inside text only (never inside tags). */
+/** Highlight HTML prose only: HTML <mark> inside SVG <text> hides diagram labels. */
 function markTerms(root: HTMLElement, terms: string[]) {
   const list = terms.map((t) => t.trim()).filter((t) => t.length >= 3);
   if (!list.length) return;
@@ -21,7 +21,7 @@ function markTerms(root: HTMLElement, terms: string[]) {
   const nodes: Text[] = [];
   while (walker.nextNode()) {
     const n = walker.currentNode as Text;
-    if (!n.parentElement?.closest("mark")) nodes.push(n);
+    if (!n.parentElement?.closest("mark, svg")) nodes.push(n);
   }
   for (const node of nodes) {
     const text = node.nodeValue || "";

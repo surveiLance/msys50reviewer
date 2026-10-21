@@ -310,6 +310,31 @@ figure.dg figcaption{font-size:14px;color:var(--muted);margin-top:10px;line-heig
 .dg .mk{fill:var(--muted)}
 .dg .mka{fill:var(--accent)}
 
+/* Module 4: keep slide relationships readable, rather than shrinking diagrams to tiny labels. */
+.m4-visual .m4-visual-scroll{overflow-x:auto;overscroll-behavior-x:contain;border-radius:8px}
+.m4-visual .m4-visual-scroll svg{min-width:640px;max-width:none}
+.m4-visual .t{font-size:15px}
+.m4-visual .s{font-size:14px}
+.m4-visual .m4-visual-scroll:focus-visible,.m4-matrix [role="region"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.m4-matrix{margin:22px 0;min-width:0}
+.m4-matrix figcaption b{display:block;font-size:18px;color:var(--ink)}
+.m4-matrix figcaption span{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.m4-matrix .tbl{overscroll-behavior-x:contain}
+.m4-matrix table{width:100%;table-layout:fixed;font-size:14px}
+.m4-matrix th span{display:block;font-weight:400;color:var(--muted);margin-top:4px}
+.m4-zachman-scroll table{min-width:1250px}
+.m4-zachman-scroll th:first-child{width:155px;position:sticky;left:0;background:var(--surface);z-index:1;border-right:1px solid var(--line)}
+.m4-zachman-scroll td{vertical-align:top;line-height:1.55}
+.m4-csvlod-scroll table{min-width:740px;border-collapse:separate;border-spacing:8px;background:var(--bg)}
+.m4-csvlod-scroll th,.m4-csvlod-scroll td{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:14px;vertical-align:top}
+.m4-csvlod-scroll thead th{background:var(--accent-soft);color:var(--ink)}
+.m4-csvlod-scroll td b{display:block;font-size:17px;margin-bottom:8px;color:var(--ink)}
+.m4-csvlod-scroll td span{display:block;color:var(--muted);line-height:1.5}
+.m4-csvlod-scroll td small{display:block;font-size:12px;color:var(--accent-ink);margin-top:14px;font-weight:600}
+.m4-source-detail{margin:16px 0;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface)}
+.m4-source-detail>summary{cursor:pointer;font-weight:650;color:var(--ink)}
+.m4-source-detail p{font-size:14px}
+
 /* ========== flashcards ========== */
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
 .spacer{flex:1}
