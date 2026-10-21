@@ -36,12 +36,33 @@ export const points = (q: Question) => (q.kind === "match" ? q.rows.length : q.k
 export const typeLabel = (q: Question) =>
   ({ tf: "Modified True or False", tf2: "True or False", mc: "Multiple Choice", multi: "Multiple Answer", blank: "Fill in the Blank", match: "Matching" })[q.kind];
 
+// Presentation-only corrections: keep the authored statement/ID unchanged so
+// existing attempts and unseen-question tracking remain compatible.
+const missingUnderlinePhrases = [
+  "outside the enterprise", "omit irrelevant implementation detail",
+  "organizational culture", "one IT initiative", "what the business must be able to do",
+  "insufficient implementation guidance", "architectural meaning",
+  "A stakeholder group", "dependencies across architectural domains",
+  "without guaranteeing EA success", "perspectives and product abstractions",
+  "cells critical to decision-making", "mapping rules and techniques",
+  "external behavior", "adopted incrementally", "Data and Application",
+  "connected throughout the phase cycle", "Rules, Structures, and Changes",
+  "dual artifacts", "technical plans", "approved IT solutions",
+  "updated periodically", "Visions",
+];
+
+export function modifiedPrompt(prompt: string): string {
+  if (/<u\b/i.test(prompt)) return prompt;
+  const phrase = missingUnderlinePhrases.find(part => prompt.includes(part));
+  return phrase ? prompt.replace(phrase, `<u>${phrase}</u>`) : prompt;
+}
+
 function tf(it: MtfItem): Question {
   return {
     kind: "tf",
     id: "tf:" + it.s,
     section: TF_SECTION,
-    prompt: it.s,
+    prompt: modifiedPrompt(it.s),
     isTrue: !!it.t,
     accept: it.a || [],
     answer: it.t ? TRUE_MARK : it.d || (it.a || [])[0] || "",

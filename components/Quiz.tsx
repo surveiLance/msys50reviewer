@@ -7,7 +7,7 @@ import { load, save } from "@/lib/quiz";
 import {
   type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
   poolAlternativeMidterm, poolAlternativeModule, poolEssentialModule, poolMidterm, poolModule, poolScenarioMidterm,
-  poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
+  poolSize, roundCounts, roundPoints, totalPoints, typeLabel, modifiedPrompt,
 } from "@/lib/questions";
 import { pct, recordAttempt, type AttemptReviewItem } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
@@ -828,7 +828,7 @@ export default function Quiz(props: Props) {
           </span>
           {q.kind === "tf" && (
             <>
-              <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: q.prompt }} />
+              <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: modifiedPrompt(q.prompt) }} />
               <label className="qz-ask" htmlFor={`a-${run.idx}`}>
                 Type <b>{TRUE_MARK}</b> if true. If false, type the word that should replace the underlined part.
               </label>
