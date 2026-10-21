@@ -549,7 +549,7 @@ export default function Quiz(props: Props) {
           {activeTypes.length > 0 && (
             <ul className="qz-rules">
               <li>One question at a time. <b>Once you go to the next question, you can&apos;t go back.</b></li>
-              {has("tf") && <li>Modified true or false: type <code>{TRUE_MARK}</code> if true. If false, type the word that should replace the underlined part.</li>}
+              {has("tf") && <li>Modified true or false: type <code>{TRUE_MARK}</code> if true. If false, replace the underlined text with the correct word, phrase, or number.</li>}
               {has("multi") && <li>Multiple answer: check <b>every</b> correct option. Right boxes earn points, wrong boxes take points away.</li>}
               {has("blank") && <li>Fill in the blank: tap a word from the word bank to put it in the blank.</li>}
               {has("match") && <li>Matching: pick an answer from each dropdown.</li>}
@@ -830,7 +830,7 @@ export default function Quiz(props: Props) {
             <>
               <div className="qz-prompt" dangerouslySetInnerHTML={{ __html: modifiedPrompt(q.prompt) }} />
               <label className="qz-ask" htmlFor={`a-${run.idx}`}>
-                Type <b>{TRUE_MARK}</b> if true. If false, type the word that should replace the underlined part.
+                Type <b>{TRUE_MARK}</b> if true. If false, replace the underlined text with the correct word, phrase, or number.
               </label>
               <input
                 id={`a-${run.idx}`}
@@ -840,7 +840,7 @@ export default function Quiz(props: Props) {
                 onChange={(e) => update({ text: e.target.value })}
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); checkOrNext(); } }}
                 autoFocus autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false}
-                placeholder={`${TRUE_MARK}  or the correct word`}
+                placeholder={`${TRUE_MARK}  or the correct replacement`}
               />
             </>
           )}

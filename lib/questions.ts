@@ -114,6 +114,24 @@ export function totalPoints(qs: Question[]) {
   return qs.reduce((s, q) => s + points(q), 0);
 }
 
+/** Numeric replacements tolerate notation, not changed units or bounds. */
+function numericReplacement(value: string): string | null {
+  const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+  const text = value.toLowerCase().trim()
+    .replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/g, word => String(words.indexOf(word)))
+    .replace(/^(?:about|approximately|roughly)\s+(?=\d)/, "")
+    .replace(/(\d)\s*(?:to|[-–—])\s*(?=\d)/g, "$1-")
+    .replace(/\byrs?\b/g, "years").replace(/\bmos?\b/g, "months")
+    .replace(/\byear\b/g, "years").replace(/\bmonth\b/g, "months")
+    .replace(/\s+/g, " ");
+  return /\d/.test(text) ? text : null;
+}
+
+function replacementMatches(expected: string, actual: string): boolean {
+  const number = numericReplacement(expected);
+  return number !== null ? number === numericReplacement(actual) : norm(expected) === norm(actual);
+}
+
 export function grade(q: Question, a: Answer | undefined): Graded {
   if (q.kind === "tf2") {
     const answered = a?.choice === "True" || a?.choice === "False";
@@ -137,7 +155,7 @@ export function grade(q: Question, a: Answer | undefined): Graded {
   }
   const raw = (a?.text || "").trim();
   if (!raw) return { points: 0, max: 1, answered: false };
-  const ok = q.isTrue ? raw === TRUE_MARK : raw !== TRUE_MARK && q.accept.some((x) => norm(x) === norm(raw));
+  const ok = q.isTrue ? raw === TRUE_MARK : raw !== TRUE_MARK && q.accept.some((x) => replacementMatches(x, raw));
   return { points: ok ? 1 : 0, max: 1, answered: true };
 }
 
