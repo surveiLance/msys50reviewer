@@ -16,5 +16,5 @@ export function examData(subject: SubjectMeta, data: SubjectData): SubjectData {
   const slugs = new Set(examModules(subject)), tags = new Set([...slugs].map(slug => slug.replace(/^module-/, "M")));
   const select = <T,>(record: Record<string, T> | undefined, allowed: Set<string>) => Object.fromEntries(Object.entries(record ?? {}).filter(([key]) => allowed.has(key)));
   return { ...data, tests: select(data.tests, slugs), pools: select(data.pools, tags), scenarios: select(data.scenarios, tags),
-    multi: select(data.multi, slugs), blanks: select(data.blanks, slugs), alternative: select(data.alternative, slugs) };
+    multi: select(data.multi, slugs), blanks: select(data.blanks, slugs), alternative: select(data.alternative, slugs), essentials: select(data.essentials, slugs) };
 }

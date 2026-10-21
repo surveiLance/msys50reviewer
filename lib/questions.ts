@@ -222,6 +222,13 @@ export function poolAlternativeModule(items: AlternativeQuestion[] = [], module:
   return alternativePool(items, module);
 }
 
+/** Independent IDs keep focused practice distinct from existing alternative runs. */
+export function poolEssentialModule(items: AlternativeQuestion[] = [], module: string): Pool {
+  const pool = alternativePool(items, module);
+  for (const type of Object.keys(pool) as QType[]) pool[type] = pool[type].map(q => ({ ...q, id: q.id.replace(/^alt:/, "essential:"), section: "Eight essential artifacts" }));
+  return pool;
+}
+
 export function poolAlternativeMidterm(items: Record<string, AlternativeQuestion[]> = {}): Pool {
   const out = emptyPool();
   Object.entries(items).forEach(([module, questions]) => {

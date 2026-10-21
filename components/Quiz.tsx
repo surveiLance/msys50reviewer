@@ -6,7 +6,7 @@ import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, Mult
 import { load, save } from "@/lib/quiz";
 import {
   type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
-  poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolScenarioMidterm,
+  poolAlternativeMidterm, poolAlternativeModule, poolEssentialModule, poolMidterm, poolModule, poolScenarioMidterm,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel,
 } from "@/lib/questions";
 import { pct, recordAttempt, type AttemptReviewItem } from "@/lib/scores";
@@ -33,6 +33,7 @@ type Props = {
   blanks?: Record<string, BlankItem[]>;
   /** Independently authored, past-quiz-style questions for each module. */
   alternative?: Record<string, AlternativeQuestion[]>;
+  essentials?: AlternativeQuestion[];
   /** Every module slug in the subject, for "Review in notes" on questions without a source. */
   modules: string[];
 };
@@ -55,7 +56,7 @@ type Run = {
 };
 
 type LengthKey = "quick" | "short" | "medium" | "long";
-type QuestionSet = "original" | "alternative" | "scenarios";
+type QuestionSet = "original" | "alternative" | "scenarios" | "essentials";
 /** The real midterm's size, for scaling the timer of shorter rounds. */
 const EXAM_POINTS = 85;
 const ALL_TYPES = QTYPES.map((t) => t.key);
@@ -221,7 +222,12 @@ export default function Quiz(props: Props) {
     const set = load<string | null>(`${storageKey}-question-set`, null);
     if (set === "scenarios" && midterm && Object.values(props.scenarios || {}).some((items) => items.length)) setQuestionSet("scenarios");
     else if (set === "alternative" && Object.values(props.alternative || {}).some((items) => items.length)) setQuestionSet("alternative");
-  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios]);
+    else if (set === "essentials" && !midterm && props.essentials?.length) {
+      setQuestionSet("essentials");
+      const supported = poolEssentialModule(props.essentials, props.module || "");
+      if (Array.isArray(ts) && !ALL_TYPES.some(t => ts.includes(t) && supported[t].length)) setTypes(ALL_TYPES.filter(t => supported[t].length));
+    }
+  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios, props.essentials, props.module]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -259,12 +265,14 @@ export default function Quiz(props: Props) {
     [midterm, props.alternative, props.module],
   );
   const scenarioPool = useMemo(() => poolScenarioMidterm(midterm ? props.scenarios : {}), [midterm, props.scenarios]);
+  const essentialPool = useMemo(() => poolEssentialModule(props.essentials, props.module || ""), [props.essentials, props.module]);
   const hasAlternative = poolSize(alternativePool, ALL_TYPES) > 0;
   const hasScenarios = midterm && poolSize(scenarioPool, ALL_TYPES) > 0;
-  const pool = questionSet === "scenarios" && hasScenarios
+  const hasEssentials = !midterm && poolSize(essentialPool, ALL_TYPES) > 0;
+  const pool = questionSet === "essentials" && hasEssentials ? essentialPool : questionSet === "scenarios" && hasScenarios
     ? scenarioPool
     : questionSet === "alternative" && hasAlternative ? alternativePool : originalPool;
-  const seenKey = questionSet === "scenarios"
+  const seenKey = questionSet === "essentials" ? `${storageKey}-essentials-seen1` : questionSet === "scenarios"
     ? `${storageKey}-scenario-seen1`
     : questionSet === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
   useEffect(() => setSeen(load<string[]>(seenKey, [])), [seenKey]);
@@ -301,13 +309,14 @@ export default function Quiz(props: Props) {
   const typeSummary = activeTypes.length === availableTypes.length ? "All available types" : `${activeTypes.length} type${activeTypes.length === 1 ? "" : "s"}`;
   const chooseQuestionSet = (next: QuestionSet) => {
     setQuestionSet(next);
-    const nextSeenKey = next === "scenarios"
+    const nextSeenKey = next === "essentials" ? `${storageKey}-essentials-seen1` : next === "scenarios"
       ? `${storageKey}-scenario-seen1`
       : next === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
     setSeen(load<string[]>(nextSeenKey, []));
+    if (next === "essentials" && !types.some(t => essentialPool[t].length)) setTypes(ALL_TYPES.filter(t => essentialPool[t].length));
     save(`${storageKey}-question-set`, next);
   };
-  const questionSetLabel = questionSet === "scenarios" ? "Scenario practice" : questionSet === "alternative" ? "Alternative set" : "Original set";
+  const questionSetLabel = questionSet === "essentials" ? "Eight essential artifacts" : questionSet === "scenarios" ? "Scenario practice" : questionSet === "alternative" ? "Alternative set" : "Original set";
 
   const start = () => {
     if (!size.questions) return;
@@ -454,10 +463,10 @@ export default function Quiz(props: Props) {
           </div>
         )}
         <div className="qz-panel">
-          {(hasAlternative || hasScenarios) && (
+          {(hasAlternative || hasScenarios || hasEssentials) && (
             <div>
               <h4 className="qz-h">Question set</h4>
-              <div className={`qz-set-tabs${hasScenarios ? " n3" : ""}`} role="tablist" aria-label="Question set">
+              <div className={`qz-set-tabs${hasScenarios || hasEssentials ? " n3" : ""}`} role="tablist" aria-label="Question set">
                 <button role="tab" aria-selected={questionSet === "original"} onClick={() => chooseQuestionSet("original")}>
                   <b>Original set</b>
                   <span>Your existing bank and progress</span>
@@ -472,9 +481,12 @@ export default function Quiz(props: Props) {
                     <span>Cases from all three modules</span>
                   </button>
                 )}
+                {hasEssentials && <button role="tab" aria-selected={questionSet === "essentials"} onClick={() => chooseQuestionSet("essentials")}><b>Eight essential artifacts</b><span>Focused CSVLOD practice</span></button>}
               </div>
               <p className="qz-set-note">
-                {questionSet === "scenarios"
+                {questionSet === "essentials"
+                  ? `${poolSize(essentialPool, ALL_TYPES)} focused questions on the eight essential CSVLOD artifacts. Useful priority practice—not a guarantee of your section’s quiz coverage. The full bank stays available in Original set.`
+                  : questionSet === "scenarios"
                   ? `${poolSize(scenarioPool, ALL_TYPES)} lesson-validated scenarios. Each round balances Modules 1–3 when possible.`
                   : questionSet === "alternative"
                   ? `${poolSize(alternativePool, ALL_TYPES)} independently written questions based on the lessons. Each concept appears in one format.`
@@ -560,7 +572,7 @@ export default function Quiz(props: Props) {
 
           {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round prioritizes fresh questions{questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
+              Every round prioritizes fresh questions{questionSet === "essentials" ? ", from the eight-essential-artifacts set" : questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (

@@ -1,4 +1,5 @@
 import type { AlternativeQuestion, BlankItem, Card, McItem, MtfItem, MultiItem, Section, SubjectData, TestSet } from "../../lib/types";
+import { essential4 } from "./essential4";
 
 // Original study questions/paraphrases grounded in the supplied 4.1–4.3 slides
 // and the owner's Module 4 class notes. Do not merge this bank into the midterm.
@@ -210,5 +211,5 @@ const cards: Card[] = [
 
 export function withModule4(data: SubjectData): SubjectData {
   const set: TestSet = { desc: "Module 4: approaches, TOGAF, and CSVLOD", mtf: statements, secs: [{ kind: "mc", title: "Module 4 application scenarios", inst: "Apply the lesson to each situation.", items: scenarios }, { kind: "mc", title: "Module 4 concepts and classification", inst: "Choose the best answer.", items: [...classification, ...direct] }, ...matching] };
-  return { ...data, cards: { ...data.cards, "module-4": cards }, tests: { ...data.tests, "module-4": { "1": set } }, setLabels: { ...data.setLabels, "module-4": { "1": "Module 4 mixed practice" } }, defaultSet: { ...data.defaultSet, "module-4": "1" }, pools: { ...data.pools, M4: statements }, scenarios: { ...data.scenarios, M4: scenarios }, multi: { ...data.multi, "module-4": multiItems }, blanks: { ...data.blanks, "module-4": blankItems }, alternative: { ...data.alternative, "module-4": alternatives } };
+  return { ...data, cards: { ...data.cards, "module-4": cards }, tests: { ...data.tests, "module-4": { "1": set } }, setLabels: { ...data.setLabels, "module-4": { "1": "Module 4 mixed practice" } }, defaultSet: { ...data.defaultSet, "module-4": "1" }, pools: { ...data.pools, M4: statements }, scenarios: { ...data.scenarios, M4: scenarios }, multi: { ...data.multi, "module-4": multiItems }, blanks: { ...data.blanks, "module-4": blankItems }, alternative: { ...data.alternative, "module-4": alternatives }, essentials: { ...data.essentials, "module-4": essential4 } };
 }

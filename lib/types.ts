@@ -43,6 +43,8 @@ export type SubjectData = {
   blanks?: Record<string, BlankItem[]>;
   /** Independent Canvas-style bank; does not replace or reset the original questions. */
   alternative?: Record<string, AlternativeQuestion[]>;
+  /** Optional, independent practice focused on essential CSVLOD artifacts. */
+  essentials?: Record<string, AlternativeQuestion[]>;
 };
 
 export type ModuleMeta = { slug: string; num: number; title: string; parts: string[]; period?: "midterm" | "finals" };

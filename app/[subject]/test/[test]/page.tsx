@@ -94,6 +94,7 @@ export default async function TestPage({ params }: P) {
           multi={data.multi}
           blanks={data.blanks}
           alternative={data.alternative}
+          essentials={data.essentials?.[info.slug]}
         />
       </div>
     </>

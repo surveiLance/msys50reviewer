@@ -1,0 +1,42 @@
+import type { AlternativeQuestion } from "../../lib/types";
+
+// Original practice, grounded in 4.3 slides 13–23 and Kotusev's 2017
+// "Eight Essential Enterprise Architecture Artifacts". Not a prediction of quiz scope.
+// name, parent, decision/purpose, illustrative situation, slide
+const artifacts: [string, string, string, string, number][] = [
+  ["Principles", "Considerations", "Agree on high-level rules guiding both business and IT decisions", "Senior leaders and architects agree that services should offer a consistent customer experience across channels", 13],
+  ["Technology Reference Models", "Standards", "Identify the standardized technologies available for project use", "Architects publish an approved technology catalog organized by domain and lifecycle stage", 15],
+  ["Guidelines", "Standards", "Prescribe how technologies should be used at implementation level", "Specialists document which encryption settings must be used when implementing a particular type of service", 15],
+  ["Business Capability Models", "Visions", "Identify business abilities and where investment is needed", "Executives and architects map business capabilities and highlight those needing investment", 17],
+  ["Roadmaps", "Visions", "Show when planned IT investments will support business priorities", "Business leaders see a timeline showing when initiatives will improve customer-facing capabilities", 17],
+  ["Landscape Diagrams", "Landscapes", "Understand connections among the existing IT systems and platforms", "An architect maps how the billing application, customer database, and integration platform currently connect", 19],
+  ["Solution Overviews", "Outlines", "Assess a proposed project's business impact and investment value", "A sponsor reviews a proposed solution's business value, high-level architecture, estimated costs, risks, and timing", 21],
+  ["Solution Designs", "Designs", "Give project teams the technical detail needed to implement an approved solution", "Developers receive detailed technical and functional specifications for a solution that already has approval", 23],
+];
+const types = ["Considerations", "Standards", "Visions", "Landscapes", "Outlines", "Designs"];
+const names = artifacts.map(([name]) => name);
+const single = (prompt: string, answer: string, options: string[], why: string, source: string): AlternativeQuestion => ({ kind: "mc", prompt, answer, options, why, source });
+
+export const essential4: AlternativeQuestion[] = [
+  ...artifacts.flatMap(([name, parent, purpose, situation, slide]): AlternativeQuestion[] => {
+    const source = `4.3 slide ${slide}; Kotusev 2017`;
+    return [
+      single(`${situation}. Which essential artifact best fits?`, name, [name, ...names.filter(n => n !== name).slice(0, 3)], `${name}: ${purpose.toLowerCase()}. This is a ${parent} artifact.`, source),
+      single(`Which decision is ${name} most directly intended to support?`, purpose, [purpose, ...artifacts.filter(a => a[0] !== name).slice(0, 3).map(a => a[2])], `${name} supports this purpose under ${parent}; the alternatives describe different essential artifacts.`, source),
+      single(`Which CSVLOD type contains the essential artifact ${name}?`, parent, types, `${name} belongs to ${parent}. ${purpose}.`, source),
+      { kind: "blank", prompt: `The essential artifact used to ${purpose.charAt(0).toLowerCase() + purpose.slice(1)} is ___.`, answer: name, bank: names, why: `${name} is classified under ${parent}.`, source },
+    ];
+  }),
+  { kind: "tf2", prompt: "Guidelines are one of the eight essential artifacts, alongside Technology Reference Models under Standards.", isTrue: true, why: "Both are essential. TRMs identify technologies; Guidelines prescribe their usage.", source: "4.3 slide 15; Kotusev 2017" },
+  { kind: "tf2", prompt: "A Technology Reference Model and a Guideline serve exactly the same purpose.", isTrue: false, why: "A TRM identifies available standardized technologies; Guidelines give narrower prescriptions for using them.", source: "4.3 slide 15; Kotusev 2017" },
+  { kind: "tf2", prompt: "Business Capability Models help decide where to invest; Roadmaps help decide when those investments should happen.", isTrue: true, why: "These complementary Visions artifacts connect business priorities with investment planning.", source: "4.3 slide 17; Kotusev 2017" },
+  { kind: "tf2", prompt: "Landscape Diagrams are business-focused change artifacts used mainly to approve a proposed project's funding.", isTrue: false, why: "Landscape Diagrams are IT-focused Structures; a Solution Overview is the essential Outlines artifact supporting a proposed project's investment decision.", source: "4.3 slides 19, 21; Kotusev 2017" },
+  { kind: "tf2", prompt: "Solution Overviews support decisions about proposed initiatives, while Solution Designs support implementation of approved projects.", isTrue: true, why: "They distinguish business-focused Changes from IT-focused Changes.", source: "4.3 slides 21, 23; Kotusev 2017" },
+  { kind: "tf2", prompt: "Principles are exclusively technical implementation instructions invisible to business leaders.", isTrue: false, why: "Principles are high-level Considerations relevant to both business and IT; Guidelines are the technical implementation prescriptions.", source: "4.3 slides 13, 15; Kotusev 2017" },
+  { kind: "tf2", prompt: "The eight essential artifact subtypes are distributed across all six general CSVLOD types.", isTrue: true, why: "Considerations 1, Standards 2, Visions 2, Landscapes 1, Outlines 1, Designs 1: eight in total.", source: "4.3 slides 13–23; Kotusev 2017" },
+  { kind: "tf2", prompt: "An organization using the eight essential artifacts must ignore all other useful artifact subtypes.", isTrue: false, why: "Essential means widely used, not an exhaustive or mandatory document checklist. Successful practices often use 10–15 subtypes.", source: "4.3 slide 24; Kotusev 2017" },
+  { kind: "multi", prompt: "Which pairs correctly connect essential artifacts with their CSVLOD types?", options: ["Principles — Considerations", "Guidelines — Standards", "Roadmaps — Visions", "Landscape Diagrams — Outlines", "Solution Designs — Visions"], correct: ["Principles — Considerations", "Guidelines — Standards", "Roadmaps — Visions"], why: "Landscape Diagrams belong to Landscapes; Solution Designs belong to Designs.", source: "4.3 slides 13–23" },
+  { kind: "multi", prompt: "Which essential artifacts serve business-focused planning and are dual artifacts?", options: ["Principles", "Business Capability Models", "Roadmaps", "Solution Overviews", "Technology Reference Models", "Landscape Diagrams", "Solution Designs"], correct: ["Principles", "Business Capability Models", "Roadmaps", "Solution Overviews"], why: "These belong to Considerations, Visions, and Outlines. The other listed artifacts are IT-focused.", source: "4.3 slides 12–23" },
+  { kind: "multi", prompt: "Which essential artifact pairs are complementary rather than interchangeable?", options: ["TRMs identify technologies; Guidelines prescribe their use", "Capability Models show where to invest; Roadmaps show when", "Overviews support investment decisions; Designs support implementation", "TRMs and Guidelines are both business-focused Visions", "Solution Overviews and Solution Designs have identical audiences and detail"], correct: ["TRMs identify technologies; Guidelines prescribe their use", "Capability Models show where to invest; Roadmaps show when", "Overviews support investment decisions; Designs support implementation"], why: "Their related roles complement each other without making them equivalent.", source: "4.3 slides 15–23; Kotusev 2017" },
+  { kind: "multi", prompt: "Which activities are appropriate uses of the eight essential artifacts?", options: ["Use Principles to evaluate consistency of business and IT decisions", "Use Landscape Diagrams to understand existing system connections", "Use Solution Designs to guide approved project implementation", "Use Roadmaps as a substitute for all detailed build specifications", "Use Capability Models solely as a server inventory"], correct: ["Use Principles to evaluate consistency of business and IT decisions", "Use Landscape Diagrams to understand existing system connections", "Use Solution Designs to guide approved project implementation"], why: "Match the artifact to the decision, audience, and level of detail it is intended to support.", source: "4.3 slides 13–23; Kotusev 2017" },
+];

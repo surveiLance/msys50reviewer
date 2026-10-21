@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import raw from "../content/msys-50/data.json";
 import { expandQuestionData } from "../content/msys-50/fresh";
-import { poolModule, grade, QTYPES, pickTypes } from "../lib/questions";
+import { poolModule, poolEssentialModule, grade, QTYPES, pickTypes } from "../lib/questions";
 import { examData } from "../lib/studyStructure";
 import { questionBank, selectQuestions } from "../convex/partyQuestions";
 import { readNotes } from "../lib/notes";
@@ -49,4 +49,23 @@ test("new course content never enters the archived midterm or mutates old banks"
   expect(examData(subject, data).scenarios.M4).toBeUndefined();
   expect(examData(subject, data).alternative?.["module-4"]).toBeUndefined();
   expect(data.tests["module-1"]["1"]).toBe(raw.tests["module-1"]["1"]);
+});
+
+test("essential practice is a separate playable bank covering all eight essential artifact names", () => {
+  expect(data.essentials?.["module-4"]).toBeDefined();
+  expect(data.essentials?.["module-4"]?.length).toBeGreaterThanOrEqual(24);
+  const pool = poolEssentialModule(data.essentials?.["module-4"], "module-4");
+  const answers = pool.mc.filter(q => q.kind === "mc").map(q => q.answer);
+  for (const term of ["Principles", "Technology Reference Models", "Guidelines", "Business Capability Models", "Roadmaps", "Landscape Diagrams", "Solution Overviews", "Solution Designs"]) expect(answers).toContain(term);
+  const original = poolModule(data.tests["module-4"], "module-4", data.multi?.["module-4"], data.blanks?.["module-4"]);
+  const round = pickTypes(pool, { tf: 0, tf2: 3, mc: 5, multi: 1, blank: 1, match: 0 }, []).qs;
+  expect(round).toHaveLength(10);
+  for (const q of round) {
+    expect(q.id).toMatch(/^essential:module-4:/);
+    expect(Object.values(original).flat().some(old => old.id === q.id)).toBe(false);
+    if (q.kind === "mc") expect(q.options).toContain(q.answer);
+    if (q.kind !== "match") expect(q.source).toMatch(/^4\.3/);
+  }
+  const scope = { modules: [], exam: { modules: ["module-1", "module-2", "module-3"] } } as unknown as SubjectMeta;
+  expect(examData(scope, data).essentials?.["module-4"]).toBeUndefined();
 });
