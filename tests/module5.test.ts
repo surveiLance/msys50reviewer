@@ -7,7 +7,7 @@ import type { SubjectData } from "../lib/types";
 import { SUBJECTS, getSubjectData } from "../lib/subjects";
 import { examData, studyGroups } from "../lib/studyStructure";
 import { listTests } from "../lib/tests";
-import { selectQuestions, questionBank, questionKey, type PartySettings } from "../convex/partyQuestions";
+import { selectQuestions, questionBank, questionKey, isCorrect, type PartySettings } from "../convex/partyQuestions";
 
 test("Module 5 reader delivers three navigable parts and all 18 guide answers", () => {
   let parts: ReturnType<typeof readNotes> = [];
@@ -116,4 +116,57 @@ test("overflowing Module 5 tables are named keyboard-focusable regions", () => {
     expect(wrapper).toContain('role="region"');
     expect(wrapper).toContain('aria-label="');
   }
+});
+
+test("the delivered claims map preserves the source's realization and serving endpoints", () => {
+  const part = readNotes("msys-50", "module-5")[0];
+  const html = part.sections.find(s => s.html.includes('id="m5-claims-layers"'))!.html;
+  const figure = html.match(/<figure id="m5-claims-layers"[\s\S]*?<\/figure>/)![0];
+  const rows = [...figure.matchAll(/<tr><td>(.*?)<\/td><td>(.*?)<\/td><td>(.*?)<\/td><\/tr>/g)].map(m => m.slice(1).map(s => s.replace(/&amp;/g, "&")));
+  expect(rows).toEqual([
+    ["Document management system", "Document storage service", "Register"],
+    ["CRM system", "Customer administration service", "Register"],
+    ["Home & Away policy administration", "Claim administration service", "Accept"],
+    ["Document management system", "Printing service", "Adjudicate; Pay"],
+    ["Home & Away financial application", "Payment service", "Pay"],
+  ]);
+  const data = expandQuestionData(raw as unknown as SubjectData);
+  const card = data.cards["module-5"].find(c => c[1] === "Claims example: services and components?")!;
+  expect(card[2]).toContain("Document management system→Document storage AND Printing");
+  expect(card[2]).toContain("Home & Away policy administration→Claim administration");
+});
+
+test("bounded correct M5 replacement phrases score in both solo and Battle", () => {
+  const data = expandQuestionData(raw as unknown as SubjectData);
+  const pool = poolModule(data.tests["module-5"], "module-5");
+  const cases: [string, string[]][] = [
+    ["The parenthesized input", ["need not exist", "may not already exist", "does not have to exist"]],
+    ["Services may connect components", ["within a layer", "within the same layer", "within and across layers"]],
+    ["E-Learning Service is realized", ["as well as ODMS", "and the Onsite Digital Facilities Management and Load Balancing System"]],
+    ["Archi is", ["software tool"]],
+  ];
+  const party = questionBank().filter(q => q.module === "M5" && q.kind === "tf");
+  for (const [stem, variants] of cases) {
+    const q = pool.tf.find(q => q.kind === "tf" && q.prompt.startsWith(stem))!;
+    const battle = party.find(p => p.prompt.startsWith(stem))!;
+    expect(q, stem).toBeDefined(); expect(battle, stem).toBeDefined();
+    for (const text of variants) {
+      expect(grade(q, { text }).points, text).toBe(1);
+      expect(isCorrect(battle, text), text).toBe(true);
+    }
+    expect(grade(q, { text: "!" }).points).toBe(0);
+    expect(isCorrect(battle, "!")).toBe(false);
+  }
+});
+
+test("MTF corrections form the intended grammatical statements", () => {
+  const data = expandQuestionData(raw as unknown as SubjectData);
+  const pool = poolModule(data.tests["module-5"], "module-5");
+  const corrected = (prefix: string) => {
+    const q = pool.tf.find(q => q.kind === "tf" && q.prompt.startsWith(prefix));
+    expect(q).toBeDefined();
+    return q?.kind === "tf" ? q.prompt.replace(/<u>.*?<\/u>/, q.answer) : "";
+  };
+  expect(corrected("Analytical/simulation")).toBe("Analytical/simulation and functional/quantitative are classifications on two independent axes.");
+  expect(corrected("An Overview view must")).toBe("An Overview view must cover multiple layers and multiple aspects.");
 });

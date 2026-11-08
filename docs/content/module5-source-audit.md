@@ -91,8 +91,8 @@ Top example (layers):
 - Business processes: Handle claim contains Register → Accept → Adjudicate → Pay.
 - Application services: Document storage service, Customer administration service, Claim administration service, Printing service, Payment service.
 - Application components: Document management system, CRM system, Home & Away policy administration, Home & Away financial application.
-- Component realization links: Document management system → Document storage service; CRM system → Customer administration service; Home & Away policy administration → Claim administration service AND Printing service; Home & Away financial application → Payment service.
-- Visible service-use arrows: Document storage service → Register; Customer administration service → Register; Claim administration service → Accept AND Adjudicate; Printing service → Adjudicate AND Pay; Payment service → Pay.
+- Component realization links (corrected after independent 600-dpi inspection of crossed lines): Document management system → Document storage service AND Printing service; CRM system → Customer administration service; Home & Away policy administration → Claim administration service only; Home & Away financial application → Payment service.
+- Visible service-use arrows: Document storage service → Register; Customer administration service → Register; Claim administration service → Accept only; Printing service → Adjudicate AND Pay; Payment service → Pay.
 - Retain the distinction between process, service, and implementing component; do not collapse the service row into software components.
 
 Bottom example (phases):
@@ -649,3 +649,7 @@ Class notes p.62 complete the external analogy:
 - A validated Convex API test exercises host creation/admission/readiness/start for M5 as well as M4, and verifies no answer leakage to the player-facing question.
 - Vitest path alias added so tests consume the real subject registry; no mocks replace metadata/content.
 - Production build initially failed because sandbox DNS could not fetch the existing Google font. A network-authorized retry passed, with 32 generated routes. No dependency change was needed.
+- Independent source/code review caught two misread links in the 5.1 claims image; a 600-dpi check established Document management system → Printing realization and Claim administration → Accept only. Notes/card/audit corrected together and pinned through a delivered-table regression fixture.
+- Review also found correct typed variants being rejected. Bounded aliases for the optional initial model, within-layer services, ODMS realization, and Archi tool now pass independently in solo and Battle. Two stems were repaired so replacing their underlined spans yields grammatical true statements. All three new regression tests were observed failing before fixes; full suite **63/63** and production build pass afterward.
+- Browser verification on disposable local origin: all part switches and 18 guide answers, 106-card answer flip, full 10-question study-mode round (intentional wrong first answer; 9/10 final), per-question explanations, NotesPeek to the correct section, saved attempt history. No user run was overwritten.
+- Responsive evidence: default actual width 832px; desktop actual 1706px; narrow actual 487px despite requested 390. No page-width overflow; academic tables contained horizontal overflow and keyboard arrows moved scrollLeft to 50. Viewport-overridden narrow screenshot had a browser capture artifact; do not claim a visual 390px verification. Light/amber and dark/blue notes inspected at default width.
