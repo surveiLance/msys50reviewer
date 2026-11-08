@@ -24,10 +24,10 @@ async function setup(start = true) {
   const raw = await t.run(ctx => ctx.db.get(partyId));
   return { t, partyId, raw: raw! };
 }
-test("hosts can create and start a Module 4-only party through the validated API", async () => {
+test.each(["M4", "M5"] as const)("hosts can create and start a %s-only party through the validated API", async (module) => {
   const t = convexTest(schema, modules);
   for (const [token, name] of [[a, "Alice"], [b, "Bob"]]) await t.mutation(api.battle.register, { token, name });
-  const partyId = await t.mutation(api.parties.create, { token: a, title: "Module 4 review", settings: { ...settings, moduleCounts: { M4: 5 } } });
+  const partyId = await t.mutation(api.parties.create, { token: a, title: `${module} review`, settings: { ...settings, moduleCounts: { [module]: 5 } } });
   await t.mutation(api.parties.requestJoin, { token: b, partyId });
   const lobby = await t.query(api.parties.get, { token: a, partyId });
   const bob = lobby!.roster.find(m => m.name === "Bob")!;
@@ -37,7 +37,7 @@ test("hosts can create and start a Module 4-only party through the validated API
   const raw = await t.run(ctx => ctx.db.get(partyId));
   expect(raw?.phase).toBe("question");
   expect(raw?.questions).toHaveLength(5);
-  expect(raw?.questions.every(q => q.module === "M4" && q.source.startsWith("4."))).toBe(true);
+  expect(raw?.questions.every(q => q.module === module && q.source.startsWith(`${module.slice(1)}.`))).toBe(true);
   const question = (await t.query(api.parties.get, { token: b, partyId }))!.question!;
   expect("correct" in question).toBe(false);
 });

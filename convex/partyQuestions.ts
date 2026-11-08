@@ -21,7 +21,7 @@ export function shuffle<T>(items: T[]): T[] {
 const base = (kind: PartyQuestion["kind"], module: string, prompt: string, options: string[], correct: string[], explanation = "", source = ""): PartyQuestion => ({ kind, module, prompt, options, correct, explanation, source, rows: [], accept: [] });
 export function questionBank(): PartyQuestion[] {
   const bank: PartyQuestion[] = [];
-  for (const module of ["M1", "M2", "M3", "M4"]) {
+  for (const module of ["M1", "M2", "M3", "M4", "M5"]) {
     const slug = `module-${module.slice(1)}`;
     for (const q of data.scenarios[module] ?? []) bank.push(base("scenario", module, q.q, q.o, [q.a], q.w, q.r));
     const seen = new Set<string>();
