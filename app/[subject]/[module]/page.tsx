@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import SubjectNav from "@/components/SubjectNav";
 import NextStep from "@/components/NextStep";
 import NotesReader from "@/components/NotesReader";
+import Module5Learning from "@/components/Module5Learning";
 import { SUBJECTS, getSubject } from "@/lib/subjects";
 import { readNotes } from "@/lib/notes";
 
@@ -29,9 +30,9 @@ export default async function NotesPage({ params }: P) {
   return (
     <>
       <SubjectNav subject={subject} active={{ module: mod.slug, view: "notes" }} />
-      <NotesReader parts={parts} moduleNum={mod.num}>
+      {subject.slug === "msys-50" && mod.slug === "module-5" ? <Module5Learning parts={parts}><NextStep subject={subject} module={mod.slug} view="notes" /></Module5Learning> : <NotesReader parts={parts} moduleNum={mod.num}>
         <NextStep subject={subject} module={mod.slug} view="notes" />
-      </NotesReader>
+      </NotesReader>}
     </>
   );
 }
