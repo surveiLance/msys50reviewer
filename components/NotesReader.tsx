@@ -9,17 +9,18 @@ const plain = (html: string) => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "
  * The part's notes HTML. Memoized so the scroll-driven "you are here" updates never
  * re-render it (which would undo the swipe rows and open fold-outs set up on the DOM).
  */
-const PartBody = memo(function PartBody({ part, innerRef }: { part: NotePart; innerRef: React.Ref<HTMLElement> }) {
+const PartBody = memo(function PartBody({ part, innerRef, onExplore }: { part: NotePart; innerRef: React.Ref<HTMLElement>; onExplore?: (part: string, section?: string) => void }) {
   return (
     <article className="sub notes part-body" ref={innerRef}>
-      <h2 id={part.id}><span className="tag">Part {part.num}</span><span dangerouslySetInnerHTML={{ __html: part.title }} /></h2>
+      <h2 id={part.id} tabIndex={-1}><span className="tag">Part {part.num}</span><span dangerouslySetInnerHTML={{ __html: part.title }} /></h2>
       <div dangerouslySetInnerHTML={{ __html: part.intro }} />
       {part.sections.map((s, j) => (
         <section key={s.id} className="nsec">
-          <h3 id={s.id} data-sec>
+          <h3 id={s.id} data-sec tabIndex={-1}>
             <span className="sec-n">{j + 1}</span>
             <span dangerouslySetInnerHTML={{ __html: s.title }} />
           </h3>
+          {onExplore && <button className="xp-inline-explore" onClick={() => onExplore(part.num, s.id)}>◉ Explore this idea <span>Try a visual example from Part {part.num} →</span></button>}
           <div dangerouslySetInnerHTML={{ __html: s.html }} />
         </section>
       ))}
@@ -33,7 +34,7 @@ const PartBody = memo(function PartBody({ part, innerRef }: { part: NotePart; in
  * - a sticky "you are here" bar (phones) / outline rail (wide screens) that follows the section you're reading
  * - numbered sections; card groups become swipeable rows on phones
  */
-export default function NotesReader({ parts, moduleNum, children }: { parts: NotePart[]; moduleNum: number; children?: React.ReactNode }) {
+export default function NotesReader({ parts, moduleNum, children, onExplore }: { parts: NotePart[]; moduleNum: number; children?: React.ReactNode; onExplore?: (part: string, section?: string) => void }) {
   const [pi, setPi] = useState(0);
   const [si, setSi] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -56,6 +57,8 @@ export default function NotesReader({ parts, moduleNum, children }: { parts: Not
 
   const scrollToId = (id: string | null) => {
     const el = id ? document.getElementById(id) : null;
+    const focusTarget = el?.matches("h2,h3") ? el : el?.closest(".nsec")?.querySelector<HTMLElement>("h3") ?? bodyRef.current?.querySelector<HTMLElement>("h2");
+    (focusTarget as HTMLElement | null)?.focus({ preventScroll: true });
     if (el && !parts.some((p) => p.id === id)) el.scrollIntoView({ block: "start" });
     else rootRef.current?.scrollIntoView({ block: "start" });
   };
@@ -63,7 +66,8 @@ export default function NotesReader({ parts, moduleNum, children }: { parts: Not
   // Deep links (#p-2-1, #a-bsc) open the right part; back/forward move between parts.
   useEffect(() => {
     const fromHash = () => {
-      const id = decodeURIComponent(location.hash.slice(1));
+      let id = location.hash.slice(1);
+      try { id = decodeURIComponent(id); } catch { return; }
       if (!id) return;
       const i = partFor(id);
       if (i >= 0) {
@@ -83,8 +87,10 @@ export default function NotesReader({ parts, moduleNum, children }: { parts: Not
   // After a part renders: scroll where asked, wire up "Show all answers", and set up swipe rows.
   useEffect(() => {
     const id = pendingScroll.current;
-    pendingScroll.current = null;
-    if (id) requestAnimationFrame(() => scrollToId(id));
+    if (id && partFor(id) === pi) {
+      pendingScroll.current = null;
+      requestAnimationFrame(() => scrollToId(id));
+    }
     const root = bodyRef.current;
     if (!root) return;
     const offs: (() => void)[] = [];
@@ -220,7 +226,7 @@ export default function NotesReader({ parts, moduleNum, children }: { parts: Not
           {outlineOpen && <div className="here-pop">{outline}</div>}
         </div>
 
-        <PartBody key={part.id} part={part} innerRef={bodyRef} />
+        <PartBody key={part.id} part={part} innerRef={bodyRef} onExplore={onExplore} />
 
         <nav className="part-next" aria-label="Part navigation">
           {pi > 0 ? (

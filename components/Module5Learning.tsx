@@ -34,7 +34,7 @@ function Visual({ step }: { step: number }) {
   return <div className="vl-two"><div className="vl-panel"><span className="vl-icon" aria-hidden>?</span><h4>Readability</h4><p>“I can’t tell what this symbol means.”</p><b>Fix understanding</b><details className="vl-detail"><summary>All five problems</summary><p>Not understood; understood wrongly; no intuitive structure; unclear structure/notation; visualization distracts.</p></details></div><div className="vl-panel"><span className="vl-icon" aria-hidden>!</span><h4>Effect</h4><p>“I understand the change. I don’t want the consequences.”</p><b>Investigate the impact</b><details className="vl-detail"><summary>All eight problems</summary><p>Lacks status; true but unwanted message; irrelevant; superfluous statements; too complex; too vague; insufficiently complete; not true. The slide’s “lacks status” is not established as meaning “missing progress updates.”</p></details></div></div>;
 }
 
-export default function Module5Learning({ parts, children }: { parts: NotePart[]; children?: React.ReactNode }) {
+export default function Module5Learning({ parts, children, focusOnMount = false }: { parts: NotePart[]; children?: React.ReactNode; focusOnMount?: boolean }) {
   const [part, setPart] = useState<"5.1" | "5.2" | "5.3">("5.1");
   const lessons = part === "5.1" ? part51 : additionalLessons[part];
   const [full, setFull] = useState(false);
@@ -43,10 +43,10 @@ export default function Module5Learning({ parts, children }: { parts: NotePart[]
   const heading = useRef<HTMLHeadingElement>(null);
   const initialStep = useRef(true);
   useEffect(() => {
-    if (initialStep.current) { initialStep.current = false; return; }
+    if (initialStep.current) { initialStep.current = false; if (!focusOnMount) return; }
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollIntoView({ block: "start" });
-  }, [step, part]);
+  }, [step, part, focusOnMount]);
   useEffect(() => {
     const followHash = () => setFull(Boolean(window.location.hash));
     followHash(); window.addEventListener("hashchange", followHash); window.addEventListener("popstate", followHash);
