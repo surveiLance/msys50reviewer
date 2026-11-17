@@ -73,3 +73,10 @@ Completed: all 58 flashcards, 30 modified true/false statements (also used as pl
 ## Independent review
 
 An independent reviewer inspected the full change, source renders, and desktop output, and independently ran the 50-test suite. No blocking correctness or compatibility issue was found. The reviewer identified one accessibility omission: MDA's individual SVG labels are not exposed under `role="img"`, so the accessible description must name the BPMN, UML/platform, Java, and WS-BPEL examples. A regression check against the ARIA title/description failed before correction; the full examples are now included in the description.
+
+## November 17 recheck
+
+- Part 4.1 slide 10 now has its own five-perspective, six-question matrix with blank intersections, questions above, abstraction labels below, and the model labels beside the rows. The six-perspective academic example is still found in slide 11. The notes now name the three frameworks on slide 7 and distinguish the initial questions from the completeness additions on slide 9.
+- The MDA activity shows bidirectional mappings throughout. Its admissions example uses an original scenario. The full lecture redraw preserves the examples on slide 17.
+- The interactive ADM now shows the clockwise A–H arrows, two-way Requirements Management links, and Preliminary ↔ A. The notes also clarify that C and D develop their architectures based on the vision.
+- Part 4.3 names applications and data as technical domain examples and explicitly links Visions to alignment of IT investment and long-term business outcomes. The original CSVLOD taxonomy and the Analytical Reports ambiguity remain in the notes.

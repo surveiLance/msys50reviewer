@@ -1,5 +1,15 @@
 # Module 5 source audit — November 8, 2026
 
+## November 17 figure recheck
+
+The later visual audit compared the rendered lecture slides with the full notes and the guided examples. It added eleven redraws to the full notes and corrected the guided Model-to-View arrow.
+
+- **5.1 slides 5, 9, and 18.** The analysis axes preserve all four directions. The modeling transformation shows the three parallel input and output streams, including the optional input model and the guidelines above. The two insurance diagrams preserve the layer connections and the separate phase groups.
+- **5.2 slides 6 and 10.** The separation-of-concerns diagram uses four directed Model/View/Visualisation edges and four viewpoint or actor connections. The classification redraw keeps the three purpose sectors and the three nested content bands. The tables from slides 11–12 accompany it.
+- **5.3 slides 7–11.** The full notes now draw the layered stack and its inset, the relation glyphs, the five core concepts with ten connectors, the academic lifecycle with 21 elements and 27 connectors, and the four connected modeling steps. The interactive service trace now draws the open serving head and the dashed hollow-triangle realization head. Preserve the slide 10 filled head to ODMS and its stated ambiguity.
+
+Module 6 and any new finals questions need their own verified lesson sources. The owner’s requirements for slide fidelity and long company cases are recorded in `AGENTS.md`.
+
 Status: source inspection complete; Module 5 notes/data and solo/Battle integration implemented locally. Browser verification, independent review, and deployment are recorded separately below; this status alone is **not** proof of a production deployment.
 
 ## Scope and authority

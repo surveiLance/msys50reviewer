@@ -49,6 +49,10 @@ Module outline (from `lib/subjects.ts`):
 
 ## What the owner asked for (current direction)
 
+**Nov 17, 2026 — Module 6 and finals priority.** Recheck Modules 4–6 against the supplied slides and class notes. For each substantive slide, map details to a notes section. Inspect the rendered slide figures and compare their labels, groupings, notation, arrow directions, and exceptions against the reviewer. Preserve the lecture figures as faithful redraws and distinguish original practice illustrations. Record apparent source conflicts with slide references and avoid grading an unresolved interpretation. Module 6 still needs its source material.
+
+**Finals practice should reflect the actual exam's reading load.** The owner reported that the earlier midterm reviewer was much shorter and less representative than the exam. Make most finals questions standalone, long company situations with relevant context, constraints, and an assigned decision. Include single-choice statement combinations (only one, a subset such as I and II, none, or all) as well as select-all checkbox items. Explain each statement using evidence from the case and cite the lesson. Confirm finals coverage before registering a cumulative exam.
+
 Most recent requests, in their words where useful:
 1. **Tests like Canvas**: one question at a time, **can't go back** to a previous question, nothing is marked until you submit.
 2. **Professor's modified true or false**: *type `!` if true; if false, type the correct answer* (the word replacing the underlined part). Only `!` counts as "true".

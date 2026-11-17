@@ -318,6 +318,8 @@ figure.dg figcaption{font-size:14px;color:var(--muted);margin-top:10px;line-heig
 .m4-visual .m4-visual-scroll svg{min-width:640px;max-width:none}
 .m4-visual .t{font-size:15px}
 .m4-visual .s{font-size:14px}
+#m5-claims-layers .t{font-size:12.5px}
+#m5-claims-layers .claims-band-label{paint-order:stroke;stroke:var(--surface);stroke-width:4px}
 .m4-visual .m4-visual-scroll:focus-visible,.m4-matrix [role="region"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .m4-matrix{margin:22px 0;min-width:0}
 .m4-matrix figcaption b{display:block;font-size:18px;color:var(--ink)}

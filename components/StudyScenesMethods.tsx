@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { artifactSubtypes } from "@/content/msys-50/module4";
 import { analysisResult, enrollmentTrace } from "@/lib/studyStories";
 import { Choices, Glyph, Outcome, SceneMap } from "./StudyCanvas";
@@ -16,7 +16,9 @@ export function ZachmanScene() {
 
 export function MdaScene() {
   const [level, setLevel] = useState(0);
-  return <><Choices label="Choose the MDA abstraction level" options={["CIM · business need", "PIM · solution logic", "PSM · chosen platform"]} value={level} onChange={setLevel} /><SceneMap nodes={[
+  return <><Choices label="Choose the MDA abstraction level" options={["CIM · business need", "PIM · solution logic", "PSM · chosen platform"]} value={level} onChange={setLevel} />
+    <p className="xp-model-mapping"><b>CIM ↔ PIM ↔ PSM</b><span>Mappings can go in either direction (4.1 slide 17).</span></p>
+    <SceneMap nodes={[
     { id: "person", label: level === 0 ? "Student needs a place" : "Application request", icon: level === 0 ? "person" : "document", x: 20, y: 40 },
     { id: "work", label: level === 0 ? "Admit eligible students" : "Check → decide → notify", icon: "gear", x: 50, y: 70 },
     { id: "result", label: level === 2 ? "Java-platform model" : level === 1 ? "No platform chosen" : "Business requirements", icon: level === 2 ? "app" : "goal", x: 80, y: 40, tone: "on" },
@@ -31,8 +33,8 @@ export function SoaScene() {
 const phases = [
   ["A", "Architecture Vision", "Set vision, scope, stakeholders, limitations, and approvals."],
   ["B", "Business Architecture", "Develop the business architecture based on the vision."],
-  ["C", "Information Systems Architectures", "Develop both Data and Application architectures."],
-  ["D", "Technology Architecture", "Develop the infrastructure and technology architecture."],
+  ["C", "Information Systems Architectures", "Develop both Data and Application architectures based on the vision."],
+  ["D", "Technology Architecture", "Develop the technology architecture based on the vision."],
   ["E", "Opportunities and Solutions", "Identify solution opportunities and delivery vehicles; start implementation planning."],
   ["F", "Migration Planning", "Plan the transition from baseline to target."],
   ["G", "Implementation Governance", "Oversee implementation conformance to architecture."],
@@ -40,7 +42,35 @@ const phases = [
 ];
 export function AdmScene() {
   const [phase, setPhase] = useState(0);
-  return <><button className="xp-preliminary" aria-pressed={phase === 8} onClick={() => setPhase(8)}>Before the orbit: Preliminary → prepare capability & tailor the framework</button><div className="xp-orbit" role="group" aria-label="Explore ADM phases"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="37" />{phases.map((_, i) => <path key={i} d={`M50 50 L${50 + 37 * Math.sin(i * Math.PI / 4)} ${50 - 37 * Math.cos(i * Math.PI / 4)}`} />)}</svg><div className="xp-orbit-center"><Glyph name="document" /><b>Requirements<br />Management</b><small>Throughout</small></div>{phases.map(([letter, name], i) => <button key={letter} aria-label={`${letter} · ${name}`} aria-pressed={phase === i} style={{ left: `${50 + 37 * Math.sin(i * Math.PI / 4)}%`, top: `${50 - 37 * Math.cos(i * Math.PI / 4)}%` }} onClick={() => setPhase(i)}>{letter}</button>)}</div><Outcome title={phase === 8 ? "Preliminary" : `${phases[phase][0]} · ${phases[phase][1]}`}>{phase === 8 ? "Establish architecture capability and customize the framework before applying the cycle." : phases[phase][2]} You can revisit phases and tailor iterations; the spokes represent ongoing requirements work.</Outcome></>;
+  const arrow = `adm-${useId()}`;
+  const head = `url(#${arrow})`;
+  const point = (angle: number, radius: number) => [50 + radius * Math.sin(angle), 57 - radius * Math.cos(angle)];
+  return <>
+    <div className="xp-orbit xp-orbit-directed" role="group" aria-label="ADM clockwise cycle. Preliminary and A connect both ways. Every lettered phase connects both ways with Requirements Management.">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <defs><marker id={arrow} viewBox="0 0 6 6" markerWidth="5" markerHeight="5" refX="5" refY="3" orient="auto-start-reverse"><path d="M0 0L6 3L0 6Z" fill="var(--accent-ink)" /></marker></defs>
+        <path d="M50 11V18" markerStart={head} markerEnd={head} />
+        {phases.map(([letter], i) => {
+          const angle = i * Math.PI / 4;
+          const start = point(angle + .24, 32);
+          const end = point(angle + Math.PI / 4 - .24, 32);
+          const inner = point(angle, 18);
+          const outer = point(angle, 24);
+          return <g key={letter}>
+            <path d={`M${start.join(" ")} A32 32 0 0 1 ${end.join(" ")}`} markerEnd={head} />
+            <path d={`M${inner.join(" ")} L${outer.join(" ")}`} markerStart={head} markerEnd={head} />
+          </g>;
+        })}
+      </svg>
+      <button className="xp-adm-preliminary" aria-pressed={phase === 8} onClick={() => setPhase(8)}>Preliminary</button>
+      <div className="xp-orbit-center"><Glyph name="document" /><b>Requirements<br />Management</b><small>Throughout</small></div>
+      {phases.map(([letter, name], i) => {
+        const [x, y] = point(i * Math.PI / 4, 32);
+        return <button key={letter} aria-label={`${letter} · ${name}`} aria-pressed={phase === i} style={{ left: `${x}%`, top: `${y}%` }} onClick={() => setPhase(i)}>{letter}</button>;
+      })}
+    </div>
+    <Outcome title={phase === 8 ? "Preliminary" : `${phases[phase][0]} · ${phases[phase][1]}`}>{phase === 8 ? "Establish architecture capability and customize the framework before applying the cycle." : phases[phase][2]} Requirements Management connects in both directions with A–H. The cycle can be tailored and revisited.</Outcome>
+  </>;
 }
 
 const types = [["Considerations", "Standards"], ["Visions", "Landscapes"], ["Outlines", "Designs"]];
@@ -97,9 +127,31 @@ export function CoverageScene() {
 
 export function ServicesScene() {
   const [side, setSide] = useState(0);
-  return <><Choices label="Follow a service relationship" options={["What implements it?", "Who uses it?", "See both connections"]} value={side} onChange={setSide} /><SceneMap nodes={[
-    { id: "sis", label: "SIS", icon: "app", x: 20, y: 30, detail: "Application component", tone: side === 1 ? "dim" : "on" },
-    { id: "service", label: "Student Registration", icon: "gear", x: 50, y: 72, detail: "Application service", tone: "on" },
-    { id: "work", label: "Enroll & Schedule", icon: "person", x: 80, y: 30, detail: "Business process", tone: side === 0 ? "dim" : "on" },
-  ]} links={side === 0 ? [["sis", "service", "realizes"]] : side === 1 ? [["service", "work", "serves"]] : [["sis", "service", "realizes"], ["service", "work", "serves"]]} label="Academic model realization and serving relationships" /><div className="xp-relation-labels">{side !== 1 && <span>SIS <b>realizes →</b> Student Registration Service</span>}{side !== 0 && <span>Student Registration Service <b>serves →</b> Enroll &amp; Schedule</span>}</div><Outcome title={side === 0 ? "Realizes = fulfills / implements" : side === 1 ? "Serves = provides functionality to" : "One service, two different relationships"}>These links are from the supplied academic model. They express architectural relationships rather than a timeline. Active structure performs behavior; passive structure is what behavior accesses or acts on.</Outcome></>;
+  const content = [
+    ["Enroll & Schedule", "Business process"],
+    ["Student Registration Service", "Application service"],
+    ["Student Information System (SIS)", "Application component"],
+  ];
+  return <>
+    <Choices label="Follow a service relationship" options={["What implements it?", "Who uses it?", "See both connections"]} value={side} onChange={setSide} />
+    <div className="xp-service-trace" aria-label="Two connections from the academic lifecycle model">
+      {content.map(([label, category], i) => (
+        <React.Fragment key={label}>
+          {i > 0 && <div className="xp-service-edge" data-visible={i === 1 ? side !== 0 : side !== 1}>
+            <svg viewBox="0 0 30 56" width="30" height="56" aria-hidden="true">
+              <path d={i === 1 ? "M15 54V6" : "M15 54V14"} strokeDasharray={i === 2 ? "5 4" : undefined} />
+              <path d={i === 1 ? "M9 13L15 5L21 13" : "M9 14L15 5L21 14Z"} />
+            </svg>
+            <b>{i === 1 ? "serves" : "realizes"}</b>
+          </div>}
+          <div className={`xp-service-element element-${i}`} data-visible={i === 1 || (i === 0 ? side !== 0 : side !== 1)}>
+            <small>{category}</small><b>{label}</b>
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+    <Outcome title={side === 0 ? "Realizes = fulfills or implements" : side === 1 ? "Serves = provides functionality to" : "One service, two relationships"}>
+      {side !== 1 && "SIS realizes Student Registration Service. "}{side !== 0 && "Student Registration Service serves Enroll & Schedule. "}The lecture diagram shows the complete model (5.3 slide 10).
+    </Outcome>
+  </>;
 }

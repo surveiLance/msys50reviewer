@@ -7,12 +7,61 @@
 <p class="ex"><b>Original example:</b> an enrollment diagram is useful when it helps decide which application change will reduce a registration bottleneck. A polished diagram nobody uses has not yet delivered that decision value.</p>
 <h3>Analysis: two separate ways to classify it</h3>
 <div class="compare"><div><b>Functional analysis</b><p>Understand what the architecture does, assess the functional impact of change, and validate correctness. Ask: “Will this process still work?” It does not answer “How fast?” or “How cheap?”</p></div><div><b>Quantitative analysis</b><p>Measure effects: optimize alternative designs, assess change impacts, and plan capacity. Typical metrics are <b>performance, reliability, and cost</b>. Ask: “How much will response time improve?”</p></div></div>
-<figure id="m5-analysis" class="dg"><figcaption><b>Two independent axes — slide 5.</b> Functional/quantitative describes the kind of result; analytical/simulation describes the approach. They are not four mutually exclusive alternatives.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Analysis: two separate ways to classify it — table 1; scroll horizontally"><table><thead><tr><th>Result sought</th><th>Analytical approach</th><th>Simulation approach</th></tr></thead><tbody><tr><th>Quantitative</th><td>Derive numerical results from a model.</td><td>Run a model to observe numerical results.</td></tr><tr><th>Functional</th><td>Reason about behavior and correctness.</td><td>Explore behavior by running model scenarios.</td></tr></tbody></table></div><p>The slide places <b>Quantitative above Functional</b> and <b>Analytical left of Simulation</b>. The cell explanations here are plain-language clarifications of those axes, not extra quotations from the slide.</p></figure>
+<figure id="m5-analysis" class="dg m4-visual" data-slide="5.1/5">
+  <div class="m4-visual-scroll" role="region" aria-label="Analysis techniques" tabindex="0">
+    <svg viewBox="0 0 650 280" role="img" aria-labelledby="slide51-axes-title slide51-axes-description">
+      <title id="slide51-axes-title">Analysis techniques</title>
+      <desc id="slide51-axes-description">Quantitative is at the top and Functional at the bottom. Analytical is on the left and Simulation on the right. Each axis can be chosen independently.</desc>
+      <defs>
+        <marker id="slide51-axes-filled" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--muted)"/></marker>
+        <marker id="slide51-axes-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" stroke="var(--muted)" fill="none"/></marker>
+        <marker id="slide51-axes-hollow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L9 5L1 9Z" stroke="var(--muted)" fill="var(--surface)"/></marker>
+      </defs>
+      <path class="ln" d="M325 54V226" marker-end="url(#slide51-axes-filled)" marker-start="url(#slide51-axes-filled)"/>
+      <path class="ln" d="M158 140H492" marker-end="url(#slide51-axes-filled)" marker-start="url(#slide51-axes-filled)"/>
+      <text class="t" x="325" y="40" text-anchor="middle"><tspan x="325" dy="0">Quantitative</tspan></text>
+      <text class="t" x="325" y="252" text-anchor="middle"><tspan x="325" dy="0">Functional</tspan></text>
+      <text class="t" x="92" y="145" text-anchor="middle"><tspan x="92" dy="0">Analytical</tspan></text>
+      <text class="t" x="559" y="145" text-anchor="middle"><tspan x="559" dy="0">Simulation</tspan></text>
+    </svg>
+  </div>
+  <figcaption><b>Analysis techniques.</b> Original redraw of Part 5.1, slide 5. The lecture credits Lankhorst, <i>Enterprise Architecture at Work</i>, 4th ed. (2017).</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Two independent axes — slide 5.</b> Functional/quantitative describes the kind of result; analytical/simulation describes the approach. They are not four mutually exclusive alternatives.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Analysis: two separate ways to classify it — table 1; scroll horizontally"><table><thead><tr><th>Result sought</th><th>Analytical approach</th><th>Simulation approach</th></tr></thead><tbody><tr><th>Quantitative</th><td>Derive numerical results from a model.</td><td>Run a model to observe numerical results.</td></tr><tr><th>Functional</th><td>Reason about behavior and correctness.</td><td>Explore behavior by running model scenarios.</td></tr></tbody></table></div><p>The slide places <b>Quantitative above Functional</b> and <b>Analytical left of Simulation</b>. The cell explanations here are plain-language clarifications of those axes, not extra quotations from the slide.</p></figure>
 <p><b>Do not confuse:</b> both functional and quantitative analysis can assess change. The distinction is whether the question concerns functionality/correctness or measured properties. “Analytical” does not mean “quantitative.” The class notes mention KPIs and statistical data, but that does not make statistics a universal requirement of every quantitative technique. They also warn that not every nonfunctional requirement is already quantitative: “intuitive interface” still needs operational criteria if it is to be measured.</p>
 <h3>A model and the transformation it supports</h3>
 <p>A <b>model</b> is an unambiguous, abstract conception of selected parts or aspects of the real world. In EA, it represents products, business processes, applications, IT infrastructure, and <b>relationships between them</b>. Modeling is <b>goal-driven</b>; the architect chooses which aspects matter.</p>
 <p>Models communicate. The aim is to <b>introduce, agree on, and commit to a knowledge representation</b>—not merely to finish a diagram.</p>
-<figure id="m5-transformation" class="dg"><figcaption><b>Modeling as transformation — slide 9.</b> Knowledge goals and guidelines guide the modeling process. Each row below passes through that process.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="A model and the transformation it supports — table 2; scroll horizontally"><table><thead><tr><th>Input</th><th>Transformation</th><th>Output</th></tr></thead><tbody><tr><td>Knowledge, agreements, commitments</td><td rowspan="3">Modeling process, guided by knowledge goals and guidelines</td><td>Knowledge, agreements, commitments after the session</td></tr><tr><td><b>(Model)</b> — optional existing model</td><td><b>Model</b></td></tr><tr><td>Way of modeling</td><td>Way of modeling after the session</td></tr></tbody></table></div><p>Class-note clarification: the input has parentheses because a model <b>may not exist yet</b>. A session may introduce one. Iteration changes the model, participants’ understanding and commitments, and potentially how they model.</p></figure>
+<figure id="m5-transformation" class="dg m4-visual" data-slide="5.1/9">
+  <div class="m4-visual-scroll" role="region" aria-label="Modeling as a transformation process" tabindex="0">
+    <svg viewBox="0 0 700 300" role="img" aria-labelledby="slide51-transformation-title slide51-transformation-description">
+      <title id="slide51-transformation-title">Modeling as a transformation process</title>
+      <desc id="slide51-transformation-description">Knowledge goals and guidelines enter from above. Three concurrent streams enter the modeling process and emerge to the right: knowledge, agreements and commitments; an optional initial model to a model; and way of modelling.</desc>
+      <defs>
+        <marker id="slide51-transformation-filled" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--muted)"/></marker>
+        <marker id="slide51-transformation-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" stroke="var(--muted)" fill="none"/></marker>
+        <marker id="slide51-transformation-hollow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L9 5L1 9Z" stroke="var(--muted)" fill="var(--surface)"/></marker>
+      </defs>
+      <text class="t" x="350" y="35" text-anchor="middle"><tspan x="350" dy="0">Knowledge goals &amp; Guidelines</tspan></text>
+      <path class="ln" d="M350 45V87" marker-end="url(#slide51-transformation-filled)"/>
+      <text class="s" x="28" y="170" text-anchor="start"><tspan x="28" dy="0">Input</tspan></text>
+      <text class="s" x="671" y="170" text-anchor="end"><tspan x="671" dy="0">Output</tspan></text>
+      <path class="ln" d="M202 122H499" marker-end="url(#slide51-transformation-filled)"/>
+      <text class="t" x="125" y="111" text-anchor="middle"><tspan x="125" dy="0">Knowledge</tspan><tspan x="125" dy="16">Agreements</tspan><tspan x="125" dy="16">Commitments</tspan></text>
+      <text class="t" x="575" y="111" text-anchor="middle"><tspan x="575" dy="0">Knowledge</tspan><tspan x="575" dy="16">Agreements</tspan><tspan x="575" dy="16">Commitments</tspan></text>
+      <path class="ln" d="M202 184H499" marker-end="url(#slide51-transformation-filled)"/>
+      <text class="t" x="125" y="189" text-anchor="middle"><tspan x="125" dy="0">(Model)</tspan></text>
+      <text class="t" x="575" y="189" text-anchor="middle"><tspan x="575" dy="0">Model</tspan></text>
+      <path class="ln" d="M202 246H499" marker-end="url(#slide51-transformation-filled)"/>
+      <text class="t" x="125" y="251" text-anchor="middle"><tspan x="125" dy="0">Way of Modelling</tspan></text>
+      <text class="t" x="575" y="251" text-anchor="middle"><tspan x="575" dy="0">Way of Modelling</tspan></text>
+      <ellipse class="hi" cx="350" cy="184" rx="79" ry="96"/>
+      <text class="t" x="350" y="180" text-anchor="middle"><tspan x="350" dy="0">Modelling</tspan><tspan x="350" dy="16">Process</tspan></text>
+    </svg>
+  </div>
+  <figcaption><b>Modeling as a transformation process.</b> Original redraw of Part 5.1, slide 9. The lecture credits Lankhorst, <i>Enterprise Architecture at Work</i>, 4th ed. (2017).</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Modeling as transformation — slide 9.</b> Knowledge goals and guidelines guide the modeling process. Each row below passes through that process.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="A model and the transformation it supports — table 2; scroll horizontally"><table><thead><tr><th>Input</th><th>Transformation</th><th>Output</th></tr></thead><tbody><tr><td>Knowledge, agreements, commitments</td><td rowspan="3">Modeling process, guided by knowledge goals and guidelines</td><td>Knowledge, agreements, commitments after the session</td></tr><tr><td><b>(Model)</b> — optional existing model</td><td><b>Model</b></td></tr><tr><td>Way of modeling</td><td>Way of modeling after the session</td></tr></tbody></table></div><p>Class-note clarification: the input has parentheses because a model <b>may not exist yet</b>. A session may introduce one. Iteration changes the model, participants’ understanding and commitments, and potentially how they model.</p></figure>
 <h3>Six basic modeling activities</h3>
 <p>These describe the work involved across a model's life. They are not the same list as the editing actions in the next section. Modeling is iterative, so revisiting an activity is normal.</p>
 <div class="tbl" role="region" tabindex="0" aria-label="Six basic modeling activities — table 3; scroll horizontally"><table><thead><tr><th>Activity — slide 10</th><th>In plain language</th></tr></thead><tbody><tr><th>Establish scope, purpose, and focus</th><td>Set the boundaries, intended use, and matters that deserve attention.</td></tr><tr><th>Select one or more viewpoints</th><td>Choose lenses/tools suited to the stakeholders and their questions.</td></tr><tr><th>Create and structure the model</th><td>Identify relevant concepts and relationships, then organize them coherently.</td></tr><tr><th>Visualize the model</th><td>Present selected content in a form the audience can understand.</td></tr><tr><th>Use the model</th><td>Communicate, analyze, compare, and support decisions.</td></tr><tr><th>Maintain the model</th><td>Keep it useful and consistent as the enterprise and knowledge change.</td></tr></tbody></table></div>
@@ -35,8 +84,104 @@
 <div class="tbl" role="region" tabindex="0" aria-label="Abstraction and six structural dimensions — table 6; scroll horizontally"><table><thead><tr><th>Dimension — slide 17</th><th>Structures named in the lesson</th><th>Memory question</th></tr></thead><tbody><tr><th>Functionality</th><td>Functional decomposition</td><td>What functions are broken into subfunctions?</td></tr><tr><th>Time</th><td>Temporal structure, data flow, control flow</td><td>In what sequence does work/information move?</td></tr><tr><th>Usage</th><td>Dependencies, call graphs</td><td>What uses or depends on what?</td></tr><tr><th>Location</th><td>Physical distribution</td><td>Where are things situated?</td></tr><tr><th>Data structure</th><td>Type/class hierarchies</td><td>How are data/types organized?</td></tr><tr><th>Work</th><td>Units of implementation, module structure</td><td>How is implementation work divided?</td></tr></tbody></table></div>
 <h3>Structuring principles, with the claims examples</h3>
 <p>Slide 18's eight principles: make the model self-explanatory; separate internal/external behavior; use layers; group by phase; group by product/service; group by information used; group by physical distribution; group by independent parts.</p>
-<figure id="m5-claims-layers" class="dg"><figcaption><b>Use layers — slide 18, original readable edge map.</b> Business processes, application services, and implementing application components remain distinct. Read each arrow as labeled, not as a generic process sequence.</figcaption><p><b>Business process:</b> Handle claim contains Register → Accept → Adjudicate → Pay.</p><div class="tbl" role="region" tabindex="0" aria-label="Structuring principles, with the claims examples — table 7; scroll horizontally"><table><thead><tr><th>Application component</th><th>Realizes → application service</th><th>Service supports → business process</th></tr></thead><tbody><tr><td>Document management system</td><td>Document storage service</td><td>Register</td></tr><tr><td>CRM system</td><td>Customer administration service</td><td>Register</td></tr><tr><td>Home &amp; Away policy administration</td><td>Claim administration service</td><td>Accept</td></tr><tr><td>Document management system</td><td>Printing service</td><td>Adjudicate; Pay</td></tr><tr><td>Home &amp; Away financial application</td><td>Payment service</td><td>Pay</td></tr></tbody></table></div></figure>
-<figure id="m5-claims-phases" class="dg"><figcaption><b>Group by phase — slide 18.</b> Same claims context, organized by phase rather than by application layer.</figcaption><p><b>Damage occurred</b> → Register → Accept → Adjudicate → Pay.</p><div class="check"><div><b>Managing Customer Relations</b><span>Register</span></div><div><b>Claims Processing</b><span>Accept and Adjudicate</span></div><div><b>Financial Handling</b><span>Pay</span></div></div></figure>
+<figure id="m5-claims-layers" class="dg m4-visual" data-slide="5.1/18">
+  <div class="m4-visual-scroll" role="region" aria-label="Handle claim organized by layers" tabindex="0">
+    <svg viewBox="0 0 800 393" role="img" aria-labelledby="slide51-layers-title slide51-layers-description">
+      <title id="slide51-layers-title">Handle claim organized by layers</title>
+      <desc id="slide51-layers-description">Register triggers Accept, then Adjudicate, then Pay. Document storage and Customer administration serve Register; Claim administration serves Accept; Printing serves Adjudicate and Pay; Payment serves Pay. Document management realizes Document storage and Printing; CRM realizes Customer administration; Home &amp; Away policy administration realizes Claim administration; Home &amp; Away financial application realizes Payment.</desc>
+      <defs>
+        <marker id="slide51-layers-filled" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--muted)"/></marker>
+        <marker id="slide51-layers-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" stroke="var(--muted)" fill="none"/></marker>
+        <marker id="slide51-layers-hollow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L9 5L1 9Z" stroke="var(--muted)" fill="var(--surface)"/></marker>
+      </defs>
+      <rect class="frame" x="8" y="24" width="784" height="121" rx="8"/>
+      <rect class="frame" x="8" y="160" width="784" height="100" rx="8"/>
+      <rect class="frame" x="8" y="275" width="784" height="104" rx="8"/>
+      <text class="s" x="22" y="46" text-anchor="start"><tspan x="22" dy="0">Business processes</tspan></text>
+      <text class="s" x="22" y="181" text-anchor="start"><tspan x="22" dy="0">Application services</tspan></text>
+      <text class="s claims-band-label" x="22" y="296" text-anchor="start"><tspan x="22" dy="0">Application components</tspan></text>
+      <rect class="frame" x="88" y="52" width="624" height="78" rx="8"/>
+      <text class="s" x="400" y="70" text-anchor="middle"><tspan x="400" dy="0">Handle claim</tspan></text>
+      <path class="ln" d="M190 98H246" marker-end="url(#slide51-layers-filled)"/>
+      <path class="ln" d="M346 98H402" marker-end="url(#slide51-layers-filled)"/>
+      <path class="ln" d="M502 98H558" marker-end="url(#slide51-layers-filled)"/>
+      <path class="ln" d="M145 203V154H105V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="ln" d="M239 199V152H176V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="ln" d="M395 199V149H331V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="ln" d="M551 199V154H480V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="ln" d="M565 199V151H567V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="ln" d="M707 199V154H643V120" marker-end="url(#slide51-layers-open)"/>
+      <path class="dl" d="M83 315V244" marker-end="url(#slide51-layers-hollow)"/>
+      <path class="dl" d="M112 315V300H551V244" marker-end="url(#slide51-layers-hollow)"/>
+      <path class="dl" d="M239 315V244" marker-end="url(#slide51-layers-hollow)"/>
+      <path class="dl" d="M395 315V244" marker-end="url(#slide51-layers-hollow)"/>
+      <path class="dl" d="M707 315V244" marker-end="url(#slide51-layers-hollow)"/>
+      <rect class="bx" x="90" y="78" width="100" height="42" rx="8"/>
+      <text class="t" x="140.0" y="104.0" text-anchor="middle"><tspan x="140.0" dy="0">Register</tspan></text>
+      <rect class="bx" x="246" y="78" width="100" height="42" rx="8"/>
+      <text class="t" x="296.0" y="104.0" text-anchor="middle"><tspan x="296.0" dy="0">Accept</tspan></text>
+      <rect class="bx" x="402" y="78" width="100" height="42" rx="8"/>
+      <text class="t" x="452.0" y="104.0" text-anchor="middle"><tspan x="452.0" dy="0">Adjudicate</tspan></text>
+      <rect class="bx" x="558" y="78" width="100" height="42" rx="8"/>
+      <text class="t" x="608.0" y="104.0" text-anchor="middle"><tspan x="608.0" dy="0">Pay</tspan></text>
+      <rect class="hi" x="14" y="199" width="138" height="45" rx="20"/>
+      <text class="t" x="83.0" y="218.5" text-anchor="middle"><tspan x="83.0" dy="0">Document storage</tspan><tspan x="83.0" dy="16">service</tspan></text>
+      <rect class="hi" x="170" y="199" width="138" height="45" rx="20"/>
+      <text class="t" x="239.0" y="218.5" text-anchor="middle"><tspan x="239.0" dy="0">Customer</tspan><tspan x="239.0" dy="16">administration service</tspan></text>
+      <rect class="hi" x="326" y="199" width="138" height="45" rx="20"/>
+      <text class="t" x="395.0" y="218.5" text-anchor="middle"><tspan x="395.0" dy="0">Claim administration</tspan><tspan x="395.0" dy="16">service</tspan></text>
+      <rect class="hi" x="482" y="199" width="138" height="45" rx="20"/>
+      <text class="t" x="551.0" y="226.5" text-anchor="middle"><tspan x="551.0" dy="0">Printing service</tspan></text>
+      <rect class="hi" x="638" y="199" width="138" height="45" rx="20"/>
+      <text class="t" x="707.0" y="226.5" text-anchor="middle"><tspan x="707.0" dy="0">Payment service</tspan></text>
+      <rect class="bx" x="14" y="315" width="138" height="50" rx="0"/>
+      <text class="t" x="83.0" y="337.0" text-anchor="middle"><tspan x="83.0" dy="0">Document</tspan><tspan x="83.0" dy="16">management system</tspan></text>
+      <rect class="bx" x="170" y="315" width="138" height="50" rx="0"/>
+      <text class="t" x="239.0" y="345.0" text-anchor="middle"><tspan x="239.0" dy="0">CRM system</tspan></text>
+      <rect class="bx" x="326" y="315" width="138" height="50" rx="0"/>
+      <text class="t" x="395.0" y="337.0" text-anchor="middle"><tspan x="395.0" dy="0">Home &amp; Away</tspan><tspan x="395.0" dy="16">policy administration</tspan></text>
+      <rect class="bx" x="638" y="315" width="138" height="50" rx="0"/>
+      <text class="t" x="707.0" y="337.0" text-anchor="middle"><tspan x="707.0" dy="0">Home &amp; Away</tspan><tspan x="707.0" dy="16">financial application</tspan></text>
+    </svg>
+  </div>
+<p><b>Use layers — slide 18, original readable edge map.</b> Business processes, application services, and implementing application components remain distinct. Read each arrow as labeled, not as a generic process sequence.</p><p><b>Business process:</b> Handle claim contains Register → Accept → Adjudicate → Pay.</p><div class="tbl" role="region" tabindex="0" aria-label="Structuring principles, with the claims examples — table 7; scroll horizontally"><table><thead><tr><th>Application component</th><th>Realizes → application service</th><th>Service supports → business process</th></tr></thead><tbody><tr><td>Document management system</td><td>Document storage service</td><td>Register</td></tr><tr><td>CRM system</td><td>Customer administration service</td><td>Register</td></tr><tr><td>Home &amp; Away policy administration</td><td>Claim administration service</td><td>Accept</td></tr><tr><td>Document management system</td><td>Printing service</td><td>Adjudicate; Pay</td></tr><tr><td>Home &amp; Away financial application</td><td>Payment service</td><td>Pay</td></tr></tbody></table></div>
+  <figcaption><b>Handle claim organized by layers.</b> Original redraw of Part 5.1, slide 18. The lecture credits Lankhorst, <i>Enterprise Architecture at Work</i>, 4th ed. (2017).</figcaption>
+</figure>
+<figure id="m5-claims-phases" class="dg m4-visual" data-slide="5.1/18">
+  <div class="m4-visual-scroll" role="region" aria-label="Handle claim organized by phase" tabindex="0">
+    <svg viewBox="0 0 760 164" role="img" aria-labelledby="slide51-phases-title slide51-phases-description">
+      <title id="slide51-phases-title">Handle claim organized by phase</title>
+      <desc id="slide51-phases-description">Damage occurred triggers Register in Managing Customer Relations, then Accept and Adjudicate in Claims Processing, then Pay in Financial Handling.</desc>
+      <defs>
+        <marker id="slide51-phases-filled" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--muted)"/></marker>
+        <marker id="slide51-phases-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9" stroke="var(--muted)" fill="none"/></marker>
+        <marker id="slide51-phases-hollow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1L9 5L1 9Z" stroke="var(--muted)" fill="var(--surface)"/></marker>
+      </defs>
+      <rect class="frame" x="152" y="32" width="142" height="114" rx="8"/>
+      <rect class="frame" x="305" y="32" width="288" height="114" rx="8"/>
+      <rect class="frame" x="604" y="32" width="139" height="114" rx="8"/>
+      <text class="s" x="223" y="55" text-anchor="middle"><tspan x="223" dy="0">Managing Customer</tspan><tspan x="223" dy="16">Relations</tspan></text>
+      <text class="s" x="449" y="55" text-anchor="middle"><tspan x="449" dy="0">Claims Processing</tspan></text>
+      <text class="s" x="674" y="55" text-anchor="middle"><tspan x="674" dy="0">Financial Handling</tspan></text>
+      <rect class="bx" x="18" y="86" width="108" height="45" rx="8"/>
+      <text class="t" x="72.0" y="105.5" text-anchor="middle"><tspan x="72.0" dy="0">Damage</tspan><tspan x="72.0" dy="16">occurred</tspan></text>
+      <rect class="bx" x="166" y="86" width="113" height="45" rx="8"/>
+      <text class="t" x="222.5" y="113.5" text-anchor="middle"><tspan x="222.5" dy="0">Register</tspan></text>
+      <rect class="bx" x="318" y="86" width="114" height="45" rx="8"/>
+      <text class="t" x="375.0" y="113.5" text-anchor="middle"><tspan x="375.0" dy="0">Accept</tspan></text>
+      <rect class="bx" x="467" y="86" width="113" height="45" rx="8"/>
+      <text class="t" x="523.5" y="113.5" text-anchor="middle"><tspan x="523.5" dy="0">Adjudicate</tspan></text>
+      <rect class="bx" x="617" y="86" width="113" height="45" rx="8"/>
+      <text class="t" x="673.5" y="113.5" text-anchor="middle"><tspan x="673.5" dy="0">Pay</tspan></text>
+      <path class="ln" d="M126 109H166" marker-end="url(#slide51-phases-filled)"/>
+      <path class="ln" d="M279 109H318" marker-end="url(#slide51-phases-filled)"/>
+      <path class="ln" d="M432 109H467" marker-end="url(#slide51-phases-filled)"/>
+      <path class="ln" d="M580 109H617" marker-end="url(#slide51-phases-filled)"/>
+    </svg>
+  </div>
+  <figcaption><b>Handle claim organized by phase.</b> Original redraw of Part 5.1, slide 18. The lecture credits Lankhorst, <i>Enterprise Architecture at Work</i>, 4th ed. (2017).</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Group by phase — slide 18.</b> The phase groups follow the insurance example above.</figcaption><p><b>Damage occurred</b> → Register → Accept → Adjudicate → Pay.</p><div class="check"><div><b>Managing Customer Relations</b><span>Register</span></div><div><b>Claims Processing</b><span>Accept and Adjudicate</span></div><div><b>Financial Handling</b><span>Pay</span></div></div></figure>
 <h3>Modeling breakdowns: readability versus effect</h3>
 <p>A modeling breakdown is a useful signal to investigate, not simply a reason to draw more boxes. Ask two different questions: <b>“Was the message understood?”</b> and <b>“Did it have the intended effect?”</b> (slides 19–21).</p>
 <div class="compare"><div><b>Readability — five problems</b><ul><li>Not understood.</li><li>Understood in the wrong way.</li><li>No intuitive structure.</li><li>Unclear structure or notation.</li><li>Visualization distracts from the original message.</li></ul></div><div><b>Effect — eight problems</b><ul><li>Lacks status.</li><li>True but unwanted message.</li><li>Irrelevant.</li><li>Superfluous statements.</li><li>Too complex.</li><li>Too vague.</li><li>Insufficiently complete.</li><li>Not true.</li></ul></div></div>
@@ -51,7 +196,53 @@
 <p class="muted">Coverage: supplied 5.2 slides 4–14 and Module 5 class notes, pages 54–58. Both image-only classification tables are retained. Examples in the tables are typical, not exclusive rules.</p>
 <h3>Model, view, viewpoint, and visualization</h3>
 <div class="check"><div><b>Model</b><span>The underlying architectural concepts and relationships being represented.</span></div><div><b>View</b><span>What a stakeholder sees: selected or derived architectural content addressing their concerns.</span></div><div><b>Viewpoint</b><span>Where the stakeholder looks from: concepts, models, analysis techniques, and visualizations that provide a specialized lens/toolbox.</span></div><div><b>Visualization</b><span>The presentation of a view—how the selected information is made visible.</span></div></div>
-<figure id="m5-views" class="dg"><figcaption><b>Separation of concerns — slide 6, original relationship map.</b> A viewpoint guides both selection/derivation and presentation. Architect and stakeholder both contribute.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Model, view, viewpoint, and visualization — table 8; scroll horizontally"><table><thead><tr><th>From</th><th>Action →</th><th>To</th></tr></thead><tbody><tr><td>Model</td><td>Select / derive</td><td>View</td></tr><tr><td>View</td><td>Update</td><td>Model</td></tr><tr><td>View</td><td>Visualize</td><td>Visualization</td></tr><tr><td>Visualization</td><td>Update</td><td>View</td></tr></tbody></table></div><p><b>Architect → Viewpoint ← Stakeholder.</b> The source also draws unlabeled guidance arrows from the viewpoint toward both transformations. It does not specify exact one-to-one or one-to-many cardinalities.</p></figure>
+<figure id="m5-views" class="dg m4-visual" data-slide="5.2/6">
+<div class="m4-visual-scroll" role="region" aria-label="Separation of concerns diagram. Scroll horizontally if needed." tabindex="0">
+<svg viewBox="0 0 720 262" role="img" aria-labelledby="m5-52-s6-title m5-52-s6-desc">
+<title id="m5-52-s6-title">Separation of concerns</title>
+<desc id="m5-52-s6-desc">Select or derive a view from the model. The view can update the model. Visualise the view to create a visualisation. The visualisation can update the view. Architect and stakeholder both point to the viewpoint, which guides both sets of transformations.</desc>
+<defs>
+  <marker id="m5-52-s6-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto">
+    <path d="M0 0 10 5 0 10Z" class="mk"/>
+  </marker>
+  <marker id="m5-52-s6-guidance" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+    <path d="M0 0 10 5 0 10Z" class="mka"/>
+  </marker>
+</defs>
+<g text-anchor="middle">
+  <rect x="24" y="22" width="154" height="119" rx="12" class="bx"/>
+  <text x="101" y="87" class="t">Model</text>
+  <rect x="283" y="22" width="154" height="119" rx="12" class="bx"/>
+  <text x="360" y="87" class="t">View</text>
+  <rect x="542" y="22" width="154" height="119" rx="12" class="bx"/>
+  <text x="619" y="87" class="t">Visualisation</text>
+
+  <path data-from="View" data-to="Model" d="M277 51H184" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+  <text x="230.5" y="72" class="s">update</text>
+  <path data-from="Model" data-to="View" d="M184 93H277" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+  <text x="230.5" y="114" class="s">select / derive</text>
+  <path data-from="Visualisation" data-to="View" d="M536 51H443" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+  <text x="489.5" y="72" class="s">update</text>
+  <path data-from="View" data-to="Visualisation" d="M443 93H536" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+  <text x="489.5" y="114" class="s">visualise</text>
+
+  <path data-from="Viewpoint" data-to="Model–View transformation" d="M230.5 196V136" class="la" marker-end="url(#m5-52-s6-guidance)"/>
+  <path data-from="Viewpoint" data-to="View–Visualisation transformation" d="M489.5 196V136" class="la" marker-end="url(#m5-52-s6-guidance)"/>
+  <rect x="174" y="201" width="372" height="42" rx="9" class="hi"/>
+  <text x="360" y="227" class="t">Viewpoint</text>
+
+  <rect x="24" y="201" width="113" height="42" rx="9" class="bx"/>
+  <text x="80.5" y="227" class="t">Architect</text>
+  <path data-from="Architect" data-to="Viewpoint" d="M142 222H169" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+  <rect x="583" y="201" width="113" height="42" rx="9" class="bx"/>
+  <text x="639.5" y="227" class="t">Stakeholder</text>
+  <path data-from="Stakeholder" data-to="Viewpoint" d="M578 222H551" class="ln" marker-end="url(#m5-52-s6-arrow)"/>
+</g>
+</svg>
+</div>
+<figcaption><b>Part 5.2 slide 6 · Separation of concerns.</b> A viewpoint guides both selection of the view and its presentation. Architect and stakeholder both contribute to the viewpoint. Original redraw after the lecture’s Lankhorst (2017) illustration.</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Separation of concerns — slide 6, original relationship map.</b> A viewpoint guides both selection/derivation and presentation. Architect and stakeholder both contribute.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Model, view, viewpoint, and visualization — table 8; scroll horizontally"><table><thead><tr><th>From</th><th>Action →</th><th>To</th></tr></thead><tbody><tr><td>Model</td><td>Select / derive</td><td>View</td></tr><tr><td>View</td><td>Update</td><td>Model</td></tr><tr><td>View</td><td>Visualize</td><td>Visualization</td></tr><tr><td>Visualization</td><td>Update</td><td>View</td></tr></tbody></table></div><p><b>Architect → Viewpoint ← Stakeholder.</b> The source also draws unlabeled guidance arrows from the viewpoint toward both transformations. It does not specify exact one-to-one or one-to-many cardinalities.</p></figure>
 <p class="ex"><b>Original example:</b> the model contains systems and dependencies. A manager's view selects the dependencies relevant to a proposed change. A table and a diagram can present that view differently. Changing the presentation is not automatically changing the architectural meaning.</p>
 <h3>Start with stakeholder concerns</h3>
 <p>Slide 5 lists eight stakeholder groups whose concerns can shape viewpoints: <b>upper-level management; middle-level management; end-user; architect; operational manager; project manager; system developer; system administrators</b>.</p>
@@ -60,7 +251,50 @@
 <p class="muted">Source reconciliation: the class notes say “system manager” and “system administration”; the exact slide labels are “System developer” and “System administrators.” Roles are the basis for choosing viewpoints, not themselves a complete viewpoint specification.</p>
 <h3>Choose purpose and content independently</h3>
 <p><b>Purpose</b> asks what the view is for: designing, deciding, or informing. <b>Content/abstraction</b> asks what breadth it covers: details, coherence, or overview. Slide 10 combines purpose sectors with nested content bands. There is no compulsory Designing=Details, Deciding=Coherence, Informing=Overview pairing.</p>
-<figure id="m5-purpose" class="dg"><figcaption><b>Purpose — slides 8, 10–11.</b> Full purpose-table content in readable form. Slide 10 specifically names product manager among the deciding audience; slide 11 uses the broader “Manager.”</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Choose purpose and content independently — table 9; scroll horizontally"><table><thead><tr><th>Purpose category</th><th>Typical stakeholders</th><th>Tasks</th><th>Examples</th></tr></thead><tbody><tr><th>Designing</th><td>Architect, software developer, business process designer</td><td>Navigate, design, support design decisions, compare alternatives; from initial sketch to detailed design</td><td>UML diagram, BPMN diagram, flowchart, ER diagram</td></tr><tr><th>Deciding</th><td>Manager, CIO, CEO</td><td>Decision-making</td><td>Cross-reference table, landscape map, list, report</td></tr><tr><th>Informing</th><td>Employee, customer, others</td><td>Explain, convince, obtain commitment; support understanding and convince adversaries</td><td>Animation, cartoon, process illustration, chart</td></tr></tbody></table></div></figure>
+<figure id="m5-purpose" class="dg m4-visual" data-slide="5.2/10">
+<div class="m4-visual-scroll" role="region" aria-label="Classification of EA viewpoints diagram. Scroll horizontally if needed." tabindex="0">
+<svg viewBox="0 0 720 382" role="img" aria-labelledby="m5-52-s10-title m5-52-s10-desc">
+<title id="m5-52-s10-title">Classification of EA viewpoints</title>
+<desc id="m5-52-s10-desc">Three purpose sectors span three nested content bands. Designing stakeholders include architects, software developers, and business process designers. Deciding stakeholders include product managers, CIOs, and CEOs. Informing stakeholders include customers, employees, and others. From the centre out, the content bands are Details, Coherence, and Overview. Each purpose can use any of the three content bands.</desc>
+<g data-purpose="Designing" style="--sector:#bf6355">
+  <path data-content="Overview" d="M108 208 234 43 360 208Z" style="fill:color-mix(in srgb,var(--sector) 19%,var(--surface))"/>
+  <path data-content="Coherence" d="M174 208 267 86 360 208Z" style="fill:color-mix(in srgb,var(--sector) 30%,var(--surface))"/>
+  <path data-content="Details" d="M234 208 297 126 360 208Z" style="fill:color-mix(in srgb,var(--sector) 42%,var(--surface))"/>
+</g>
+<g data-purpose="Deciding" style="--sector:#4f9a69">
+  <path data-content="Overview" d="M234 43H486L360 208Z" style="fill:color-mix(in srgb,var(--sector) 19%,var(--surface))"/>
+  <path data-content="Coherence" d="M267 86H453L360 208Z" style="fill:color-mix(in srgb,var(--sector) 30%,var(--surface))"/>
+  <path data-content="Details" d="M297 126H423L360 208Z" style="fill:color-mix(in srgb,var(--sector) 42%,var(--surface))"/>
+</g>
+<g data-purpose="Informing" style="--sector:#6e7fc5">
+  <path data-content="Overview" d="M486 43 612 208H360Z" style="fill:color-mix(in srgb,var(--sector) 19%,var(--surface))"/>
+  <path data-content="Coherence" d="M453 86 546 208H360Z" style="fill:color-mix(in srgb,var(--sector) 30%,var(--surface))"/>
+  <path data-content="Details" d="M423 126 486 208H360Z" style="fill:color-mix(in srgb,var(--sector) 42%,var(--surface))"/>
+</g>
+<g style="--sector:#b69242">
+  <path d="M108 208H612L486 373H234Z" style="fill:color-mix(in srgb,var(--sector) 19%,var(--surface))"/>
+  <path d="M174 208H546L453 330H267Z" style="fill:color-mix(in srgb,var(--sector) 30%,var(--surface))"/>
+  <path d="M234 208H486L423 290H297Z" style="fill:color-mix(in srgb,var(--sector) 42%,var(--surface))"/>
+</g>
+<path d="M108 208 234 43H486L612 208 486 373H234ZM174 208 267 86H453L546 208 453 330H267ZM234 208 297 126H423L486 208 423 290H297ZM234 43 360 208 486 43M108 208H612" class="frame"/>
+<circle cx="360" cy="208" r="27" class="bx"/>
+<g text-anchor="middle">
+  <text x="233" y="165" class="t">Designing</text>
+  <text x="360" y="112" class="t">Deciding</text>
+  <text x="487" y="165" class="t">Informing</text>
+  <text x="360" y="267" class="t">Details</text>
+  <text x="360" y="314" class="t">Coherence</text>
+  <text x="360" y="356" class="t">Overview</text>
+
+  <text x="102" y="77" class="s"><tspan x="102">architect,</tspan><tspan x="102" dy="19">software</tspan> <tspan x="102" dy="19">developer,</tspan><tspan x="102" dy="19">business process</tspan> <tspan x="102" dy="19">designer</tspan></text>
+  <text x="360" y="17" class="s"><tspan x="360">product manager,</tspan><tspan x="360" dy="19">CIO, CEO</tspan></text>
+  <text x="626" y="102" class="s"><tspan x="626">customer,</tspan><tspan x="626" dy="19">employee,</tspan><tspan x="626" dy="19">others</tspan></text>
+</g>
+</svg>
+</div>
+<figcaption><b>Part 5.2 slide 10 · Classification of EA viewpoints.</b> Choose a purpose sector and a content band independently. Content broadens from Details through Coherence to Overview. Original redraw after the lecture’s Lankhorst (2017) illustration.</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Purpose — slides 8, 10–11.</b> Full purpose-table content in readable form. Slide 10 specifically names product manager among the deciding audience; slide 11 uses the broader “Manager.”</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Choose purpose and content independently — table 9; scroll horizontally"><table><thead><tr><th>Purpose category</th><th>Typical stakeholders</th><th>Tasks</th><th>Examples</th></tr></thead><tbody><tr><th>Designing</th><td>Architect, software developer, business process designer</td><td>Navigate, design, support design decisions, compare alternatives; from initial sketch to detailed design</td><td>UML diagram, BPMN diagram, flowchart, ER diagram</td></tr><tr><th>Deciding</th><td>Manager, CIO, CEO</td><td>Decision-making</td><td>Cross-reference table, landscape map, list, report</td></tr><tr><th>Informing</th><td>Employee, customer, others</td><td>Explain, convince, obtain commitment; support understanding and convince adversaries</td><td>Animation, cartoon, process illustration, chart</td></tr></tbody></table></div></figure>
 <figure id="m5-content" class="dg"><figcaption><b>Content / abstraction — slides 9–12.</b> Slide 10 orders Details → Coherence → Overview from inner to outer band, not as a ranking of quality.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Choose purpose and content independently — table 10; scroll horizontally"><table><thead><tr><th>Content</th><th>Coverage</th><th>Typical stakeholders</th><th>Purpose and examples from slide 12</th></tr></thead><tbody><tr><th>Details</th><td><b>One layer, one aspect</b></td><td>Software engineer, process owner</td><td>Design, manage. UML class diagram; Testbed process diagram.</td></tr><tr><th>Coherence</th><td><b>Multiple layers OR multiple aspects</b></td><td>Operational managers</td><td>Analyze dependencies and impact of change. Views expressing relations such as “use,” “realise,” “assign.”</td></tr><tr><th>Overview</th><td><b>Multiple layers AND multiple aspects</b></td><td>Enterprise architect, CIO, CEO</td><td>Change management. Landscape map.</td></tr></tbody></table></div><p>Slide 9 also gives business processes and groups of IT services as coherence examples. “Testbed” is preserved as a named source example; the supplied material does not define its internals. “Use/realise/assign” are the table's historical terms, not a claim about the latest version of a standard.</p></figure>
 <p class="ex"><b>Original application:</b> a landscape map used by a CEO to select a change can have <b>Deciding purpose</b> and <b>Overview content</b>. These answer different questions. A generic chart's appearance alone cannot prove its purpose.</p>
 <h3>Understand one cell, one strip, and a broader area</h3>
@@ -85,20 +319,193 @@
 <p>A <b>service</b> is a unit of functionality an entity makes available to its environment, with value for certain entities in that environment. Service orientation lets us distinguish different levels of granularity and organize EA models as a layered stack.</p>
 <div class="check"><div><b>Business layer</b><span>Offers products/services to customers. Business processes realize the business services.</span></div><div><b>Application layer</b><span>Supports business through application services. Software application components realize those services.</span></div><div><b>Technology layer</b><span>Provides infrastructural services needed by applications.</span></div></div>
 <h3>The layered stack: serving is not realizing</h3>
-<figure id="m5-service-stack" class="dg"><figcaption><b>Layered view — slide 7.</b> The source alternates service bands and implementation bands. Each row preserves one adjacent relationship; arrows point toward the consumer or realized service.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="The layered stack: serving is not realizing — table 13; scroll horizontally"><table><thead><tr><th>Provider / implementation</th><th>Relation →</th><th>Consumer / service</th></tr></thead><tbody><tr><td>Business services</td><td>Serve</td><td>Customers</td></tr><tr><td>Business processes</td><td>Realize</td><td>Business services</td></tr><tr><td>Application services</td><td>Serve</td><td>Business processes</td></tr><tr><td>Application components</td><td>Realize</td><td>Application services</td></tr><tr><td>Infrastructural services</td><td>Serve</td><td>Application components</td></tr><tr><td>Technical infrastructure</td><td>Realizes</td><td>Infrastructural services</td></tr></tbody></table></div><p><b>Top-to-bottom source bands:</b> Customers → Business services → Business processes → Application services → Application components → Infrastructural services → Technical infrastructure. This ordering is a stack, <b>not a process flow</b>.</p><p><b>Zoom inside Application components:</b> Supporting application components <b>realize</b> Internal application services, which <b>serve</b> Primary application components. The inset shows that services can operate <b>within a layer</b>, not only between architecture layers. Its diagonal zoom guides are not additional named modeling relations.</p></figure>
+<figure id="m5-service-stack" class="dg m4-visual" data-slide="5.3/7">
+<div class="m4-visual-scroll" role="region" aria-label="Layered view with an internal application-services inset; scroll horizontally if needed" tabindex="0">
+<svg viewBox="0 0 768 540" role="img" aria-labelledby="m5-slide-7-title m5-slide-7-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="m5-slide-7-title">Layered view with an internal application-services inset</title>
+<desc id="m5-slide-7-desc">Seven bands from Customers at the top to Technical infrastructure at the bottom. Green service bands alternate with implementation bands. Three schematic upward arrows link each neighboring pair. The inset zooms into Application components: Supporting application components realize Internal application services, which serve Primary application components.</desc>
+<defs><marker id="m5-slide-7-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 2 9 6 2 10" fill="none" stroke="var(--ink)" stroke-width="1.4"/></marker><marker id="m5-slide-7-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.25"/></marker></defs>
+<text class="s" x="48" y="33" text-anchor="start"><tspan x="48" dy="0">Service layers</tspan></text>
+<g data-element=""><rect x="153" y="15" width="34" height="23" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="170.0" y="31.5" text-anchor="middle"><tspan x="170.0" dy="0"></tspan></text></g>
+<text class="s" x="222" y="33" text-anchor="start"><tspan x="222" dy="0">Implementation layers</tspan></text>
+<g data-element=""><rect x="381" y="15" width="34" height="23" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="398.0" y="31.5" text-anchor="middle"><tspan x="398.0" dy="0"></tspan></text></g>
+<rect class="bx" x="482" y="169" width="266" height="253" rx="10"/><text class="s" x="496" y="190" text-anchor="start"><tspan x="496" dy="0">Inside application components</tspan></text>
+<path class="ghost" d="M399 309L482 169"></path>
+<path class="ghost" d="M399 344L482 422"></path>
+<path class="ln" d="M121 126V100" marker-end="url(#m5-slide-7-open)"><title>Business services serves Customers</title></path>
+<path class="ln" d="M223 126V100" marker-end="url(#m5-slide-7-open)"><title>Business services serves Customers</title></path>
+<path class="ln" d="M325 126V100" marker-end="url(#m5-slide-7-open)"><title>Business services serves Customers</title></path>
+<path class="dl" d="M121 187V161" marker-end="url(#m5-slide-7-hollow)"><title>Business processes realizes Business services</title></path>
+<path class="dl" d="M223 187V161" marker-end="url(#m5-slide-7-hollow)"><title>Business processes realizes Business services</title></path>
+<path class="dl" d="M325 187V161" marker-end="url(#m5-slide-7-hollow)"><title>Business processes realizes Business services</title></path>
+<path class="ln" d="M121 248V222" marker-end="url(#m5-slide-7-open)"><title>Application services serves Business processes</title></path>
+<path class="ln" d="M223 248V222" marker-end="url(#m5-slide-7-open)"><title>Application services serves Business processes</title></path>
+<path class="ln" d="M325 248V222" marker-end="url(#m5-slide-7-open)"><title>Application services serves Business processes</title></path>
+<path class="dl" d="M121 309V283" marker-end="url(#m5-slide-7-hollow)"><title>Application components realizes Application services</title></path>
+<path class="dl" d="M223 309V283" marker-end="url(#m5-slide-7-hollow)"><title>Application components realizes Application services</title></path>
+<path class="dl" d="M325 309V283" marker-end="url(#m5-slide-7-hollow)"><title>Application components realizes Application services</title></path>
+<path class="ln" d="M121 370V344" marker-end="url(#m5-slide-7-open)"><title>Infrastructural services serves Application components</title></path>
+<path class="ln" d="M223 370V344" marker-end="url(#m5-slide-7-open)"><title>Infrastructural services serves Application components</title></path>
+<path class="ln" d="M325 370V344" marker-end="url(#m5-slide-7-open)"><title>Infrastructural services serves Application components</title></path>
+<path class="dl" d="M121 431V405" marker-end="url(#m5-slide-7-hollow)"><title>Technical infrastructure realizes Infrastructural services</title></path>
+<path class="dl" d="M223 431V405" marker-end="url(#m5-slide-7-hollow)"><title>Technical infrastructure realizes Infrastructural services</title></path>
+<path class="dl" d="M325 431V405" marker-end="url(#m5-slide-7-hollow)"><title>Technical infrastructure realizes Infrastructural services</title></path>
+<path class="ln" d="M542 275V246" marker-end="url(#m5-slide-7-open)"><title>Internal application services serves Primary application components</title></path>
+<path class="ln" d="M615 275V246" marker-end="url(#m5-slide-7-open)"><title>Internal application services serves Primary application components</title></path>
+<path class="ln" d="M688 275V246" marker-end="url(#m5-slide-7-open)"><title>Internal application services serves Primary application components</title></path>
+<path class="dl" d="M542 346V317" marker-end="url(#m5-slide-7-hollow)"><title>Supporting application components realizes Internal application services</title></path>
+<path class="dl" d="M615 346V317" marker-end="url(#m5-slide-7-hollow)"><title>Supporting application components realizes Internal application services</title></path>
+<path class="dl" d="M688 346V317" marker-end="url(#m5-slide-7-hollow)"><title>Supporting application components realizes Internal application services</title></path>
+<g data-element="Customers"><rect x="48" y="65" width="351" height="35" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(380 69)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="4" r="2.5"/><path d="M7 7v6m-5-4h10m-5 4-4 5m4-5 4 5"/></g><text class="t" x="223.5" y="87.5" text-anchor="middle"><tspan x="223.5" dy="0">Customers</tspan></text></g>
+<g data-element="Business services"><rect x="48" y="126" width="351" height="35" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="148.5" text-anchor="middle"><tspan x="223.5" dy="0">Business services</tspan></text></g>
+<g data-element="Business processes"><rect x="48" y="187" width="351" height="35" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="209.5" text-anchor="middle"><tspan x="223.5" dy="0">Business processes</tspan></text></g>
+<g data-element="Application services"><rect x="48" y="248" width="351" height="35" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="270.5" text-anchor="middle"><tspan x="223.5" dy="0">Application services</tspan></text></g>
+<g data-element="Application components"><rect x="48" y="309" width="351" height="35" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="331.5" text-anchor="middle"><tspan x="223.5" dy="0">Application components</tspan></text></g>
+<g data-element="Infrastructural services"><rect x="48" y="370" width="351" height="35" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="392.5" text-anchor="middle"><tspan x="223.5" dy="0">Infrastructural services</tspan></text></g>
+<g data-element="Technical infrastructure"><rect x="48" y="431" width="351" height="35" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="223.5" y="453.5" text-anchor="middle"><tspan x="223.5" dy="0">Technical infrastructure</tspan></text></g>
+<g data-element="Primary application components"><rect x="491" y="204" width="248" height="42" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="615.0" y="230" text-anchor="middle"><tspan x="615.0" dy="0">Primary application components</tspan></text></g>
+<g data-element="Internal application services"><rect x="491" y="275" width="248" height="42" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="615.0" y="301" text-anchor="middle"><tspan x="615.0" dy="0">Internal application services</tspan></text></g>
+<g data-element="Supporting application components"><rect x="491" y="346" width="248" height="42" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="615.0" y="363.5" text-anchor="middle"><tspan x="615.0" dy="0">Supporting application</tspan><tspan x="615.0" dy="17">components</tspan></text></g>
+<path class="ln" d="M48 514H116" marker-end="url(#m5-slide-7-open)"></path>
+<text class="s" x="126" y="519" text-anchor="start"><tspan x="126" dy="0">Serves</tspan></text>
+<path class="dl" d="M223 514H291" marker-end="url(#m5-slide-7-hollow)"></path>
+<text class="s" x="301" y="519" text-anchor="start"><tspan x="301" dy="0">Realizes</tspan></text>
+</svg>
+</div>
+<figcaption><b>Slide 7 · Layered view.</b> The three parallel arrows represent the same relation between neighboring bands. Dashed diagonal guides expand the Application components band. Source diagram: Lankhorst, <cite>Enterprise Architecture at Work: Modelling, Communication and Analysis</cite>, 4th ed. (2017), as credited on the slide.</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Layered view — slide 7.</b> The source alternates service bands and implementation bands. Each row preserves one adjacent relationship; arrows point toward the consumer or realized service.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="The layered stack: serving is not realizing — table 13; scroll horizontally"><table><thead><tr><th>Provider / implementation</th><th>Relation →</th><th>Consumer / service</th></tr></thead><tbody><tr><td>Business services</td><td>Serve</td><td>Customers</td></tr><tr><td>Business processes</td><td>Realize</td><td>Business services</td></tr><tr><td>Application services</td><td>Serve</td><td>Business processes</td></tr><tr><td>Application components</td><td>Realize</td><td>Application services</td></tr><tr><td>Infrastructural services</td><td>Serve</td><td>Application components</td></tr><tr><td>Technical infrastructure</td><td>Realizes</td><td>Infrastructural services</td></tr></tbody></table></div><p><b>Top-to-bottom source bands:</b> Customers → Business services → Business processes → Application services → Application components → Infrastructural services → Technical infrastructure. This ordering is a stack, <b>not a process flow</b>.</p><p><b>Zoom inside Application components:</b> Supporting application components <b>realize</b> Internal application services, which <b>serve</b> Primary application components. The inset shows that services can operate <b>within a layer</b>, not only between architecture layers. Its diagonal zoom guides are not additional named modeling relations.</p></figure>
 <p class="ex"><b>Memory cue:</b> <b>Realizes = implements the service.</b> <b>Serves = provides functionality to a consumer.</b> A service is more abstract than its implementation; choosing granularity is part of deciding what to model.</p>
 <h3>Core elements and six common relations</h3>
+<figure class="dg m4-visual" data-slide="5.3/8">
+<div class="m4-visual-scroll" role="region" aria-label="Common ArchiMate element and relationship symbols; scroll horizontally if needed" tabindex="0">
+<svg viewBox="0 0 740 365" role="img" aria-labelledby="m5-slide-8-title m5-slide-8-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="m5-slide-8-title">Common ArchiMate element and relationship symbols</title>
+<desc id="m5-slide-8-desc">Example nodes show a Business Process with an arrow glyph, an Application component with component tabs, and a Service with a capsule glyph. Six distinct relation line samples follow in slide order: Association, Realizes, Serves, Flow, Triggers, and Access.</desc>
+<defs><marker id="m5-slide-8-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 2 9 6 2 10" fill="none" stroke="var(--ink)" stroke-width="1.4"/></marker><marker id="m5-slide-8-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.25"/></marker><marker id="m5-slide-8-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--ink)"/></marker></defs>
+<text class="s" x="25" y="30" text-anchor="start"><tspan x="25" dy="0">Example elements</tspan></text>
+<g data-element="Business Process"><rect x="25" y="47" width="200" height="56" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(206 51)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h7V3l5 5-5 5v-3H1Z"/></g><text class="t" x="125.0" y="80" text-anchor="middle"><tspan x="125.0" dy="0">Business Process</tspan></text></g>
+<g data-element="Application component"><rect x="270" y="47" width="200" height="56" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path d="M265 58h13v7h-13zM265 71h13v7h-13z" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)"/><text class="t" x="370.0" y="80" text-anchor="middle"><tspan x="370.0" dy="0">Application component</tspan></text></g>
+<g data-element="Service"><rect x="515" y="47" width="200" height="56" rx="10" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(696 51)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="615.0" y="80" text-anchor="middle"><tspan x="615.0" dy="0">Service</tspan></text></g>
+<text class="s" x="25" y="142" text-anchor="start"><tspan x="25" dy="0">Common relations</tspan></text>
+<text class="t" x="25" y="180" text-anchor="start"><tspan x="25" dy="0">Association (generic)</tspan></text>
+<path class="ln" d="M340 175H475"><title>Association (generic)</title></path>
+<text class="t" x="25" y="213" text-anchor="start"><tspan x="25" dy="0">Realizes</tspan></text>
+<path class="dl" d="M340 208H475" marker-end="url(#m5-slide-8-hollow)"><title>Realizes</title></path>
+<text class="t" x="25" y="246" text-anchor="start"><tspan x="25" dy="0">Serves (provides functionality to)</tspan></text>
+<path class="ln" d="M340 241H475" marker-end="url(#m5-slide-8-open)"><title>Serves (provides functionality to)</title></path>
+<text class="t" x="25" y="279" text-anchor="start"><tspan x="25" dy="0">Flow</tspan></text>
+<path class="dl" d="M340 274H475" marker-end="url(#m5-slide-8-filled)"><title>Flow</title></path>
+<text class="t" x="25" y="312" text-anchor="start"><tspan x="25" dy="0">Triggers</tspan></text>
+<path class="ln" d="M340 307H475" marker-end="url(#m5-slide-8-filled)"><title>Triggers</title></path>
+<text class="t" x="25" y="345" text-anchor="start"><tspan x="25" dy="0">Access</tspan></text>
+<path class="dl" d="M340 340H475" marker-end="url(#m5-slide-8-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Access</title></path>
+</svg>
+</div>
+<figcaption><b>Slide 8 · Core concept elements.</b> The same line and arrowhead vocabulary is used in the examples that follow.</figcaption>
+</figure>
 <p>Slide 8 names examples such as <b>business process, business actor, application component, and equipment</b>, grouped under business, application, technology, physical, and other relevant concepts. A service is also a central element. The exact icon helps identify its meaning; do not identify every element by color alone.</p>
 <div class="tbl" role="region" tabindex="0" aria-label="Core elements and six common relations — table 14; scroll horizontally"><table><thead><tr><th>Relation — slide label</th><th>Notation in slide 8</th><th>Plain-language reading</th></tr></thead><tbody><tr><th>Association (generic)</th><td>Solid line, no arrowhead</td><td>A generic association.</td></tr><tr><th>Realizes</th><td>Dashed line, hollow triangular head</td><td>Implementation fulfills a service or more abstract element.</td></tr><tr><th>Serves</th><td>Solid line, open non-triangular arrowhead</td><td>Provides functionality to.</td></tr><tr><th>Flow</th><td>Dashed line, filled triangular head</td><td>A transfer between elements.</td></tr><tr><th>Triggers</th><td>Solid line, filled triangular head</td><td>Causal/temporal progression.</td></tr><tr><th>Access</th><td>Dashed/dotted line, open non-triangular arrowhead</td><td>Access to a passive structure element.</td></tr></tbody></table></div>
 <p class="muted">The slide supplies relation names, glyphs, and “provides functionality to” for Serves. The fuller readings are explanatory glosses, not detailed textbook definitions. Realizes/Serves and Flow/Triggers differ in line/head style; an arrow is not automatically process sequence.</p>
 <h3>Core pattern: internal/external and three aspects</h3>
-<figure id="m5-core" class="dg"><figcaption><b>Core concepts — slide 9.</b> General ArchiMate language pattern, not exclusively an application-layer model. The source shows two rows and three aspect columns.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Core pattern: internal/external and three aspects — table 15; scroll horizontally"><table><thead><tr><th>Abstraction</th><th>Passive structure</th><th>Behavior</th><th>Active structure</th></tr></thead><tbody><tr><th>External</th><td>No box shown in the source</td><td><b>Service</b></td><td><b>Interface</b></td></tr><tr><th>Internal</th><td><b>Passive structure element</b></td><td><b>Behavior element</b></td><td><b>Active structure element</b></td></tr></tbody></table></div><details><summary>Follow all ten source connectors</summary><ol><li>Behavior → Service: dashed hollow-triangle realization.</li><li>Service → Behavior: separate solid open-head serving arrow.</li><li>Service — Interface: solid connector with a black circle at each end.</li><li>Interface → Active structure: solid open-head arrow.</li><li>Interface — Active structure: a second solid connection, with a filled diamond at the Active structure end.</li><li>Behavior — Active structure: solid connector with black circles at both ends.</li><li>Passive structure ↔ Service: dotted access-style connector with open heads at both ends.</li><li>Passive structure ↔ Behavior: dotted access-style connector with open heads at both ends.</li><li>Behavior → Behavior: solid filled-head loop (Triggers).</li><li>Behavior → Behavior: separate dashed filled-head loop (Flow).</li></ol><p>Black-circle and diamond connectors are visible in the source but not named in its six-relation legend. Their formal names are not graded here. The source shows no direct Passive–Active link and no external passive box; neither is invented in this map.</p></details></figure>
+<figure id="m5-core" class="dg m4-visual" data-slide="5.3/9">
+<div class="m4-visual-scroll" role="region" aria-label="Core concepts of the ArchiMate language; scroll horizontally if needed" tabindex="0">
+<svg viewBox="0 0 730 360" role="img" aria-labelledby="m5-slide-9-title m5-slide-9-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="m5-slide-9-title">Core concepts of the ArchiMate language</title>
+<desc id="m5-slide-9-desc">External row: Service under Behaviour, Interface under Active structure, and no passive box. Internal row: Passive structure element, Behaviour element, and Active structure element. Ten connections include realization and serving, two endpoints with circles, a diamond at the active structure end, two bidirectional access connections, and triggering and flow loops on behaviour. The full connection list follows.</desc>
+<defs><marker id="m5-slide-9-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 2 9 6 2 10" fill="none" stroke="var(--ink)" stroke-width="1.4"/></marker><marker id="m5-slide-9-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.25"/></marker><marker id="m5-slide-9-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--ink)"/></marker><marker id="m5-slide-9-dot" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto-start-reverse"><circle cx="6" cy="6" r="2.8" fill="var(--ink)"/></marker><marker id="m5-slide-9-diamond" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M1 6 5 2 9 6 5 10Z" fill="var(--ink)"/></marker></defs>
+<text class="s" x="15" y="84" text-anchor="start"><tspan x="15" dy="0">External</tspan></text>
+<text class="s" x="15" y="215" text-anchor="start"><tspan x="15" dy="0">Internal</tspan></text>
+<text class="s" x="217" y="340" text-anchor="middle"><tspan x="217" dy="0">Passive structure</tspan></text>
+<text class="s" x="414" y="340" text-anchor="middle"><tspan x="414" dy="0">Behaviour</tspan></text>
+<text class="s" x="630" y="340" text-anchor="middle"><tspan x="630" dy="0">Active structure</tspan></text>
+<path class="dl" d="M402 183V115" marker-end="url(#m5-slide-9-hollow)"><title>Behaviour element realizes Service</title></path>
+<path class="ln" d="M434 115V183" marker-end="url(#m5-slide-9-open)"><title>Service serves Behaviour element</title></path>
+<path class="ln" d="M494 82H548" marker-start="url(#m5-slide-9-dot)" marker-end="url(#m5-slide-9-dot)"><title>Service and Interface, solid connector with circles</title></path>
+<path class="ln" d="M611 115V183" marker-end="url(#m5-slide-9-open)"><title>Interface serves Active structure element</title></path>
+<path class="ln" d="M654 115V183" marker-end="url(#m5-slide-9-diamond)"><title>Interface and Active structure element, diamond at active end</title></path>
+<path class="ln" d="M494 215H548" marker-start="url(#m5-slide-9-dot)" marker-end="url(#m5-slide-9-dot)"><title>Behaviour element and Active structure element, solid connector with circles</title></path>
+<path class="dl" d="M296 200H310V82H337" marker-start="url(#m5-slide-9-open)" marker-end="url(#m5-slide-9-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Bidirectional access-style connector between Passive structure element and Service</title></path>
+<path class="dl" d="M296 220H337" marker-start="url(#m5-slide-9-open)" marker-end="url(#m5-slide-9-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Bidirectional access-style connector between Passive structure element and Behaviour element</title></path>
+<path class="ln" d="M337 233H320V275H378V247" marker-end="url(#m5-slide-9-filled)"><title>Behaviour element triggers itself</title></path>
+<path class="dl" d="M337 242H309V288H388V247" marker-end="url(#m5-slide-9-filled)"><title>Behaviour element flow loop</title></path>
+<g data-element="Service"><rect x="337" y="49" width="153" height="66" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(471 53)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="413.5" y="87" text-anchor="middle"><tspan x="413.5" dy="0">Service</tspan></text></g>
+<g data-element="Interface"><rect x="552" y="49" width="156" height="66" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(689 53)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M0 8h7"/><circle cx="10" cy="8" r="3"/></g><text class="t" x="630.0" y="87" text-anchor="middle"><tspan x="630.0" dy="0">Interface</tspan></text></g>
+<g data-element="Passive structure element"><rect x="134" y="183" width="162" height="64" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path class="ln" d="M134 194h162"/><text class="t" x="215.0" y="214.5" text-anchor="middle"><tspan x="215.0" dy="0">Passive structure</tspan><tspan x="215.0" dy="17">element</tspan></text></g>
+<g data-element="Behaviour element"><rect x="337" y="183" width="153" height="64" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="413.5" y="211.5" text-anchor="middle"><tspan x="413.5" dy="0">Behaviour</tspan><tspan x="413.5" dy="17">element</tspan></text></g>
+<g data-element="Active structure element"><rect x="552" y="183" width="156" height="64" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="630.0" y="211.5" text-anchor="middle"><tspan x="630.0" dy="0">Active structure</tspan><tspan x="630.0" dy="17">element</tspan></text></g>
+</svg>
+</div>
+<figcaption><b>Slide 9 · Core concepts of the ArchiMate language.</b> External and internal elements occupy two rows, with three aspect columns. Source diagram: Lankhorst, <cite>Enterprise Architecture at Work: Modelling, Communication and Analysis</cite>, 4th ed. (2017), as credited on the slide.</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Core concepts — slide 9.</b> General ArchiMate language pattern, not exclusively an application-layer model. The source shows two rows and three aspect columns.</figcaption><div class="tbl" role="region" tabindex="0" aria-label="Core pattern: internal/external and three aspects — table 15; scroll horizontally"><table><thead><tr><th>Abstraction</th><th>Passive structure</th><th>Behavior</th><th>Active structure</th></tr></thead><tbody><tr><th>External</th><td>No box shown in the source</td><td><b>Service</b></td><td><b>Interface</b></td></tr><tr><th>Internal</th><td><b>Passive structure element</b></td><td><b>Behavior element</b></td><td><b>Active structure element</b></td></tr></tbody></table></div><details><summary>Follow all ten source connectors</summary><ol><li>Behavior → Service: dashed hollow-triangle realization.</li><li>Service → Behavior: separate solid open-head serving arrow.</li><li>Service — Interface: solid connector with a black circle at each end.</li><li>Interface → Active structure: solid open-head arrow.</li><li>Interface — Active structure: a second solid connection, with a filled diamond at the Active structure end.</li><li>Behavior — Active structure: solid connector with black circles at both ends.</li><li>Passive structure ↔ Service: dotted access-style connector with open heads at both ends.</li><li>Passive structure ↔ Behavior: dotted access-style connector with open heads at both ends.</li><li>Behavior → Behavior: solid filled-head loop (Triggers).</li><li>Behavior → Behavior: separate dashed filled-head loop (Flow).</li></ol><p>Black-circle and diamond connectors are visible in the source but not named in its six-relation legend. Their formal names are not graded here. The source shows no direct Passive–Active link and no external passive box; neither is invented in this map.</p></details></figure>
 <div class="check"><div><b>Active structure — who acts?</b><span>The actor, role, component, or other entity performing behavior.</span></div><div><b>Behavior — what happens?</b><span>The action, task, or process performed.</span></div><div><b>Passive structure — what is acted on?</b><span>The object or information that behavior accesses, such as a Student Record.</span></div></div>
 <p><b>Class-note clarification:</b> the helpful analogy is <b>subject–verb–object</b>, not the notes' “subject–verb–agreement.” Calling passive structure the “receiver” can mislead: a person receiving a service can still be active structure. Classify the modeled role, not just the everyday noun.</p>
 <div class="compare"><div><b>Service — what is provided?</b><p>Example from class: tuition payment functionality.</p></div><div><b>Interface — where/how it is exposed?</b><p>Class examples: cashier window or the user-facing interface of a payment portal. An entire portal system is not automatically just an Interface.</p></div></div>
 <p class="ex"><b>Original analogy:</b> cashier (active structure) processes a payment (behavior), accessing a payment record (passive structure). Tuition payment is the exposed service; the cashier window is an interface. This is a teaching analogy, not an extra element in the source academic diagram.</p>
 <h3>Academic lifecycle example: read one layer at a time</h3>
-<figure id="m5-academic" class="dg"><figcaption><b>Academic Lifecycle Management for an Academic Institution Using Archi — slide 10.</b> Readable decomposition of all 21 named elements and 27 connectors. The three source groups are preserved; this is not a new claim about how every university is organized.</figcaption>
+<figure id="m5-academic" class="dg m4-visual" data-slide="5.3/10">
+<div class="m4-visual-scroll" role="region" aria-label="Academic lifecycle management for an academic institution using Archi; scroll horizontally if needed" tabindex="0">
+<svg style="min-width:880px" viewBox="0 0 940 705" role="img" aria-labelledby="m5-slide-10-title m5-slide-10-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="m5-slide-10-title">Academic lifecycle management for an academic institution using Archi</title>
+<desc id="m5-slide-10-desc">Twenty-one elements and twenty-seven links across three groups: the four-step business lifecycle, application services and components, and technology and physical elements. The Identity and Access Service connection to ODMS is drawn with a solid filled arrowhead, as in the source. A full element and connection reference follows.</desc>
+<defs><marker id="m5-slide-10-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 2 9 6 2 10" fill="none" stroke="var(--ink)" stroke-width="1.4"/></marker><marker id="m5-slide-10-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.25"/></marker><marker id="m5-slide-10-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--ink)"/></marker><marker id="m5-slide-10-dot" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto-start-reverse"><circle cx="6" cy="6" r="2.8" fill="var(--ink)"/></marker></defs>
+<rect class="bx" x="12" y="12" width="916" height="222" rx="10"/><text class="s" x="26" y="33" text-anchor="start"><tspan x="26" dy="0">Business Process Lifecycle Layer</tspan></text>
+<rect class="bx" x="12" y="246" width="916" height="187" rx="10"/><text class="s" x="26" y="267" text-anchor="start"><tspan x="26" dy="0">Application Layer</tspan></text>
+<rect class="bx" x="12" y="445" width="916" height="248" rx="10"/><text class="s" x="26" y="466" text-anchor="start"><tspan x="26" dy="0">Technology &amp; Physical Layer</tspan></text>
+<path class="ln" d="M122 86V113" marker-start="url(#m5-slide-10-dot)" marker-end="url(#m5-slide-10-filled)"><title>Admissions Officer to Apply &amp; Register</title></path>
+<path class="ln" d="M579 86V113" marker-start="url(#m5-slide-10-dot)" marker-end="url(#m5-slide-10-filled)"><title>Academic Faculty to Deliver &amp; Assess</title></path>
+<path class="ln" d="M214 137H259" marker-end="url(#m5-slide-10-filled)"><title>Apply &amp; Register triggers Enroll &amp; Schedule</title></path>
+<path class="ln" d="M442 137H490" marker-end="url(#m5-slide-10-filled)"><title>Enroll &amp; Schedule triggers Deliver &amp; Assess</title></path>
+<path class="ln" d="M668 137H715" marker-end="url(#m5-slide-10-filled)"><title>Deliver &amp; Assess triggers Award Degree</title></path>
+<path class="dl" d="M442 120L742 84" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Enroll &amp; Schedule accesses Student Record</title></path>
+<path class="dl" d="M668 119L749 87" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Deliver &amp; Assess accesses Student Record</title></path>
+<path class="dl" d="M815 113V87" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Award Degree accesses Student Record</title></path>
+<path class="dl" d="M442 155L650 183" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Enroll &amp; Schedule accesses Course &amp; Grades</title></path>
+<path class="dl" d="M654 161V176" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Deliver &amp; Assess accesses Course &amp; Grades</title></path>
+<path class="dl" d="M744 161V176" marker-end="url(#m5-slide-10-open)" style="stroke-dasharray:1 3;stroke-linecap:round"><title>Award Degree accesses Course &amp; Grades</title></path>
+<path class="ln" d="M122 289V161" marker-end="url(#m5-slide-10-open)"><title>Student Registration Service serves Apply &amp; Register</title></path>
+<path class="ln" d="M227 289L277 161" marker-end="url(#m5-slide-10-open)"><title>Student Registration Service serves Enroll &amp; Schedule</title></path>
+<path class="ln" d="M245 294L504 161" marker-end="url(#m5-slide-10-open)"><title>Student Registration Service serves Deliver &amp; Assess</title></path>
+<path class="ln" d="M589 289V161" marker-end="url(#m5-slide-10-open)"><title>E-Learning Service serves Deliver &amp; Assess</title></path>
+<path class="dl" d="M139 374V337" marker-end="url(#m5-slide-10-hollow)"><title>Student Information System realizes Student Registration Service</title></path>
+<path class="dl" d="M474 367L561 337" marker-end="url(#m5-slide-10-hollow)"><title>ODMS realizes E-Learning Service</title></path>
+<path class="dl" d="M796 374L688 337" marker-end="url(#m5-slide-10-hollow)"><title>LMS realizes E-Learning Service</title></path>
+<path class="ln" d="M139 486V423" marker-end="url(#m5-slide-10-open)"><title>Database Storage Service serves SIS</title></path>
+<path class="ln" d="M474 486V423" marker-end="url(#m5-slide-10-filled)"><title>Identity &amp; Access Service to ODMS, solid filled head with uncertain intended relation type</title></path>
+<path class="ln" d="M796 486V423" marker-end="url(#m5-slide-10-open)"><title>Cloud-Based Services serves LMS</title></path>
+<path class="dl" d="M139 567V534" marker-end="url(#m5-slide-10-hollow)"><title>RDBMS Server Cluster realizes Database Storage Service</title></path>
+<path class="dl" d="M474 567V534" marker-end="url(#m5-slide-10-hollow)"><title>Account Identity Server realizes Identity &amp; Access Service</title></path>
+<path class="dl" d="M796 567V534" marker-end="url(#m5-slide-10-hollow)"><title>Cloud Management Portal realizes Cloud-Based Services</title></path>
+<path class="ln" d="M229 643V612" marker-end="url(#m5-slide-10-open)"><title>Main Data Center serves RDBMS Server Cluster</title></path>
+<path class="ln" d="M370 643V612" marker-end="url(#m5-slide-10-open)"><title>Main Data Center serves Account Identity Server</title></path>
+<path class="ln" d="M796 643V612" marker-end="url(#m5-slide-10-open)"><title>Amazon Web Services serves Cloud Management Portal</title></path>
+<g data-element="Admissions Officer"><rect x="30" y="48" width="184" height="38" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(195 52)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/><path d="M10 5v6"/></g><text class="t" x="122.0" y="72" text-anchor="middle"><tspan x="122.0" dy="0">Admissions Officer</tspan></text></g>
+<g data-element="Academic Faculty"><rect x="490" y="48" width="178" height="38" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(649 52)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/><path d="M10 5v6"/></g><text class="t" x="579.0" y="72" text-anchor="middle"><tspan x="579.0" dy="0">Academic Faculty</tspan></text></g>
+<g data-element="1. Apply &amp; Register"><rect x="30" y="113" width="184" height="48" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(195 117)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h7V3l5 5-5 5v-3H1Z"/></g><text class="t" x="122.0" y="142" text-anchor="middle"><tspan x="122.0" dy="0">1. Apply &amp; Register</tspan></text></g>
+<g data-element="2. Enroll &amp; Schedule"><rect x="259" y="113" width="183" height="48" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(423 117)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h7V3l5 5-5 5v-3H1Z"/></g><text class="t" x="350.5" y="142" text-anchor="middle"><tspan x="350.5" dy="0">2. Enroll &amp; Schedule</tspan></text></g>
+<g data-element="3. Deliver &amp; Assess"><rect x="490" y="113" width="178" height="48" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(649 117)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h7V3l5 5-5 5v-3H1Z"/></g><text class="t" x="579.0" y="142" text-anchor="middle"><tspan x="579.0" dy="0">3. Deliver &amp; Assess</tspan></text></g>
+<g data-element="4. Award Degree"><rect x="715" y="113" width="183" height="48" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(879 117)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h7V3l5 5-5 5v-3H1Z"/></g><text class="t" x="806.5" y="142" text-anchor="middle"><tspan x="806.5" dy="0">4. Award Degree</tspan></text></g>
+<g data-element="Student Record"><rect x="740" y="47" width="154" height="40" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path class="ln" d="M740 58h154"/><text class="t" x="817.0" y="75" text-anchor="middle"><tspan x="817.0" dy="0">Student Record</tspan></text></g>
+<g data-element="Course &amp; Grades"><rect x="650" y="176" width="154" height="40" rx="2" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path class="ln" d="M650 187h154"/><text class="t" x="727.0" y="204" text-anchor="middle"><tspan x="727.0" dy="0">Course &amp; Grades</tspan></text></g>
+<g data-element="Student Registration Service"><rect x="30" y="289" width="215" height="48" rx="10" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(226 293)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="137.5" y="309.5" text-anchor="middle"><tspan x="137.5" dy="0">Student Registration</tspan><tspan x="137.5" dy="17">Service</tspan></text></g>
+<g data-element="E-Learning Service"><rect x="524" y="289" width="198" height="48" rx="10" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(703 293)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="623.0" y="318" text-anchor="middle"><tspan x="623.0" dy="0">E-Learning Service</tspan></text></g>
+<g data-element="Student Information System (SIS)"><rect x="30" y="374" width="215" height="49" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path d="M25 385h13v7h-13zM25 398h13v7h-13z" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)"/><text class="t" x="137.5" y="395" text-anchor="middle"><tspan x="137.5" dy="0">Student Information</tspan><tspan x="137.5" dy="17">System (SIS)</tspan></text></g>
+<g data-element="Onsite Digital Facilities Management &amp; Load Balancing System (ODMS)"><rect x="352" y="367" width="244" height="56" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path d="M347 378h13v7h-13zM347 391h13v7h-13z" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)"/><text class="t" x="474.0" y="383" text-anchor="middle"><tspan x="474.0" dy="0">Onsite Digital Facilities</tspan><tspan x="474.0" dy="17">Management &amp; Load</tspan><tspan x="474.0" dy="17">Balancing System (ODMS)</tspan></text></g>
+<g data-element="Learning Management System (LMS)"><rect x="694" y="374" width="204" height="49" rx="2" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><path d="M689 385h13v7h-13zM689 398h13v7h-13z" fill="color-mix(in srgb, #45b9d5 18%, var(--surface))" stroke="var(--muted)"/><text class="t" x="796.0" y="395" text-anchor="middle"><tspan x="796.0" dy="0">Learning Management</tspan><tspan x="796.0" dy="17">System (LMS)</tspan></text></g>
+<g data-element="Database Storage Service"><rect x="30" y="486" width="215" height="48" rx="10" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(226 490)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="137.5" y="515" text-anchor="middle"><tspan x="137.5" dy="0">Database Storage Service</tspan></text></g>
+<g data-element="Identity &amp; Access Service"><rect x="352" y="486" width="244" height="48" rx="10" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(577 490)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="474.0" y="515" text-anchor="middle"><tspan x="474.0" dy="0">Identity &amp; Access Service</tspan></text></g>
+<g data-element="Cloud-Based Services"><rect x="694" y="486" width="204" height="48" rx="10" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(879 490)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="796.0" y="515" text-anchor="middle"><tspan x="796.0" dy="0">Cloud-Based Services</tspan></text></g>
+<g data-element="RDBMS Server Cluster"><rect x="30" y="567" width="215" height="45" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(226 571)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="12" height="8" rx="1"/><path d="M5 11v3m4-3v3m-6 0h8"/></g><text class="t" x="137.5" y="594.5" text-anchor="middle"><tspan x="137.5" dy="0">RDBMS Server Cluster</tspan></text></g>
+<g data-element="Account Identity Server"><rect x="352" y="567" width="244" height="45" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(577 571)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="12" height="8" rx="1"/><path d="M5 11v3m4-3v3m-6 0h8"/></g><text class="t" x="474.0" y="594.5" text-anchor="middle"><tspan x="474.0" dy="0">Account Identity Server</tspan></text></g>
+<g data-element="Cloud Management Portal"><rect x="694" y="567" width="204" height="45" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(879 571)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m1 4 6-3 6 3v8l-6 3-6-3zM1 4l6 3 6-3M7 7v8"/></g><text class="t" x="796.0" y="586" text-anchor="middle"><tspan x="796.0" dy="0">Cloud Management</tspan><tspan x="796.0" dy="17">Portal</tspan></text></g>
+<g data-element="Main Data Center"><rect x="211" y="643" width="174" height="39" rx="2" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(366 647)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 14V3h3v8l4-3v3l4-3v6z"/></g><text class="t" x="298.0" y="667.5" text-anchor="middle"><tspan x="298.0" dy="0">Main Data Center</tspan></text></g>
+<g data-element="Amazon Web Services"><rect x="715" y="643" width="163" height="39" rx="10" fill="color-mix(in srgb, #61b976 18%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><g aria-hidden="true" transform="translate(859 647)" fill="none" stroke="var(--ink)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="12" height="6" rx="3"/></g><text class="t" x="796.5" y="659" text-anchor="middle"><tspan x="796.5" dy="0">Amazon Web</tspan><tspan x="796.5" dy="17">Services</tspan></text></g>
+</svg>
+</div>
+<figcaption><b>Slide 10 · Academic lifecycle management for an academic institution using Archi.</b> Follow arrows across the three model groups. The filled arrowhead at ODMS reproduces the source symbol, whose intended relation name is uncertain.</figcaption>
+</figure>
+<figure class="dg"><figcaption><b>Academic Lifecycle Management for an Academic Institution Using Archi — slide 10.</b> Readable decomposition of all 21 named elements and 27 connectors. The three source groups are preserved; this is not a new claim about how every university is organized.</figcaption>
 <div class="tbl" role="region" tabindex="0" aria-label="Academic lifecycle example: read one layer at a time — table 16; scroll horizontally"><table><thead><tr><th>Source group</th><th>Every named element</th></tr></thead><tbody><tr><th>Business Process Lifecycle Layer</th><td>Admissions Officer; Academic Faculty; <b>1. Apply &amp; Register → 2. Enroll &amp; Schedule → 3. Deliver &amp; Assess → 4. Award Degree</b>; Student Record; Course &amp; Grades.</td></tr><tr><th>Application Layer</th><td>Student Registration Service; E-Learning Service; Student Information System (SIS); Onsite Digital Facilities Management &amp; Load Balancing System (ODMS); Learning Management System (LMS).</td></tr><tr><th>Technology &amp; Physical Layer</th><td>Database Storage Service; Identity &amp; Access Service; Cloud-Based Services; RDBMS Server Cluster; Account Identity Server; Cloud Management Portal; Main Data Center; Amazon Web Services.</td></tr></tbody></table></div>
 <p><b>Business links (11):</b> Admissions Officer → Apply &amp; Register and Academic Faculty → Deliver &amp; Assess are the two assignment-style links. The four numbered processes form three triggering links in order. Enroll &amp; Schedule, Deliver &amp; Assess, and Award Degree each access <b>both</b> Student Record and Course &amp; Grades: six object-access links. The diagram does not draw such an access from Apply &amp; Register, and does not label these read/write operations.</p>
 <div class="tbl" role="region" tabindex="0" aria-label="Academic lifecycle example: read one layer at a time — table 17; scroll horizontally"><table><thead><tr><th>Application service</th><th>Realized by (3 links)</th><th>Serves business processes (4 links)</th></tr></thead><tbody><tr><th>Student Registration Service</th><td>SIS</td><td>Apply &amp; Register; Enroll &amp; Schedule; Deliver &amp; Assess</td></tr><tr><th>E-Learning Service</th><td>ODMS <b>and</b> LMS</td><td>Deliver &amp; Assess</td></tr></tbody></table></div>
@@ -109,6 +516,27 @@
 <p class="ex"><b>Follow one grounded chain:</b> Main Data Center serves RDBMS Server Cluster; the cluster realizes Database Storage Service; that service serves SIS; SIS realizes Student Registration Service; that service serves the first three business processes. These are different relation types, not one long chronological workflow.</p>
 <p><b>Check your understanding:</b> E-Learning Service has two realizing components, not only LMS. Student Registration Service serves three processes, not only Apply &amp; Register. The picture supports these specific links; it does not say AWS stores every student record or that the admissions officer operates the LMS.</p>
 <h3>Use language concepts with viewpoints</h3>
+<figure class="dg m4-visual" data-slide="5.3/11">
+<div class="m4-visual-scroll" role="region" aria-label="Four steps for applying ArchiMate language concepts; scroll horizontally if needed" tabindex="0">
+<svg viewBox="0 0 744 140" role="img" aria-labelledby="m5-slide-11-title m5-slide-11-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="m5-slide-11-title">Four steps for applying ArchiMate language concepts</title>
+<desc id="m5-slide-11-desc">Identify stakeholders and concerns; determine purpose, scope, and viewpoint; use relevant concepts including elements, relations, and rules; construct the model.</desc>
+<defs><marker id="m5-slide-11-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="9" refY="6" orient="auto-start-reverse"><path d="M2 1.5 9 6 2 10.5Z" fill="var(--ink)"/></marker></defs>
+<text class="t" x="94" y="30" text-anchor="middle"><tspan x="94" dy="0">1</tspan></text>
+<g data-element="Identify stakeholders and concerns."><rect x="13" y="47" width="162" height="71" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="94.0" y="79" text-anchor="middle"><tspan x="94.0" dy="0">Identify stakeholders</tspan><tspan x="94.0" dy="17">and concerns.</tspan></text></g>
+<path class="ln" d="M175 82H198" marker-end="url(#m5-slide-11-filled)"><title>Step 1 to step 2</title></path>
+<text class="t" x="279" y="30" text-anchor="middle"><tspan x="279" dy="0">2</tspan></text>
+<g data-element="Determine purpose, scope, and viewpoint."><rect x="198" y="47" width="162" height="71" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="279.0" y="79" text-anchor="middle"><tspan x="279.0" dy="0">Determine purpose,</tspan><tspan x="279.0" dy="17">scope, and viewpoint.</tspan></text></g>
+<path class="ln" d="M360 82H383" marker-end="url(#m5-slide-11-filled)"><title>Step 2 to step 3</title></path>
+<text class="t" x="464" y="30" text-anchor="middle"><tspan x="464" dy="0">3</tspan></text>
+<g data-element="Use relevant concepts (elements, relations, rules)."><rect x="383" y="47" width="162" height="71" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="464.0" y="70.5" text-anchor="middle"><tspan x="464.0" dy="0">Use relevant</tspan><tspan x="464.0" dy="17">concepts (elements,</tspan><tspan x="464.0" dy="17">relations, rules).</tspan></text></g>
+<path class="ln" d="M545 82H568" marker-end="url(#m5-slide-11-filled)"><title>Step 3 to step 4</title></path>
+<text class="t" x="649" y="30" text-anchor="middle"><tspan x="649" dy="0">4</tspan></text>
+<g data-element="Construct the model."><rect x="568" y="47" width="162" height="71" rx="10" fill="color-mix(in srgb, #eebb34 17%, var(--surface))" stroke="var(--muted)" stroke-width="1.2"/><text class="t" x="649.0" y="87.5" text-anchor="middle"><tspan x="649.0" dy="0">Construct the model.</tspan></text></g>
+</svg>
+</div>
+<figcaption><b>Slide 11 · Language concepts.</b> Choose modeling elements, relations, and rules after the stakeholder concerns and viewpoint are clear.</figcaption>
+</figure>
 <p>Slide 11 organizes core concepts by <b>layering</b>, <b>internal/external abstraction</b>, and <b>active–behavior–passive structures</b>. Use them in conjunction with viewpoints, not as a command to include every possible element.</p>
 <ol><li><b>Identify stakeholders and concerns.</b></li><li><b>Determine purpose, scope, and viewpoint.</b></li><li><b>Use relevant concepts:</b> elements, relations, rules.</li><li><b>Construct the model.</b></li></ol>
 <p>The notes shorten step 2 to selecting a viewpoint; remember the slide also explicitly includes <b>purpose and scope</b>.</p>
