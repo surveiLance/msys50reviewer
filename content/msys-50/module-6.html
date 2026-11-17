@@ -1,0 +1,285 @@
+<h2 id="p-6-1"><span class="tag">PART 6.1</span>Impact of Emerging &amp; Disruptive Technologies</h2>
+<div class="note"><b>Start here:</b> Decide which developments could change how your organization competes, operates, or protects its information. Compare each opportunity with the effort and risk of integrating it.</div>
+<p class="muted">Part 6.1 lecture slides 3–16. Research results and vendor targets are identified with their original context.</p>
+
+<h3>Why emerging and disruptive technologies matter</h3>
+<p><b>Emerging</b> describes technologies still developing or spreading. <b>Disruptive</b> describes effects large enough to change established processes, markets, or expectations. An emerging technology may become disruptive, and an organization may feel disruption before it adopts the technology itself.</p>
+<div class="check">
+  <div><b>Competitive advantage</b><span>Find opportunities for better products, services, or capabilities before competitors do.</span></div>
+  <div><b>External pressure</b><span>Respond to what customers, suppliers, competitors, and regulators expect.</span></div>
+  <div><b>Operations</b><span>Improve speed, cost, or capacity in an actual business process.</span></div>
+  <div><b>Integration</b><span>Check the fit with data, applications, infrastructure, controls, and staff responsibilities.</span></div>
+</div>
+<p>The lecture flags two new ways of computing, <b>neuromorphic</b> and <b>quantum</b>, alongside AI's disruption of security, robotics, language, arts, film, photography, music, systems development, education, manufacturing, retail, and engineering. An EA review can recommend adoption now, a later pilot, or monitoring if there is no suitable current use. Source: 6.1 slides 4–5, 11, 16.</p>
+
+<h3>Neuromorphic and quantum computing</h3>
+<div class="compare">
+  <div><b>Neuromorphic computing</b><p>Brain-inspired architecture models aspects of neurons and synapses. The lecture distinguishes silicon-based processors from experimental biological wetware. Integrating processing and memory can reduce data movement for suitable workloads.</p></div>
+  <div><b>Quantum computing</b><p>Qubits and quantum operations use quantum physics, including interference and sometimes entanglement, to run particular algorithms. Hardware and control systems differ from conventional computers. A practical advantage depends on the workload, scale, and reliability.</p></div>
+</div>
+<p>Both depart from conventional architecture and require workload-specific evaluation. The quickest distinction is to ask <b>what carries the computation</b>: brain-inspired neural and synaptic structures for neuromorphic systems, or controlled quantum states for quantum systems. An artificial neural network can also run on conventional hardware. Source: 6.1 slides 6, 9, 13.</p>
+
+<h3>Silicon systems and wetware</h3>
+<div class="check">
+  <div><b>Intel Hala Point</b><span>The research system groups 1,152 Loihi 2 processors and supports up to 1.15 billion artificial neurons and 128 billion synapses. The slide uses an owl-scale comparison. Processing and memory are integrated. <a href="https://www.intc.com/news-events/press-releases/detail/1691/intel-builds-worlds-largest-neuromorphic-system-to">Intel report</a></span></div>
+  <div><b>IBM NorthPole</b><span>Memory is integrated with 256 processing cores. Slide 7 covers a 3-billion-parameter LLM experiment with 16 NorthPole cards and GPU comparisons including an H100. This is inference with a trained model.</span></div>
+  <div><b>SpiNNaker2</b><span>SpiNNcloud's modular system uses many energy-efficient Arm Cortex-M4-family cores. The slide gives the Dresden scale as about 35,000 chips, 5.2 million processing cores, and roughly 5 billion modeled neurons. <a href="https://tu-dresden.de/ing/elektrotechnik/iee/hpsn/forschung/chipentwuerfe/ab-2021">TU Dresden chip description</a></span></div>
+</div>
+<details class="fold">
+  <summary><b>Read the NorthPole benchmark carefully</b><span>6.1 slide 7 and the original benchmark</span></summary>
+  <p>The slide reports about 47× lower latency, 72.7× better energy efficiency, and about 3× throughput in its comparison. The original benchmark measures per-user latency per generated token, with energy efficiency measured in tokens per second per watt. Time to first token is a separate measure. The ratios depend on workload, batch size, hardware, and comparison point. A deployment team needs its own benchmark. <a href="https://ieee-hpec.org/wp-content/uploads/2024/09/106-1.pdf">Original NorthPole benchmark</a></p>
+</details>
+<p><b>Wetware</b> uses living neural tissue as a computing substrate. Slide 8 describes research systems grown from human stem cells, cites Cortical Labs CL1 at about 200,000 neurons and six months of life, and gives 100 days for FinalSpark's Neuroplatform. Treat these as lecture examples of limited biological lifetime. Energy advantages are a research motivation and depend on the comparison boundary and task. Slide 8's replaceable-tissue idea is speculative. Source: 6.1 slides 7–8.</p>
+
+<h3>Quantum scale, fidelity, and reported advances</h3>
+<div class="compare">
+  <div><b>Scale</b><p>How many useful qubits can operate together? Physical qubits are hardware. Logical qubits encode and protect information using error correction, often across multiple physical qubits. Read a qubit count with its type and workload.</p></div>
+  <div><b>Fidelity</b><p>How faithfully does a state or operation match the intended one? The slide distinguishes logical memory, which preserves information, from magic-state resources that help perform certain quantum operations. Both matter for fault-tolerant computation.</p></div>
+</div>
+<p>Slide 9 gives 1,400 stable logical qubits and a 12–96 snapshot to illustrate the scaling gap. The qubits, gate count, error rate, error-correction overhead, and runtime needed for a cryptographic task depend on the algorithm and target. A single count or high fidelity figure is insufficient to establish cryptographic capability.</p>
+<details class="fold">
+  <summary><b>Five examples cited in the lecture</b><span>6.1 slide 10</span></summary>
+  <ul>
+    <li><b>Quantinuum Helios:</b> reported 99.9995% logical-memory fidelity in a particular benchmark, equivalent to five uncorrectable errors per million operations. The slide also cites a separate 99.993% magic-state result. <a href="https://www.quantinuum.com/blog/quantinuum-and-google-two-fault-tolerance-results-two-different-measures-of-progress">Quantinuum's benchmark comparison</a></li>
+    <li><b>Google Willow:</b> reported about 40× lower errors relative to uncultivated states in a magic-state experiment and 99.99% logical T-state fidelity. <a href="https://blog.google/innovation-and-ai/models-and-research/quantum-computing/magic-state-cultivation-quantum-computing/">Google Quantum AI's report</a></li>
+    <li><b>IBM Quantum:</b> links quantum processing units in a modular architecture as a strategy for scaling.</li>
+    <li><b>Microsoft Majorana:</b> topological qubits aim to reduce susceptibility to errors through the hardware design. The lecture cites a shift in the roadmap from 2033 to 2029. The 2029 date is a vendor target. <a href="https://quantum.microsoft.com/en-us/solutions/microsoft-quantum-hardware">Microsoft roadmap</a></li>
+    <li><b>PsiQuantum:</b> the lecture presents photonic computing as an ambitious route and cites a 2027–28 target of one million qubits and fault-tolerant operation. Read that as a slide-reported goal.</li>
+  </ul>
+</details>
+<p>For an EA decision, compare results that measure the same thing. A memory experiment, a magic-state experiment, a system scale-up plan, and a delivery target answer different questions. Source: 6.1 slides 9–10.</p>
+
+<h3>What AI is and how a neural network works</h3>
+<p>In the IBM definition used by the lecture, <b>artificial intelligence</b> is technology that lets machines simulate human capabilities such as learning, comprehension, problem solving, decision-making, creativity, and autonomy. Hardware, software, and infrastructure advances helped widen AI use. The lecture notes varied opinions and uptake, a competitive arms race, and uncertainty about a market bubble. Source: 6.1 slides 11–12.</p>
+<figure id="m6-neural-network" class="dg m4-visual" data-slide="6.1/13">
+  <div class="m4-visual-scroll" role="region" aria-label="Deep neural network. Scroll horizontally if needed." tabindex="0">
+  <svg viewBox="0 0 652 254" role="img" aria-labelledby="m6-network-title m6-network-desc">
+    <title id="m6-network-title">Deep neural network</title>
+    <desc id="m6-network-desc">Five input nodes, three successive hidden layers with five nodes each, and three output nodes. Arrows run left to right between adjacent layers. The counts illustrate this network.</desc>
+    <defs><marker id="m6-network-forward" viewBox="0 0 8 8" markerWidth="6" markerHeight="6" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="var(--muted)"/></marker></defs>
+    <text class="t" x="62" y="34" text-anchor="middle">Input layer</text>
+    <text class="t" x="326" y="34" text-anchor="middle">Multiple hidden layers</text>
+    <text class="t" x="590" y="34" text-anchor="middle">Output layer</text>
+    <g stroke="var(--muted)" stroke-width="1.15" opacity=".67" aria-hidden="true">
+      <line x1="76.0" y1="76.0" x2="177.0" y2="76.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="79.9" x2="177.7" y2="109.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="83.0" x2="179.3" y2="143.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="72.6" y1="85.2" x2="181.1" y2="178.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="71.2" y1="86.6" x2="182.9" y2="215.2" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="110.1" x2="177.7" y2="80.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="76.0" y1="114.0" x2="177.0" y2="114.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="117.9" x2="177.7" y2="147.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="121.0" x2="179.3" y2="181.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="72.6" y1="123.2" x2="181.1" y2="216.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="145.0" x2="179.3" y2="84.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="148.1" x2="177.7" y2="118.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="76.0" y1="152.0" x2="177.0" y2="152.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="155.9" x2="177.7" y2="185.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="159.0" x2="179.3" y2="219.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="72.6" y1="180.8" x2="181.1" y2="87.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="183.0" x2="179.3" y2="122.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="186.1" x2="177.7" y2="156.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="76.0" y1="190.0" x2="177.0" y2="190.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="193.9" x2="177.7" y2="223.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="71.2" y1="217.4" x2="182.9" y2="88.8" marker-end="url(#m6-network-forward)"/>
+      <line x1="72.6" y1="218.8" x2="181.1" y2="125.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="74.1" y1="221.0" x2="179.3" y2="160.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="75.5" y1="224.1" x2="177.7" y2="194.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="76.0" y1="228.0" x2="177.0" y2="228.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="208.0" y1="76.0" x2="309.0" y2="76.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="79.9" x2="309.7" y2="109.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="83.0" x2="311.3" y2="143.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="204.6" y1="85.2" x2="313.1" y2="178.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="203.2" y1="86.6" x2="314.9" y2="215.2" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="110.1" x2="309.7" y2="80.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="208.0" y1="114.0" x2="309.0" y2="114.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="117.9" x2="309.7" y2="147.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="121.0" x2="311.3" y2="181.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="204.6" y1="123.2" x2="313.1" y2="216.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="145.0" x2="311.3" y2="84.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="148.1" x2="309.7" y2="118.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="208.0" y1="152.0" x2="309.0" y2="152.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="155.9" x2="309.7" y2="185.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="159.0" x2="311.3" y2="219.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="204.6" y1="180.8" x2="313.1" y2="87.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="183.0" x2="311.3" y2="122.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="186.1" x2="309.7" y2="156.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="208.0" y1="190.0" x2="309.0" y2="190.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="193.9" x2="309.7" y2="223.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="203.2" y1="217.4" x2="314.9" y2="88.8" marker-end="url(#m6-network-forward)"/>
+      <line x1="204.6" y1="218.8" x2="313.1" y2="125.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="206.1" y1="221.0" x2="311.3" y2="160.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="207.5" y1="224.1" x2="309.7" y2="194.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="208.0" y1="228.0" x2="309.0" y2="228.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="340.0" y1="76.0" x2="441.0" y2="76.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="79.9" x2="441.7" y2="109.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="83.0" x2="443.3" y2="143.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="336.6" y1="85.2" x2="445.1" y2="178.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="335.2" y1="86.6" x2="446.9" y2="215.2" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="110.1" x2="441.7" y2="80.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="340.0" y1="114.0" x2="441.0" y2="114.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="117.9" x2="441.7" y2="147.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="121.0" x2="443.3" y2="181.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="336.6" y1="123.2" x2="445.1" y2="216.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="145.0" x2="443.3" y2="84.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="148.1" x2="441.7" y2="118.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="340.0" y1="152.0" x2="441.0" y2="152.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="155.9" x2="441.7" y2="185.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="159.0" x2="443.3" y2="219.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="336.6" y1="180.8" x2="445.1" y2="87.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="183.0" x2="443.3" y2="122.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="186.1" x2="441.7" y2="156.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="340.0" y1="190.0" x2="441.0" y2="190.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="193.9" x2="441.7" y2="223.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="335.2" y1="217.4" x2="446.9" y2="88.8" marker-end="url(#m6-network-forward)"/>
+      <line x1="336.6" y1="218.8" x2="445.1" y2="125.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="338.1" y1="221.0" x2="443.3" y2="160.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="339.5" y1="224.1" x2="441.7" y2="194.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="340.0" y1="228.0" x2="441.0" y2="228.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="79.9" x2="573.7" y2="109.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="470.1" y1="83.0" x2="575.3" y2="143.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="468.6" y1="85.2" x2="577.1" y2="178.9" marker-end="url(#m6-network-forward)"/>
+      <line x1="472.0" y1="114.0" x2="573.0" y2="114.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="117.9" x2="573.7" y2="147.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="470.1" y1="121.0" x2="575.3" y2="181.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="148.1" x2="573.7" y2="118.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="472.0" y1="152.0" x2="573.0" y2="152.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="155.9" x2="573.7" y2="185.3" marker-end="url(#m6-network-forward)"/>
+      <line x1="470.1" y1="183.0" x2="575.3" y2="122.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="186.1" x2="573.7" y2="156.7" marker-end="url(#m6-network-forward)"/>
+      <line x1="472.0" y1="190.0" x2="573.0" y2="190.0" marker-end="url(#m6-network-forward)"/>
+      <line x1="468.6" y1="218.8" x2="577.1" y2="125.1" marker-end="url(#m6-network-forward)"/>
+      <line x1="470.1" y1="221.0" x2="575.3" y2="160.5" marker-end="url(#m6-network-forward)"/>
+      <line x1="471.5" y1="224.1" x2="573.7" y2="194.7" marker-end="url(#m6-network-forward)"/>
+    </g>
+    <circle cx="62" cy="76" r="12" fill="var(--accent)" opacity="1"/>
+    <circle cx="62" cy="114" r="12" fill="var(--accent)" opacity="1"/>
+    <circle cx="62" cy="152" r="12" fill="var(--accent)" opacity="1"/>
+    <circle cx="62" cy="190" r="12" fill="var(--accent)" opacity="1"/>
+    <circle cx="62" cy="228" r="12" fill="var(--accent)" opacity="1"/>
+    <circle cx="194" cy="76" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="194" cy="114" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="194" cy="152" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="194" cy="190" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="194" cy="228" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="326" cy="76" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="326" cy="114" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="326" cy="152" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="326" cy="190" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="326" cy="228" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="458" cy="76" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="458" cy="114" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="458" cy="152" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="458" cy="190" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="458" cy="228" r="12" fill="var(--ok)" opacity="1"/>
+    <circle cx="590" cy="114" r="12" fill="var(--accent)" opacity="0.75"/>
+    <circle cx="590" cy="152" r="12" fill="var(--accent)" opacity="0.75"/>
+    <circle cx="590" cy="190" r="12" fill="var(--accent)" opacity="0.75"/>
+  </svg>
+  </div>
+  <figcaption>Part 6.1 slide 13. Redrawn from the lecture's IBM illustration. This example uses three hidden layers, with 5 → 5 → 5 → 5 → 3 nodes. Other networks can use different layer sizes and connections.</figcaption>
+</figure>
+<p><b>Follow one forward pass.</b> Inputs enter the left layer. A typical hidden unit combines weighted inputs and a bias, then applies an activation function. Its result feeds the next layer. The output layer produces the task result, such as scores for possible classes.</p>
+<p><b>Training and inference.</b> Training adjusts parameters such as weights and biases to reduce a loss on training examples. A common method uses backpropagation to compute how parameters affect the loss and an optimizer to update them. Inference uses the learned parameters to produce outputs for new inputs. In the slide's example, the arrows point from input toward output. Source: 6.1 slide 13. <a href="https://www.ibm.com/think/topics/neural-networks">IBM neural network explanation</a></p>
+
+<h3>AI types and techniques</h3>
+<p>Slide 14 classifies AI by <b>capability</b> and <b>functionality</b>. Slide 15 adds two <b>techniques</b> based on what the application does.</p>
+<div class="compare">
+  <div><b>Capability · how broad?</b><ul><li><b>ANI</b> performs a narrow task or range of tasks.</li><li><b>AGI</b> refers to human-like general capability across domains, including unfamiliar tasks. The attainment criteria remain debated.</li><li><b>ASI</b> refers to hypothetical general capability beyond human levels.</li></ul></div>
+  <div><b>Functionality · how does it behave?</b><ul><li><b>Reactive machine:</b> responds to the current state, as in the lecture's memoryless chess example.</li><li><b>Limited memory:</b> uses past observations or recent context to inform decisions.</li><li><b>Theory of mind:</b> would understand emotions, intentions, and social cues.</li><li><b>Self-aware:</b> would possess self-awareness. The last two are conceptual categories in the lecture.</li></ul></div>
+</div>
+<div class="compare">
+  <div><b>Generative · create content</b><p>Produces material such as language, images, designs, or music. LLMs are a named example.</p></div>
+  <div><b>Predictive · estimate an outcome</b><p>Uses patterns to forecast, classify, or score. Examples include financial forecasting, fraud detection, and diagnostic support.</p></div>
+</div>
+<p>A single workflow can use both techniques. A classifier can flag suspicious transactions and a separate generative model can draft a review summary. Calling a system generative describes its task, while calling it narrow describes its capability.</p>
+
+<h3>Why quantum risk matters now</h3>
+<p><b>Harvest now, decrypt later</b> means sensitive encrypted traffic can be collected today and stored for a future attempt at decryption if a sufficiently capable quantum computer becomes available. Data with a long shelf life can be exposed before a migration finishes. The risk concerns vulnerable public-key cryptography and depends on what an adversary can collect and how long the information retains value. Source: 6.1 slide 16.</p>
+<div class="note"><b>EA application:</b> Inventory cryptographic dependencies, including vendor and integration points. Prioritize long-lived sensitive data and systems that take longer to migrate. Use staged migration to approved quantum-resistant standards and track what has actually been transitioned.</div>
+<p>Slide 16 summarizes NIST's 2031–35 transition window and points to QRAMM's threat timeline. The final NIST roadmap calls for deprecation of quantum-vulnerable algorithms after 2030 and disallows them under its standards after 2035, with earlier milestones for particular high-risk uses. Those are migration milestones. The date when a cryptographically relevant machine will exist remains uncertain. <a href="https://csrc.nist.gov/pubs/ir/8547/final">NIST IR 8547</a></p>
+
+<h3>Guide questions for Part 6.1</h3>
+<div class="qa-group">
+  <button type="button" class="qa-all">Show all answers</button>
+  <details class="qa"><summary>1. Why should organizations track emerging and disruptive technologies?</summary><div class="qa-a"><p>They can improve operations and confer competitive advantage, while competitors, customers, and other external forces can push the organization to adapt. Check how adoption would change processes and fit with the technology, data, and workforce that already support them. 6.1 slides 4–5, 16.</p></div></details>
+  <details class="qa"><summary>2. How do neuromorphic and quantum computers compare?</summary><div class="qa-a"><p>Both depart from conventional hardware and can offer benefits on suitable tasks. Neuromorphic systems mimic neural and synaptic structures in chips or experimental wetware. Quantum systems process controlled quantum states in qubits. Evaluate brain-inspired processing, data movement, and integration for the former, and logical scale, error rates, and fault tolerance for the latter. 6.1 slides 6–10.</p></div></details>
+  <details class="qa"><summary>3. What are the main quantum computing challenges?</summary><div class="qa-a"><p>Scale enough useful logical qubits and maintain high fidelity in storage and operations. Logical memory must preserve information. High-quality magic states help support certain processing operations. Error correction and the overhead it adds matter to practical fault tolerance. 6.1 slides 9–10.</p></div></details>
+  <details class="qa"><summary>4. What is artificial intelligence?</summary><div class="qa-a"><p>Technology that allows machines to simulate human capabilities such as learning, comprehension, problem solving, decision-making, creativity, and autonomy. 6.1 slide 12 (IBM).</p></div></details>
+  <details class="qa"><summary>5. How do neural networks work?</summary><div class="qa-a"><p>Connected units transform inputs through layers. Units typically combine weighted inputs and a bias, apply an activation, and pass their results forward. The output layer returns the task result. Training adjusts learned parameters, and inference applies them to new input. 6.1 slide 13 and IBM explanation.</p></div></details>
+  <details class="qa"><summary>6. What are the different types of AI?</summary><div class="qa-a"><p>By capability: ANI, AGI, and ASI. By functionality: reactive machine, limited memory, theory of mind, and self-aware. Capability is about breadth. Functionality describes how a system uses information and behaves. 6.1 slide 14.</p></div></details>
+  <details class="qa"><summary>7. What are the two major AI techniques?</summary><div class="qa-a"><p>Generative AI creates content, such as text or designs. Predictive AI estimates outcomes or classifications, such as a forecast or fraud score. A workflow can use both. 6.1 slide 15.</p></div></details>
+  <details class="qa"><summary>8. What makes quantum computing an immediate concern?</summary><div class="qa-a"><p>A future fault-tolerant system could break vulnerable public-key algorithms. Encrypted information captured now may still be valuable when that system exists. Data sensitivity, confidentiality lifetime, and the time needed to move the organization and its vendors onto quantum-resistant standards make preparation relevant now. 6.1 slides 9–10, 16.</p></div></details>
+</div>
+<h2 id="p-6-2"><span class="tag">PART 6.2</span>Current Advances in AI and Organizational Preparedness</h2>
+<div class="note"><b>The idea to keep:</b> A capable AI demo does not settle an architecture decision. Ask where the model runs, what data it sees, which tasks it can handle, when it should hand work back to a person, and how the organization will keep its options open.</div>
+<p class="muted">Coverage: supplied 6.2 slides 4–17. The campus help desk and the 100-prompt calculation are original teaching examples. The notes flag lecture claims where the supporting source or measurement differs.</p>
+
+<h3>From training examples to a working model</h3>
+<p><b>Slide 4.</b> An <strong>AI model</strong> is a program trained on data to recognize patterns or make predictions or decisions on new inputs. Its <strong>parameters</strong> are internal values that training adjusts. The slide compares them to dials: training moves the dials to improve performance on its learning task. A trained model uses those values to produce an output during <strong>inference</strong>. This ability to generate an output does not remove the need for oversight of important decisions.</p>
+<figure class="dg"><figcaption><b>Imagine a campus help desk.</b> Original teaching example for slide 4.</figcaption><ol><li><b>Training:</b> show a model examples of software, billing, and registration tickets; training adjusts its parameters.</li><li><b>Inference:</b> a new “I can't log in” ticket arrives; the trained model predicts the appropriate queue.</li><li><b>Human review:</b> a staff member can redirect an unclear ticket. Routing one ticket by itself does not retrain the model.</li></ol></figure>
+
+<h3>Small, large, multimodal, and mixture of experts</h3>
+<p><b>Slide 5.</b> A <strong>small language model (SLM)</strong> generally needs less computing power and can sometimes run on a phone, laptop, or other edge device. A <strong>large language model (LLM)</strong> typically needs more memory and compute, and the lecture illustrates serving it in the cloud. Its broader capabilities still need to be tested on the organization's work. The slide uses around <strong>1–2 billion</strong> versus <strong>0.7–10 trillion</strong> parameters as examples, not universal boundaries; parameter count alone does not tell you where a model must run or how well it performs.</p>
+<p><b>Multimodal</b> describes the kinds of information a model can handle: for example, a technician sends a photo of a broken screen and a typed description, and the model uses both to respond. The modalities listed are text, images, audio, and video; a particular model may support only some, and may support different kinds of inputs and outputs. <b>Mixture of experts (MoE)</b> describes how a model is built: a router directs parts of the input to selected groups of internal components. A model can use both ideas; handling several input formats is different from routing work inside the model.</p>
+<div class="note"><b>Three separate questions:</b> How big is it? What kinds of information can it work with? How does it divide the work internally?</div>
+
+<h3>Intelligence, abstention, and hallucinations</h3>
+<p><b>Slides 6–7.</b> Slide 6 surveys recent developments: capability and reliability; security; environment, economy, and politics; robotics and automation; science; open models; ethics; and military use. Slide 7 uses reported progress on difficult math and physics problems as motivation to ask how capability is measured. In the lecture's benchmark framing, classify an outcome as <strong>correct</strong>, <strong>abstained</strong> (the model declined to answer), or <strong>wrong</strong> (the model asserted a wrong answer). A <strong>hallucination</strong> is an invented or unsupported answer presented as fact; a plausible tone is no evidence it is true.</p>
+<figure class="dg"><figcaption><b>Same 100 prompts, two different measures.</b> Original worked example for the formula on slide 7.</figcaption><div class="check"><div><b>60 correct</b><span>The answers check out.</span></div><div><b>10 wrong</b><span>It answered, but the claim was wrong.</span></div><div><b>30 abstentions</b><span>It said it could not answer.</span></div></div>
+<p><strong>Accuracy</strong> is 60 ÷ 100 = <strong>60%</strong>. Slide 7's <strong>hallucination rate</strong> is <code>w / (w + abst)</code>: 10 ÷ (10 + 30) = <strong>25%</strong>. That last fraction asks, “Of the cases the model did not get right, how many were wrong answers rather than abstentions?” It uses 40 prompts in the denominator. The same 10 wrong answers are 10% of all 100 prompts. If every answer is correct, this slide's fraction has a zero denominator.</p></figure>
+<p><b>The tradeoff is reliability versus coverage.</b> If the model declines more often when unsure, it can reduce the risk of confidently wrong answers, but users get fewer answers and some questions it could have answered correctly may be handed back. Turning a wrong answer into an abstention can improve reliability without reducing the number correct. For a help desk, give a verified policy answer when supported and route unclear cases to staff. Track accuracy, wrong answers, and abstentions so one number does not hide the tradeoff.</p>
+<details class="qa"><summary>Lecture example: what to take from the two model scores</summary><div class="qa-a"><p>The slides list Gemini 4 Carbon (58% accuracy, 11% on the stated hallucination measure) and GPT-6 Astra (63%, 51%). The deck does not identify an evaluation setup, so these are lecture illustrations, not independently established scores or rankings. The study point is that higher accuracy can coexist with more wrong answers relative to abstentions.</p></div></details>
+
+<h3>Security, infrastructure, and global impacts</h3>
+<p><b>Slide 8:</b> An <strong>AI agent</strong> can take actions, so unexpected behavior can affect other systems when the agent has access. AI also raises concern about AI-assisted hacking; defenders can use AI to help identify and fix long-standing vulnerabilities. The slide frames U.S. regulation discussions and limited visibility into models' internal decision processes as a wake-up call. Knowing how a model was built is different from having a reliable explanation for every particular output or action. An EA response is to limit what an agent may access, log its actions, and require approval at sensitive steps.</p>
+<p><b>Slide 9:</b> More data centers raise questions about electricity, cooling, and environmental impact. Some organizations use consumer-grade hardware for work it can support; others diversify accelerator suppliers to reduce dependence on NVIDIA. In primary-source terminology, Google uses <a href="https://docs.cloud.google.com/compute/docs/tpus/overview">Tensor Processing Units (TPUs)</a>, while AWS offers <a href="https://aws.amazon.com/ai/machine-learning/neuron/">Trainium and Inferentia</a>. These are examples of specialized chips for training or inference. The slide also flags U.S.–China hardware trade restrictions as a geopolitical supply risk; it does not specify the products, exceptions, or dates needed for a procurement decision.</p>
+
+<h3>Physical AI and scientific applications</h3>
+<p><b>Slide 10.</b> Physical AI covers systems that sense or act in the real world, including humanoid and non-humanoid robots and driverless vehicles. The lecture cites Tesla, Boston Dynamics, and Unitree as examples in that broader space, plus surgical or medical assistance and search and rescue as application areas. In a specific research trial, <a href="https://www.nature.com/articles/s41586-026-10338-5">Sony's Ace table-tennis robot</a> won matches against elite and some professional players. Success depends on the tested task and conditions; it does not establish general human ability.</p>
+<details class="qa"><summary>Source check: the lecture's robot records</summary><div class="qa-a"><p>Slide 10 lists 2.58 seconds for a humanoid 100 m claim and 2.45 m for a standing jump. The slide gives no event protocol or source for either number; the 2009 men's human 100 m result was <a href="https://worldathletics.org/competition/calendar-results/results/6998524?eventId=10229630">9.58 seconds</a>, and different jump setups cannot be compared by height alone. Remember the robotics applications and the need to compare like with like.</p></div></details>
+<p><b>Slide 11:</b> Scientific and medical uses show what a system can do in a defined workflow. The useful question in each example is <em>what work did the system actually assist?</em></p>
+<ul>
+<li><strong>Diagnosis and radiology.</strong> <a href="https://www.microsoft.com/en-us/research/publication/sequential-diagnosis-with-language-models/">Microsoft's MAI-DxO study</a> reports 80% diagnostic accuracy with its main setup and a 20% human comparator, with 85.5% in a maximum-accuracy setup, on a benchmark of 304 challenging cases. Slide 11 says 83% versus 22%; use the numbers only with their cited setup. These are benchmark results, not general clinical accuracy. <a href="https://www.aidoc.com/solutions/radiology/">Aidoc's CARE radiology AI</a> flags potential critical findings for clinical review.</li>
+<li><strong>Drug discovery.</strong> Insilico Medicine used generative AI in discovering a candidate for idiopathic pulmonary fibrosis, <a href="https://www.nature.com/articles/s41591-025-03743-2">reported in a phase 2a trial</a>. The example illustrates discovery and research, not approval of a treatment.</li>
+<li><strong>Materials research.</strong> Berkeley Lab’s A-Lab combined predictive computation and robotic lab work. The slide repeats the original count of 41 in 17 days; a later <a href="https://escholarship.org/uc/item/4kb4s6pg">author correction</a> confirmed 36 of 40 reported successes and clarified that “new” meant new to the platform. The workflow is the study point.</li>
+<li><strong>Research automation.</strong> Sakana AI reported that a paper generated through <a href="https://sakana.ai/ai-scientist-first-publication/">The AI Scientist-v2 workflow</a> passed a workshop's review. The team chose the topic and submissions; the manuscript was withdrawn under the workshop experiment's protocol and was not published there. This is an example of automating parts of research, with evidence and reproducibility still essential.</li>
+</ul>
+
+<h3>Open models: what you gain and what you run</h3>
+<p><b>Slide 12.</b> Improved open alternatives give organizations choices about <strong>cost</strong>, <strong>privacy and confidentiality</strong>, and <strong>research and experimentation</strong>. A model you can run yourself can keep sensitive prompts under your direct control when configured correctly, or let a research team test modifications. Hosting, updates, security, and specialist support become the organization's responsibility. That can be too much for non-technical users; compare full costs, not just license fees. Available weights do not automatically grant unrestricted use, so check the license and what the project actually provides.</p>
+<div class="note"><b>Same support desk, different constraints:</b> Keep sensitive internal tickets on infrastructure the campus controls if policy requires it. A hosted option can be easier to operate for suitable data if it meets privacy and service requirements.</div>
+
+<h3>Military use and six ethics questions</h3>
+<p><b>Slide 13.</b> The military discussion names AI-assisted identification of persons of interest, wider drone use, military operations with reduced or absent human intervention, and possible robot infantry. Identification errors and invasive surveillance can harm people. Decisions about force raise questions of oversight, accountability, and human control.</p>
+<p><b>Slide 14.</b> Use these questions to recognize each ethical concern:</p>
+<ol>
+<li><strong>Privacy and data confidentiality:</strong> who may access sensitive inputs, and what can be stored, shared, or reused?</li>
+<li><strong>Job security:</strong> whose tasks or roles change, and what retraining or worker protections are needed?</li>
+<li><strong>Deepfakes:</strong> can synthesized images, video, or voices impersonate someone or deceive an audience?</li>
+<li><strong>Blurred reality and digital content:</strong> can users tell a real event from a synthetic or simulated one?</li>
+<li><strong>Military applications:</strong> who controls and is accountable for consequential decisions?</li>
+<li><strong>Biocomputing:</strong> what ethical oversight is needed when computing research involves biological systems?</li>
+</ol>
+
+<h3>Safe AGI and superintelligence</h3>
+<p><b>Slides 15–16.</b> Artificial general intelligence (<strong>AGI</strong>) is the idea of an AI system broadly capable of learning and solving unfamiliar problems across domains without needing manual guidance for each new task. The lecture asks whether current model architectures can reach it. There is no definitive milestone given in the lecture. <a href="https://deepmind.google/research/publications/66938/">DeepMind's proposed levels</a> separate <strong>depth</strong> (how well it performs) from <strong>breadth</strong> (how broadly it can do so), with deployment autonomy and risk considered alongside capability. High performance on one test cannot show broad competence.</p>
+<p>The lecture's goal for <strong>safe AGI</strong> is to benefit humanity. For deployment, that means asking how capabilities will be evaluated, how harmful behavior will be prevented, and who can oversee and stop a system's use when needed. <strong>Superintelligence</strong> raises the separate prospect of capabilities broadly exceeding humans'. Slide 16 asks what that would mean for humanity, how people should respond, and whether safeguards aimed at AGI would be sufficient. These are open questions.</p>
+
+<h3>What changes for enterprise architecture?</h3>
+<p><b>Slide 17.</b> Review the <strong>technology layer</strong> first for model placement, dependencies, and security. Assess practical urgency, the timing of investments, possible shifts in workforce roles, and what happens if AI investment slows or a supplier exits. The last slide connects this work with a separate concern from Part 6.1: preparing systems and data protection for quantum risk. Together these pressures call for adaptable plans rather than commitments based only on today's forecasts.</p>
+<figure class="dg"><figcaption><b>Practice: the campus asks for an AI help desk before enrollment.</b> Original EA example for slide 17.</figcaption><ol><li><b>Start with the service:</b> reduce the wait for routine requests; staff retain responsibility for enrollment and exceptions.</li><li><b>Map data and applications:</b> confirm which records are confidential, connect to approved policy sources, and design a staff handoff.</li><li><b>Review the technology:</b> compare local and hosted models, capacity, vendor dependence, and access controls; plan continuity if the service becomes unavailable.</li><li><b>Roll out in stages:</b> test on routine cases, measure useful and wrong answers, train staff, and keep a fallback. Track post-quantum migration separately in the technology roadmap.</li></ol></figure>
+
+<h3>Guide questions: Part 6.2</h3>
+<div class="qa-group"><button type="button" class="qa-all">Show all answers</button>
+<details class="qa"><summary>1. What are AI models?</summary><div class="qa-a"><p>Trained programs that apply patterns learned from data to produce predictions, decisions, or other outputs on new inputs. See slide 4.</p></div></details>
+<details class="qa"><summary>2. What role do parameters play during model training?</summary><div class="qa-a"><p>Parameters are internal values adjusted during training. Their learned settings influence what the model predicts or produces during inference. See slide 4.</p></div></details>
+<details class="qa"><summary>3. Compare small versus large language models.</summary><div class="qa-a"><p>Smaller models typically use less compute and may run at the edge. Larger ones usually demand more resources and may be served in the cloud. The parameter counts on slide 5 are examples. Choose based on task performance, placement, privacy, and operating costs.</p></div></details>
+<details class="qa"><summary>4. What does multimodal mean in terms of capability?</summary><div class="qa-a"><p>The model can work with more than one form of information, such as text and images, or audio and video. Check which modalities it can accept and produce. See slide 5.</p></div></details>
+<details class="qa"><summary>5. What are AI hallucinations?</summary><div class="qa-a"><p>Invented or unsupported outputs presented as factual, for example a convincing policy citation for a policy that does not exist. The slide's benchmark fraction is wrong answers divided by wrong answers plus abstentions. See slide 7.</p></div></details>
+<details class="qa"><summary>6. What is the main tradeoff in minimizing hallucinations?</summary><div class="qa-a"><p>Reducing confident wrong answers by letting the system abstain can lower answer coverage. It may pass up correct guesses along with wrong guesses. Decide when to let it answer, when to require a source, and when to route a case to a person. See slide 7.</p></div></details>
+<details class="qa"><summary>7. What areas of ethical concern arise with AI?</summary><div class="qa-a"><p>Privacy and data confidentiality; job security; deepfakes; blurred boundaries between real and digital content; military applications; and biocomputing. See slides 13–14.</p></div></details>
+<details class="qa"><summary>8. Why are open-source AI models relevant?</summary><div class="qa-a"><p>They offer alternatives for cost, privacy and confidentiality, and research and experimentation. Running them yourself gives more control over deployment and may require more expertise, maintenance, and infrastructure. Check the license and data handling. See slide 12.</p></div></details>
+<details class="qa"><summary>9. What is “safe” AGI?</summary><div class="qa-a"><p>AGI developed and operated for humanity's benefit, with harmful outcomes addressed through evaluation and oversight. Broad ability and safe use are different questions, and the lecture does not give a single AGI threshold or a guarantee of safety. See slides 15–16.</p></div></details>
+<details class="qa"><summary>10. Overall, how would you assess AI's impact on EA?</summary><div class="qa-a"><p>It changes architecture planning and workforce needs, creates new infrastructure and control choices, and makes the timing and reversibility of investments important. Review the technology layer together with workflows, data, and applications; test benefits and risks in stages; and account for parallel pressures such as quantum risk. See slide 17.</p></div></details>
+</div>

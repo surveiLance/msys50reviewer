@@ -3,13 +3,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { NotePart } from "@/lib/notes";
 import { storiesForModule, storyForSection, studyLocation, type SceneKind } from "@/lib/studyStories";
+import { AbstentionScene, NeuralNodeScene } from "./StudyScenesModule6";
 import NotesReader from "./NotesReader";
 import Module5Learning from "./Module5Learning";
 import { AlignmentScene, BranchScene, CampusScene, CityScene, DependencyScene, InitiativeScene, LensScene, ToolsScene } from "./StudyScenesFoundation";
 import { AdmScene, AnalysisScene, ArtifactScene, CoverageScene, MdaScene, ServicesScene, SoaScene, ZachmanScene, ZoomScene } from "./StudyScenesMethods";
 
 function Scene({ kind }: { kind: SceneKind }) {
-  const scenes: Record<SceneKind, React.ComponentType> = { campus: CampusScene, alignment: AlignmentScene, city: CityScene, tools: ToolsScene, branches: BranchScene, initiatives: InitiativeScene, dependencies: DependencyScene, lenses: LensScene, zachman: ZachmanScene, mda: MdaScene, soa: SoaScene, adm: AdmScene, artifacts: ArtifactScene, analysis: AnalysisScene, zoom: ZoomScene, coverage: CoverageScene, services: ServicesScene };
+  const scenes: Record<SceneKind, React.ComponentType> = { campus: CampusScene, alignment: AlignmentScene, city: CityScene, tools: ToolsScene, branches: BranchScene, initiatives: InitiativeScene, dependencies: DependencyScene, lenses: LensScene, zachman: ZachmanScene, mda: MdaScene, soa: SoaScene, adm: AdmScene, artifacts: ArtifactScene, analysis: AnalysisScene, zoom: ZoomScene, coverage: CoverageScene, services: ServicesScene, neuron: NeuralNodeScene, abstention: AbstentionScene };
   const Component = scenes[kind];
   return <Component />;
 }

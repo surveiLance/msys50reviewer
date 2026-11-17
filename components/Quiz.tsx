@@ -34,6 +34,7 @@ type Props = {
   /** Independently authored, past-quiz-style questions for each module. */
   alternative?: Record<string, AlternativeQuestion[]>;
   essentials?: AlternativeQuestion[];
+  longCases?: boolean;
   /** Every module slug in the subject, for "Review in notes" on questions without a source. */
   modules: string[];
 };
@@ -180,7 +181,7 @@ function reviewSnapshot(q: Question, a: Answer, g: Graded): AttemptReviewItem {
 }
 
 export default function Quiz(props: Props) {
-  const { subject, storageKey, kind } = props;
+  const { subject, storageKey, kind, longCases } = props;
   const midterm = kind === "midterm";
   const runKey = `run3-${storageKey}`;
   const lengths: { key: LengthKey; label: string; points: number }[] = [
@@ -200,7 +201,7 @@ export default function Quiz(props: Props) {
   const [showAll, setShowAll] = useState(false);
   const [recordedAt, setRecordedAt] = useState<number | null>(null);
   const [length, setLength] = useState<LengthKey>(midterm ? "long" : "quick");
-  const [questionSet, setQuestionSet] = useState<QuestionSet>("original");
+  const [questionSet, setQuestionSet] = useState<QuestionSet>(longCases ? "alternative" : "original");
   const [types, setTypes] = useState<QType[]>(ALL_TYPES);
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
@@ -220,14 +221,17 @@ export default function Quiz(props: Props) {
     if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
     setInstantFeedback(load<boolean>(`feedback-${subject}`, false));
     const set = load<string | null>(`${storageKey}-question-set`, null);
-    if (set === "scenarios" && midterm && Object.values(props.scenarios || {}).some((items) => items.length)) setQuestionSet("scenarios");
+    if (longCases) {
+      setQuestionSet(set === "original" ? "original" : "alternative");
+      if (set !== "original" && Array.isArray(ts) && !ts.some(t => t === "mc" || t === "multi")) setTypes(["mc", "multi"]);
+    } else if (set === "scenarios" && midterm && Object.values(props.scenarios || {}).some((items) => items.length)) setQuestionSet("scenarios");
     else if (set === "alternative" && Object.values(props.alternative || {}).some((items) => items.length)) setQuestionSet("alternative");
     else if (set === "essentials" && !midterm && props.essentials?.length) {
       setQuestionSet("essentials");
       const supported = poolEssentialModule(props.essentials, props.module || "");
       if (Array.isArray(ts) && !ALL_TYPES.some(t => ts.includes(t) && supported[t].length)) setTypes(ALL_TYPES.filter(t => supported[t].length));
     }
-  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios, props.essentials, props.module]);
+  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios, props.essentials, props.module, longCases]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -306,6 +310,7 @@ export default function Quiz(props: Props) {
     setTypes(next);
     save(`types-${subject}`, next); // remembered for every test in this subject
   };
+  const isLongCaseSet = longCases && questionSet === "alternative";
   const typeSummary = activeTypes.length === availableTypes.length ? "All available types" : `${activeTypes.length} type${activeTypes.length === 1 ? "" : "s"}`;
   const chooseQuestionSet = (next: QuestionSet) => {
     setQuestionSet(next);
@@ -314,9 +319,14 @@ export default function Quiz(props: Props) {
       : next === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
     setSeen(load<string[]>(nextSeenKey, []));
     if (next === "essentials" && !types.some(t => essentialPool[t].length)) setTypes(ALL_TYPES.filter(t => essentialPool[t].length));
+    if (longCases && next === "alternative" && !types.some(t => alternativePool[t].length)) {
+      setTypes(ALL_TYPES.filter(t => alternativePool[t].length));
+    } else if (longCases && next === "original" && !types.some(t => originalPool[t].length)) {
+      setTypes(ALL_TYPES.filter(t => originalPool[t].length));
+    }
     save(`${storageKey}-question-set`, next);
   };
-  const questionSetLabel = questionSet === "essentials" ? "Eight essential artifacts" : questionSet === "scenarios" ? "Scenario practice" : questionSet === "alternative" ? "Alternative set" : "Original set";
+  const questionSetLabel = questionSet === "essentials" ? "Eight essential artifacts" : questionSet === "scenarios" ? "Scenario practice" : questionSet === "alternative" ? (longCases ? "Long company cases" : "Alternative set") : (longCases ? "Concept review" : "Original set");
 
   const start = () => {
     if (!size.questions) return;
@@ -468,12 +478,12 @@ export default function Quiz(props: Props) {
               <h4 className="qz-h">Question set</h4>
               <div className={`qz-set-tabs${hasScenarios || hasEssentials ? " n3" : ""}`} role="tablist" aria-label="Question set">
                 <button role="tab" aria-selected={questionSet === "original"} onClick={() => chooseQuestionSet("original")}>
-                  <b>Original set</b>
-                  <span>Your existing bank and progress</span>
+                  <b>{longCases ? "Concept review" : "Original set"}</b>
+                  <span>{longCases ? "Short prompts across six formats" : "Your existing bank and progress"}</span>
                 </button>
                 <button role="tab" aria-selected={questionSet === "alternative"} onClick={() => chooseQuestionSet("alternative")}>
-                  <b>Alternative set</b>
-                  <span>New past-quiz-style questions</span>
+                  <b>{longCases ? "Long company cases" : "Alternative set"}</b>
+                  <span>{longCases ? "Read a case, then judge the statements" : "New past-quiz-style questions"}</span>
                 </button>
                 {hasScenarios && (
                   <button role="tab" aria-selected={questionSet === "scenarios"} onClick={() => chooseQuestionSet("scenarios")}>
@@ -488,6 +498,10 @@ export default function Quiz(props: Props) {
                   ? `${poolSize(essentialPool, ALL_TYPES)} focused questions on the eight essential CSVLOD artifacts. Useful priority practice—not a guarantee of your section’s quiz coverage. The full bank stays available in Original set.`
                   : questionSet === "scenarios"
                   ? `${poolSize(scenarioPool, ALL_TYPES)} lesson-validated scenarios. Each round balances Modules 1–3 when possible.`
+                  : isLongCaseSet
+                  ? `${poolSize(alternativePool, ALL_TYPES)} fictional company cases across both parts. Pick the correct combination of statements (including none or all), or select every correct statement using checkboxes.`
+                  : longCases
+                  ? "Review definitions, distinctions, and short applications before working through the longer cases."
                   : questionSet === "alternative"
                   ? `${poolSize(alternativePool, ALL_TYPES)} independently written questions based on the lessons. Each concept appears in one format.`
                   : "The question bank you've already been using. Nothing here was reset or removed."}
@@ -502,7 +516,7 @@ export default function Quiz(props: Props) {
               )}
             </div>
             <div className="qz-types">
-              {QTYPES.map((t) => {
+              {QTYPES.filter(t => !isLongCaseSet || pool[t.key].length > 0).map((t) => {
                 const n = pool[t.key].length;
                 return (
                   <label key={t.key} className={"qz-type" + (n ? "" : " off")}>
@@ -520,7 +534,7 @@ export default function Quiz(props: Props) {
               {shownSizes.map((l) => (
                 <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)} disabled={!l.questions}>
                   <b>{l.key === "quick" ? l.label : `${l.key === "long" && questionSet === "scenarios" ? "All scenarios" : l.label} · ${l.pts} pts`}</b>
-                  <span>{l.questions} questions{midterm && timed ? "" : ` · about ${estMinutes(l.pts)} min`}</span>
+                  <span>{l.questions} questions{midterm && timed ? "" : ` · about ${isLongCaseSet ? 2 * l.questions : estMinutes(l.pts)} min`}</span>
                 </button>
               ))}
             </div>
@@ -572,7 +586,7 @@ export default function Quiz(props: Props) {
 
           {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round prioritizes fresh questions{questionSet === "essentials" ? ", from the eight-essential-artifacts set" : questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? ", from this alternative set" : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
+              Every round prioritizes fresh questions{questionSet === "essentials" ? ", from the eight-essential-artifacts set" : questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? (longCases ? ", from these company cases" : ", from this alternative set") : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (
@@ -640,7 +654,7 @@ export default function Quiz(props: Props) {
           <p className="qz-msg">{msg}</p>
           <p className="qz-note">
             {restarted
-              ? `Some questions needed to repeat. Future rounds prioritize fresh questions, then the ones you practiced longest ago.${hasAlternative && questionSet !== "alternative" ? " Try the Alternative set for a different bank." : ""}`
+              ? `Some questions needed to repeat. Future rounds prioritize fresh questions, then the ones you practiced longest ago.${hasAlternative && questionSet !== "alternative" ? (longCases ? " Try Long company cases for a different bank." : " Try the Alternative set for a different bank.") : ""}`
               : `You've practiced ${seenCount} of ${bank} questions. The next round prioritizes fresh questions, then the least recently practiced ones.`}
           </p>
           {midterm && mods.length > 0 && (
@@ -824,7 +838,7 @@ export default function Quiz(props: Props) {
         <div className={`qz-q-body${checked ? " has-feedback" : ""}`}>
           <span className="qz-section">
             {typeLabel(q)}
-            {q.section.toLowerCase() !== typeLabel(q).toLowerCase() ? ` · ${q.section}` : ""}
+            {longCases && run.questionSet === "alternative" ? " · Long company cases" : q.section.toLowerCase() !== typeLabel(q).toLowerCase() ? ` · ${q.section}` : ""}
           </span>
           {q.kind === "tf" && (
             <>

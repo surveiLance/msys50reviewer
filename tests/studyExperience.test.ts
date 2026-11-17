@@ -21,7 +21,7 @@ test("changing the analysis approach does not silently change the question being
 });
 
 test("every module part has a visual entry and all source links lead to a real notes section", () => {
-  for (let n = 1; n <= 5; n++) {
+  for (let n = 1; n <= 6; n++) {
     const parts = readNotes("msys-50", `module-${n}`);
     const stories = storiesForModule(n);
     for (const part of parts) expect(stories.some(s => s.part === part.num)).toBe(true);

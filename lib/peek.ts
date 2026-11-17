@@ -31,6 +31,26 @@ export function peekTarget(q: Question, fallbackModule: string | undefined, allM
   return { modules: allModules, partId: undefined };
 }
 
+// Section numbers for the Module 6 slide audit, indexed by slide number.
+const MODULE_6_SLIDES: Record<string, number[]> = {
+  "6.1": [0, 0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7],
+  "6.2": [0, 0, 0, 0, 1, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 8, 9],
+};
+
+function citedLessonSections(q: Question, part: string) {
+  const mapping = MODULE_6_SLIDES[part];
+  const slideList = q.kind === "match" ? undefined : q.source?.split(";").map(ref => ref.trim()).find(ref => ref.startsWith(`${part} slide`))?.replace(/^6\.[12] slides?\s+/, "");
+  const sections = new Set<number>();
+  if (mapping && slideList) {
+    for (const range of slideList.matchAll(/(\d+)(?:\s*[–-]\s*(\d+))?/g)) {
+      const first = Number(range[1]);
+      const last = Math.min(Number(range[2] ?? range[1]), mapping.length - 1);
+      for (let slide = first; slide <= last; slide++) if (mapping[slide]) sections.add(mapping[slide]);
+    }
+  }
+  return sections;
+}
+
 export type Peek = { module: string; part: NotePart; section: NoteSection | null; index: number };
 
 /**
@@ -51,12 +71,14 @@ export function findSection(notes: Record<string, NotePart[]>, q: Question, a: A
   for (const [module, parts] of Object.entries(notes)) {
     for (const part of parts) {
       const inPart = partId && part.id === partId ? 2 : partId ? 0 : 1; // prefer the cited part
+      const cited = part.id === partId ? citedLessonSections(q, part.num) : new Set<number>();
       part.sections.forEach((section, index) => {
         if (/guide questions/i.test(section.title)) return; // Q&A lists match everything; skip them
         const text = " " + words(plainText(section.title + " " + section.html)).join(" ") + " ";
         let score = 0;
         query.forEach((w, t) => text.includes(` ${t} `) && (score += w));
         score = score * (inPart ? inPart : 0.5);
+        if (cited.has(index + 1)) score += 1000;
         if (score > bestScore) {
           bestScore = score;
           best = { module, part, section, index };

@@ -95,6 +95,7 @@ export default async function TestPage({ params }: P) {
           blanks={data.blanks}
           alternative={data.alternative}
           essentials={data.essentials?.[info.slug]}
+          longCases={info.slug === "module-6"}
         />
       </div>
     </>

@@ -1,6 +1,7 @@
 import type { BlankItem, McItem, MtfItem, MultiItem, Section, SubjectData, TestSet } from "../../lib/types";
 import { withModule4 } from "./module4";
 import { withModule5 } from "./module5";
+import { withModule6 } from "./module6";
 
 // Independently authored from docs/source/year-3-notes.txt, Modules 1–3 only.
 // Situations test the lesson's reasoning, not recollection of the older bank's wording.
@@ -129,5 +130,5 @@ export function expandQuestionData(data: SubjectData): SubjectData {
     multi[slug] = [...(multi[slug] ?? []), ...bank.multi];
     blanks[slug] = [...(blanks[slug] ?? []), ...bank.blanks];
   }
-  return withModule5(withModule4({ ...data, tests, pools, scenarios, multi, blanks }));
+  return withModule6(withModule5(withModule4({ ...data, tests, pools, scenarios, multi, blanks })));
 }

@@ -1,4 +1,4 @@
-export type SceneKind = "campus" | "alignment" | "city" | "tools" | "branches" | "initiatives" | "dependencies" | "lenses" | "mda" | "zachman" | "soa" | "adm" | "artifacts" | "analysis" | "zoom" | "coverage" | "services";
+export type SceneKind = "campus" | "alignment" | "city" | "tools" | "branches" | "initiatives" | "dependencies" | "lenses" | "mda" | "zachman" | "soa" | "adm" | "artifacts" | "analysis" | "zoom" | "coverage" | "services" | "neuron" | "abstention";
 export type StudyStory = { id: string; part: string; section: number; title: string; invitation: string; kind: SceneKind; takeaway: string };
 
 const stories: Record<number, StudyStory[]> = {
@@ -29,6 +29,10 @@ const stories: Record<number, StudyStory[]> = {
     { id: "viewpoint-lens", part: "5.2", section: 1, title: "Change the lens, keep the campus", invitation: "Try a different person’s question. A useful view changes while its underlying information stays consistent.", kind: "lenses", takeaway: "Model = architectural information. Viewpoint = the lens and conventions. View = selected content. Visualization = its presentation." },
     { id: "coverage", part: "5.2", section: 4, title: "Move a spotlight", invitation: "Illuminate one concern, connect that concern across layers, then broaden to multiple concerns.", kind: "coverage", takeaway: "Details: one layer and one aspect. Coherence expands one dimension. Overview expands both. Purpose is a separate choice." },
     { id: "service-trace", part: "5.3", section: 5, title: "See behind a service", invitation: "Uncover what implements a service, then follow who uses its functionality.", kind: "services", takeaway: "A component realizes a service; the service serves a consumer. These relationships describe responsibility and support, not chronological steps." },
+  ],
+  6: [
+    { id: "neuron", part: "6.1", section: 5, title: "Follow one neuron’s decision", invitation: "Change one weight and watch what the neuron sends to the next layer.", kind: "neuron", takeaway: "A neuron combines weighted inputs and a bias, then applies an activation. A network passes those outputs from layer to layer." },
+    { id: "abstention", part: "6.2", section: 3, title: "Decide when the AI should speak", invitation: "Run the same requests under three policies. Count the answers, errors, and cases people need to handle.", kind: "abstention", takeaway: "A more cautious assistant may make fewer errors while sending more work to people. Track accuracy, coverage, and wrong answers separately." },
   ],
 };
 

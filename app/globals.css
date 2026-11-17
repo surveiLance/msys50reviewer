@@ -419,6 +419,9 @@ figure.dg figcaption{font-size:14px;color:var(--muted);margin-top:10px;line-heig
 .qz-section{font-size:13.5px;font-weight:700;color:var(--accent-ink)}
 .qz-ask{color:var(--muted);font-size:15px}
 .qz-prompt{font-size:18.5px;line-height:1.6}
+.qz-prompt p + p,.qz-rv-prompt p + p{margin-top:12px}
+.qz-prompt ol[type="I"],.qz-rv-prompt ol[type="I"]{list-style:upper-roman;padding-left:2.25em;margin-block:14px 0}
+.qz-prompt ol[type="I"] li + li,.qz-rv-prompt ol[type="I"] li + li{margin-top:6px}
 .qz-prompt u,.qz-rv-prompt u{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
 .qz-input{width:100%;font:16px var(--f-body);padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
 .qz-input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
@@ -478,7 +481,7 @@ figure.dg figcaption{font-size:14px;color:var(--muted);margin-top:10px;line-heig
 .qz-rv-line .c{color:var(--ok);font-weight:700}
 .qz-rv-rows{display:grid;gap:6px;margin:0;padding:0;list-style:none}
 .qz-rv-rows li{display:grid;gap:2px;padding:8px 10px;border-radius:8px;background:var(--surface-2);font-size:14.5px}
-.qz-why{font-size:14.5px;color:var(--muted)}
+.qz-why{font-size:14.5px;color:var(--muted);white-space:pre-line}
 .qz-src{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;color:var(--muted)}
 .qz-src a{color:var(--accent-ink);font-weight:600;text-decoration:none}
 

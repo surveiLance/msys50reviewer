@@ -20,6 +20,7 @@ export const SUBJECTS: SubjectMeta[] = [
       { slug: "module-3", num: 3, title: "Architectural Complexity and Description", parts: ["3.1 Architectural Complexity and Domains", "3.2 Describing Enterprise Architectures"] },
       { slug: "module-4", num: 4, title: "Architecture Approaches, TOGAF, and CSVLOD", parts: ["4.1 Architecture Approaches, Methods, and Frameworks", "4.2 The Open Group Architecture Framework (TOGAF)", "4.3 The CSVLOD Model"], period: "finals" },
       { slug: "module-5", num: 5, title: "Architecture Analysis, Views, and Modeling Languages", parts: ["5.1 Architecture Analysis & Modeling", "5.2 Views and Viewpoints", "5.3 Language for Enterprise Modeling"], period: "finals" },
+      { slug: "module-6", num: 6, title: "Emerging Technologies, AI, and Organizational Preparedness", parts: ["6.1 Impact of Emerging & Disruptive Technologies", "6.2 Current Advances in AI and Organizational Preparedness"], period: "finals" },
     ],
     exam: {
       title: "Midterm",
@@ -28,7 +29,7 @@ export const SUBJECTS: SubjectMeta[] = [
       minutes: 75,
       modules: ["module-1", "module-2", "module-3"],
     },
-    finals: { when: "Late November · exact date to be confirmed", description: "The next modules will appear here as their lesson materials and quizzes are added. Finals coverage will be confirmed separately." },
+    finals: { when: "Late November · exact date to be confirmed", description: "Study the later modules here. Module 6 has long company cases for exam-style practice. Finals coverage will be confirmed separately." },
   },
 ];
 
