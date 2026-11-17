@@ -26,7 +26,7 @@ export type AttemptReviewItem = {
 export type Attempt = {
   id: string;
   at: number; // epoch ms when checked
-  kind: "practice" | "midterm";
+  kind: "practice" | "midterm" | "finals";
   module?: string; // practice: module slug
   set?: string; // practice: set label
   score: number;
@@ -50,14 +50,36 @@ export function loadAttempts(subject: string): Attempt[] {
   return Array.isArray(a) ? a : [];
 }
 
-export function recordAttempt(subject: string, a: Omit<Attempt, "id" | "at">): void {
+export function recordAttempt(subject: string, a: Omit<Attempt, "id" | "at">): boolean {
   const all = loadAttempts(subject);
   all.push({ ...a, id: Math.random().toString(36).slice(2, 10), at: Date.now() });
   const kept = all.slice(-200);
   // Keep every score summary, but limit bulky question snapshots to protect localStorage.
   kept.slice(0, -50).forEach((attempt) => delete attempt.review);
-  save(key(subject), kept);
-  window.dispatchEvent(new Event(SCORES_EVENT));
+  // Long case snapshots are much larger than definition questions. Leave room for
+  // an active run, seen-question histories, and other browser preferences.
+  const budget = 1_000_000; // UTF-16 code units (~2 MB), not a count of attempts.
+  let serialized = JSON.stringify(kept);
+  for (const attempt of kept) {
+    if (serialized.length <= budget) break;
+    if (!attempt.review) continue;
+    delete attempt.review;
+    serialized = JSON.stringify(kept);
+  }
+  // The origin may already be near its quota. Retry by dropping the oldest
+  // remaining details; summary rows and newer details take priority.
+  while (true) {
+    try {
+      localStorage.setItem(key(subject), serialized);
+      window.dispatchEvent(new Event(SCORES_EVENT));
+      return true;
+    } catch {
+      const oldest = kept.find(attempt => attempt.review);
+      if (!oldest) return false;
+      delete oldest.review;
+      serialized = JSON.stringify(kept);
+    }
+  }
 }
 
 export function clearAttempts(subject: string): void {
@@ -78,12 +100,12 @@ export const modTag = (num: number) => `M${num}`;
 
 /**
  * Accuracy for one module from the most recent attempts that touched it:
- * module tests count whole; midterm tests count only that module's tagged items.
+ * module tests count whole; combined exams count only that module's tagged items.
  */
 export function moduleAccuracy(attempts: Attempt[], slug: string, num: number, recent = 5) {
   const tag = modTag(num);
   const hits = attempts
-    .filter((a) => (a.kind === "practice" && a.module === slug) || (a.kind === "midterm" && a.byModule[tag]))
+    .filter((a) => (a.kind === "practice" && a.module === slug) || ((a.kind === "midterm" || a.kind === "finals") && a.byModule[tag]))
     .slice(-recent);
   let c = 0, t = 0;
   for (const a of hits) {

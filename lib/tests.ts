@@ -1,10 +1,11 @@
 import type { SubjectData, SubjectMeta } from "./types";
 import { QTYPES, poolAlternativeMidterm, poolAlternativeModule, poolMidterm, poolModule, poolScenarioMidterm, poolSize } from "./questions";
+import { finalsPool } from "./finals";
 import { examData, examModules } from "./studyStructure";
 
 export type TestInfo = {
   slug: string; // "module-2" or "midterm" → /[subject]/test/[slug]
-  kind: "module" | "midterm";
+  kind: "module" | "midterm" | "finals";
   title: string; // "Module 2 test"
   subtitle: string; // module title, or the exam date
   /** how many questions the test can draw from, across every question type */
@@ -27,6 +28,17 @@ export function listTests(subject: SubjectMeta, data: SubjectData): TestInfo[] {
     bank: poolSize(poolModule(data.tests[m.slug] || {}, m.slug, data.multi?.[m.slug], data.blanks?.[m.slug]), ALL),
     alternativeBank: poolSize(poolAlternativeModule(data.alternative?.[m.slug], m.slug), ALL),
   })).filter(test => test.bank > 0 || (test.alternativeBank ?? 0) > 0);
+  if (subject.finals?.modules?.length) {
+    const coverage = subject.finals.modules;
+    tests.push({
+      slug: "finals",
+      kind: "finals",
+      title: "Finals practice",
+      subtitle: `${coverage.map(module => `Module ${module.replace("module-", "")}`).join(" · ")} · confirmed coverage`,
+      bank: poolSize(finalsPool(data, coverage, false), ALL),
+      alternativeBank: poolSize(finalsPool(data, coverage, true), ALL),
+    });
+  }
   if (subject.exam) {
     const exam = examData(subject, data);
     tests.push({

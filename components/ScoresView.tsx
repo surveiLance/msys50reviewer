@@ -19,7 +19,9 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
   const [all, setAll] = useState<Attempt[] | null>(null);
   const [reviewing, setReviewing] = useState<Attempt | null>(null);
   const base = `/${subject.slug}`;
-  const examName = subject.exam ? `${subject.exam.title} test` : "Exam";
+  const [examKind, setExamKind] = useState<"midterm" | "finals">(subject.finals?.modules?.length ? "finals" : "midterm");
+  const examName = examKind === "finals" ? "Finals practice" : subject.exam ? `${subject.exam.title} test` : "Exam";
+  const examSlug = examKind === "finals" ? "finals" : "midterm";
 
   useEffect(() => {
     const read = () => setAll(loadAttempts(subject.slug));
@@ -61,7 +63,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
     );
   }
 
-  const mids = all.filter((a) => a.kind === "midterm");
+  const mids = all.filter((a) => a.kind === examKind);
   const practice = all.filter((a) => a.kind === "practice");
   const midPcts = mids.map((a) => pct(a.score, a.max));
   const trend = mids.slice(-TREND_MAX);
@@ -75,12 +77,14 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
     return m ? `Module ${m.num}` : "Module";
   };
 
+  const attemptName = (attempt: Attempt) => attempt.kind === "finals" ? "Finals practice" : attempt.kind === "midterm" ? `${subject.exam?.title ?? "Midterm"} test` : `${modName(attempt.module)} test`;
+
   const reset = () => {
     if (window.confirm("Delete all your saved scores for this subject? This can't be undone.")) clearAttempts(subject.slug);
   };
 
   const remove = (attempt: Attempt) => {
-    const name = attempt.kind === "midterm" ? examName : `${modName(attempt.module)} test`;
+    const name = attemptName(attempt);
     if (window.confirm(`Delete ${name} from ${fmtDate(attempt.at)} (${pct(attempt.score, attempt.max)}%)? Its score and saved answers will be removed. This can't be undone.`)) {
       deleteAttempt(subject.slug, attempt.id);
     }
@@ -88,6 +92,10 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
 
   return (
     <div className="scores">
+      {subject.finals?.modules?.length && <div className="qz-modes" role="radiogroup" aria-label="Exam statistics">
+        <button className="qz-mode" type="button" role="radio" aria-checked={examKind === "finals"} onClick={() => setExamKind("finals")}><b>Finals practice</b><span>Modules 4–6</span></button>
+        <button className="qz-mode" type="button" role="radio" aria-checked={examKind === "midterm"} onClick={() => setExamKind("midterm")}><b>Midterm practice</b><span>Modules 1–3</span></button>
+      </div>}
       <div className="tiles">
         <div className="tile">
           <span className="eyebrow">{examName} · best</span>
@@ -103,7 +111,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
                   const d = midPcts[midPcts.length - 1] - midPcts[midPcts.length - 2];
                   return d === 0 ? "Same as the time before" : `${d > 0 ? "▲ up" : "▼ down"} ${Math.abs(d)} points from last time`;
                 })()
-              : mids.length ? "Take it again to see your trend" : <Link href={`${base}/test/midterm`}>Take it now →</Link>}
+              : mids.length ? "Take it again to see your trend" : <Link href={`${base}/test/${examSlug}`}>Take it now →</Link>}
           </span>
         </div>
         <div className="tile">
@@ -127,7 +135,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
 
       <section className="chart-card">
         <h3>Strength by module</h3>
-        <p className="inst">Your accuracy on each module over your last 5 tests that covered it: module tests count in full, and the midterm counts the questions tied to that module.</p>
+        <p className="inst">Your accuracy on each module over your last 5 tests that covered it: module tests count in full, and combined exams count the questions tied to that module.</p>
         <div className="hbars">
           {mods.map(({ m, total, correct, attempts, pct: p }) => {
             const lv = level(p);
@@ -202,19 +210,19 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
               {all.slice().reverse().map((a) => (
                 <tr key={a.id}>
                   <td>
-                    <b>{a.kind === "midterm" ? examName : `${modName(a.module)} test`}</b>
+                    <b>{attemptName(a)}</b>
                     {a.set ? <span className="muted"> · {a.set}</span> : null}
                     <span className="hist-meta">
                       {fmtDate(a.at)} · {fmtDuration(a.seconds)}
-                      {a.kind === "midterm" ? (a.timed ? " · timed" : " · untimed") : ""}
+                      {a.kind !== "practice" ? (a.timed ? " · timed" : " · untimed") : ""}
                       {a.answered < a.max ? ` · ${a.max - a.answered} left blank` : ""}
                     </span>
                     {a.review?.length ? (
                       <button className="hist-review-btn" type="button" onClick={() => setReviewing(a)}>Review answers →</button>
                     ) : (
-                      <span className="hist-old">Summary only · completed before answer history was added</span>
+                      <span className="hist-old">Score summary retained · answer details are no longer stored</span>
                     )}
-                    <button className="hist-delete-btn" type="button" aria-label={`Delete ${a.kind === "midterm" ? examName : `${modName(a.module)} test`} from ${fmtDate(a.at)}`} onClick={() => remove(a)}>Delete attempt</button>
+                    <button className="hist-delete-btn" type="button" aria-label={`Delete ${attemptName(a)} from ${fmtDate(a.at)}`} onClick={() => remove(a)}>Delete attempt</button>
                   </td>
                   <td className="hist-score"><b>{pct(a.score, a.max)}%</b><span className="hist-meta">{a.score} of {a.max}</span></td>
                 </tr>
@@ -235,7 +243,7 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
             <header className="hist-dialog-head">
               <div>
                 <span className="eyebrow">{fmtDate(reviewing.at)} · {fmtDuration(reviewing.seconds)}</span>
-                <h3 id="hist-title">{reviewing.kind === "midterm" ? examName : `${modName(reviewing.module)} test`} · {pct(reviewing.score, reviewing.max)}%</h3>
+                <h3 id="hist-title">{attemptName(reviewing)} · {pct(reviewing.score, reviewing.max)}%</h3>
                 {reviewing.set && <p>{reviewing.set}</p>}
               </div>
               <button className="peek-x" type="button" aria-label="Close answer history" onClick={() => setReviewing(null)}>×</button>

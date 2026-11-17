@@ -5,10 +5,11 @@ import Link from "next/link";
 import type { AlternativeQuestion, BlankItem, McItem, MidtermSpec, MtfItem, MultiItem, TestSet } from "@/lib/types";
 import { load, save } from "@/lib/quiz";
 import {
-  type Answer, type Graded, type QType, type Question, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
+  type Answer, type Graded, type QType, type Question, type Pool, MULTI_POINTS, QTYPES, TRUE_MARK, grade, pickTypes, points,
   poolAlternativeMidterm, poolAlternativeModule, poolEssentialModule, poolMidterm, poolModule, poolScenarioMidterm,
   poolSize, roundCounts, roundPoints, totalPoints, typeLabel, modifiedPrompt,
 } from "@/lib/questions";
+import { finalsRoundCounts, pickFinalsRound } from "@/lib/finals";
 import { pct, recordAttempt, type AttemptReviewItem } from "@/lib/scores";
 import RecordStrip from "./RecordStrip";
 import NotesPeek from "./NotesPeek";
@@ -17,7 +18,8 @@ type Props = {
   subject: string;
   storageKey: string;
   title: string; // "Module 2 test" / "Midterm test"
-  kind: "module" | "midterm";
+  kind: "module" | "midterm" | "finals";
+  finals?: { concepts: Pool; cases: Pool };
   // module test
   module?: string;
   sets?: Record<string, TestSet>;
@@ -145,7 +147,7 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
 function reviewSnapshot(q: Question, a: Answer, g: Graded): AttemptReviewItem {
   const base = {
     type: typeLabel(q), section: q.section, points: g.points, max: g.max,
-    module: q.kind === "match" ? undefined : q.mod,
+    module: q.mod,
   };
   if (q.kind === "match") return {
     ...base,
@@ -183,6 +185,8 @@ function reviewSnapshot(q: Question, a: Answer, g: Graded): AttemptReviewItem {
 export default function Quiz(props: Props) {
   const { subject, storageKey, kind, longCases } = props;
   const midterm = kind === "midterm";
+  const finalExam = kind === "finals";
+  const combinedExam = midterm || finalExam;
   const runKey = `run3-${storageKey}`;
   const lengths: { key: LengthKey; label: string; points: number }[] = [
     { key: "quick", label: "Quick 10", points: 0 },
@@ -194,15 +198,16 @@ export default function Quiz(props: Props) {
   const [phase, setPhase] = useState<"setup" | "run" | "done">("setup");
   const [run, setRun] = useState<Run | null>(null);
   const [saved, setSaved] = useState<Run | null>(null);
-  const [timed, setTimed] = useState(true);
+  const [timed, setTimed] = useState(!finalExam);
   const [instantFeedback, setInstantFeedback] = useState(false);
   const [now, setNow] = useState(0);
   const [timeUp, setTimeUp] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [scoreSaved, setScoreSaved] = useState<boolean | null>(null);
   const [recordedAt, setRecordedAt] = useState<number | null>(null);
-  const [length, setLength] = useState<LengthKey>(midterm ? "long" : "quick");
+  const [length, setLength] = useState<LengthKey>(combinedExam ? "long" : "quick");
   const [questionSet, setQuestionSet] = useState<QuestionSet>(longCases ? "alternative" : "original");
-  const [types, setTypes] = useState<QType[]>(ALL_TYPES);
+  const [types, setTypes] = useState<QType[]>(finalExam ? ["mc", "multi"] : ALL_TYPES);
   const [seen, setSeen] = useState<string[]>([]);
   const [restarted, setRestarted] = useState(false);
   const feedbackRef = useRef<HTMLDivElement>(null);
@@ -210,14 +215,14 @@ export default function Quiz(props: Props) {
   const [peek, setPeek] = useState<{ q: Question; a?: Answer } | null>(null);
   const closePeek = useCallback(() => setPeek(null), []);
   const peekRow = (q: Question & { kind: "match" }, ri: number) =>
-    setPeek({ q: { kind: "mc", id: `${q.id}:${ri}`, section: q.section, prompt: q.rows[ri].prompt, options: [], answer: q.rows[ri].answer } });
+    setPeek({ q: { kind: "mc", id: `${q.id}:${ri}`, section: q.section, prompt: q.rows[ri].prompt, options: [], answer: q.rows[ri].answer, mod: q.mod } });
 
   useEffect(() => {
     const r = load<Run | null>(runKey, null);
     if (r && r.v === 3 && Array.isArray(r.qs) && r.qs.length) setSaved(r);
     const len = load<string | null>(`${storageKey}-len`, null);
     if (len === "quick" || len === "short" || len === "medium" || len === "long") setLength(len);
-    const ts = load<string[] | null>(`types-${subject}`, null);
+    const ts = load<string[] | null>(finalExam ? `${storageKey}-types` : `types-${subject}`, null);
     if (Array.isArray(ts)) setTypes(ALL_TYPES.filter((t) => ts.includes(t)));
     setInstantFeedback(load<boolean>(`feedback-${subject}`, false));
     const set = load<string | null>(`${storageKey}-question-set`, null);
@@ -231,7 +236,7 @@ export default function Quiz(props: Props) {
       const supported = poolEssentialModule(props.essentials, props.module || "");
       if (Array.isArray(ts) && !ALL_TYPES.some(t => ts.includes(t) && supported[t].length)) setTypes(ALL_TYPES.filter(t => supported[t].length));
     }
-  }, [runKey, storageKey, subject, midterm, props.alternative, props.scenarios, props.essentials, props.module, longCases]);
+  }, [runKey, storageKey, subject, midterm, finalExam, props.alternative, props.scenarios, props.essentials, props.module, longCases]);
 
   // Focus mode: only the test is on screen while it runs.
   useEffect(() => {
@@ -256,23 +261,23 @@ export default function Quiz(props: Props) {
   // The original bank remains untouched; the alternative bank has its own questions and seen history.
   const originalPool = useMemo(
     () =>
-      midterm
+      props.finals?.concepts ?? (midterm
         ? poolMidterm(props.midterm!, props.pools || {}, props.scenarios || {}, props.tests || {}, props.multi, props.blanks)
-        : poolModule(props.sets || {}, props.module || "", props.multi?.[props.module || ""], props.blanks?.[props.module || ""]),
+        : poolModule(props.sets || {}, props.module || "", props.multi?.[props.module || ""], props.blanks?.[props.module || ""])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [midterm, props.sets, props.midterm, props.multi, props.blanks],
+    [midterm, props.sets, props.midterm, props.multi, props.blanks, props.finals],
   );
   const alternativePool = useMemo(
-    () => midterm
+    () => props.finals?.cases ?? (midterm
       ? poolAlternativeMidterm(props.alternative)
-      : poolAlternativeModule(props.alternative?.[props.module || ""], props.module || ""),
-    [midterm, props.alternative, props.module],
+      : poolAlternativeModule(props.alternative?.[props.module || ""], props.module || "")),
+    [midterm, props.alternative, props.module, props.finals],
   );
   const scenarioPool = useMemo(() => poolScenarioMidterm(midterm ? props.scenarios : {}), [midterm, props.scenarios]);
   const essentialPool = useMemo(() => poolEssentialModule(props.essentials, props.module || ""), [props.essentials, props.module]);
   const hasAlternative = poolSize(alternativePool, ALL_TYPES) > 0;
   const hasScenarios = midterm && poolSize(scenarioPool, ALL_TYPES) > 0;
-  const hasEssentials = !midterm && poolSize(essentialPool, ALL_TYPES) > 0;
+  const hasEssentials = !combinedExam && poolSize(essentialPool, ALL_TYPES) > 0;
   const pool = questionSet === "essentials" && hasEssentials ? essentialPool : questionSet === "scenarios" && hasScenarios
     ? scenarioPool
     : questionSet === "alternative" && hasAlternative ? alternativePool : originalPool;
@@ -281,14 +286,24 @@ export default function Quiz(props: Props) {
     : questionSet === "alternative" ? `${storageKey}-alternative-seen1` : `${storageKey}-seen3`;
   useEffect(() => setSeen(load<string[]>(seenKey, [])), [seenKey]);
   const sizes = useMemo(
-    () =>
-      lengths.map((l) => {
+    () => {
+      if (finalExam) return [
+        { key: "quick" as const, label: "Quick 10", target: 10 },
+        { key: "medium" as const, label: "Practice 20", target: 20 },
+        { key: "long" as const, label: "Full practice", target: 30 },
+      ].map(l => {
+        const { allocations, questions } = finalsRoundCounts(pool, types, l.target);
+        return { ...l, points: 0, counts: {} as Record<QType, number>, questions,
+          pts: allocations.reduce((sum, { group, counts }) => sum + roundPoints(group, counts), 0) };
+      });
+      return lengths.map((l) => {
         const counts = roundCounts(pool, types, l.points, l.key === "quick");
         const questions = (Object.values(counts) as number[]).reduce((a, b) => a + b, 0);
         return { ...l, counts, questions, pts: roundPoints(pool, counts) };
-      }),
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pool, types, midterm],
+    [pool, types, midterm, finalExam],
   );
   // Hide lengths that can't be bigger than the one before (a small bank caps them all).
   const shownSizes = sizes.filter((l, i) => i === 0 || l.questions > sizes[i - 1].questions);
@@ -301,14 +316,14 @@ export default function Quiz(props: Props) {
     return seen.filter((id) => ids.has(id)).length;
   }, [seen, pool, types]);
   // Scenario practice uses the instructor's one-hour completion target; other midterm rounds scale from the 75-minute exam.
-  const minutes = questionSet === "scenarios"
+  const minutes = finalExam ? Math.max(5, size.questions * (questionSet === "alternative" ? 2 : 1)) : questionSet === "scenarios"
     ? Math.max(5, Math.ceil((60 * size.questions) / Math.max(1, poolSize(scenarioPool, ALL_TYPES))))
     : props.timerMinutes ? Math.max(5, Math.ceil((props.timerMinutes * size.pts) / EXAM_POINTS)) : 0;
 
   const toggleType = (t: QType) => {
     const next = types.includes(t) ? types.filter((x) => x !== t) : ALL_TYPES.filter((x) => x === t || types.includes(x));
     setTypes(next);
-    save(`types-${subject}`, next); // remembered for every test in this subject
+    save(finalExam ? `${storageKey}-types` : `types-${subject}`, next); // remembered for every test in this subject
   };
   const isLongCaseSet = longCases && questionSet === "alternative";
   const typeSummary = activeTypes.length === availableTypes.length ? "All available types" : `${activeTypes.length} type${activeTypes.length === 1 ? "" : "s"}`;
@@ -330,7 +345,7 @@ export default function Quiz(props: Props) {
 
   const start = () => {
     if (!size.questions) return;
-    const r = pickTypes(pool, size.counts, seen);
+    const r = finalExam ? pickFinalsRound(pool, types, size.questions, seen) : pickTypes(pool, size.counts, seen);
     setSeen(r.seen);
     setRestarted(r.restarted);
     save(seenKey, r.seen);
@@ -338,8 +353,8 @@ export default function Quiz(props: Props) {
     const t = Date.now();
     setRun({
       v: 3, qs: r.qs, answers: r.qs.map(() => ({})), idx: 0, startedAt: t,
-      deadline: midterm && timed && minutes ? t + minutes * 60_000 : null,
-      timed: midterm ? timed : undefined, label: `${questionSetLabel} · ${size.key === "long" && questionSet === "scenarios" ? "All scenarios" : size.label} · ${typeSummary}`,
+      deadline: combinedExam && timed && minutes ? t + minutes * 60_000 : null,
+      timed: combinedExam ? timed : undefined, label: `${questionSetLabel} · ${size.key === "long" && questionSet === "scenarios" ? "All scenarios" : size.label} · ${typeSummary}`,
       feedback: instantFeedback, revealed: false,
       questionSet,
     });
@@ -406,14 +421,14 @@ export default function Quiz(props: Props) {
       p[0] += graded[i].points;
       p[1] += graded[i].max;
       parts.set(key, p);
-      if (q.kind !== "match" && q.mod) {
+      if (q.mod) {
         byModule[q.mod] = byModule[q.mod] || [0, 0];
         byModule[q.mod][0] += graded[i].points;
         byModule[q.mod][1] += graded[i].max;
       }
     });
-    recordAttempt(subject, {
-      kind: midterm ? "midterm" : "practice",
+    const persisted = recordAttempt(subject, {
+      kind: finalExam ? "finals" : midterm ? "midterm" : "practice",
       module: props.module,
       set: run.label,
       score: graded.reduce((s, g) => s + g.points, 0),
@@ -425,7 +440,8 @@ export default function Quiz(props: Props) {
       parts: [...parts].map(([k, [c, t]]) => [k, c, t]),
       review: run.qs.map((q, i) => reviewSnapshot(q, run.answers[i], graded[i])),
     });
-  }, [phase, run, graded, recordedAt, subject, midterm, props.module, timeUp]);
+    setScoreSaved(persisted);
+  }, [phase, run, graded, recordedAt, subject, midterm, finalExam, props.module, timeUp]);
 
   const update = (patch: Partial<Answer>) =>
     setRun((r) => {
@@ -499,7 +515,7 @@ export default function Quiz(props: Props) {
                   : questionSet === "scenarios"
                   ? `${poolSize(scenarioPool, ALL_TYPES)} lesson-validated scenarios. Each round balances Modules 1–3 when possible.`
                   : isLongCaseSet
-                  ? `${poolSize(alternativePool, ALL_TYPES)} fictional company cases across both parts. Pick the correct combination of statements (including none or all), or select every correct statement using checkboxes.`
+                  ? `${poolSize(alternativePool, ALL_TYPES)} fictional company cases ${finalExam ? "across Modules 4–6" : "across both parts"}. Pick the correct combination of statements (including none or all), or select every correct statement using checkboxes.`
                   : longCases
                   ? "Review definitions, distinctions, and short applications before working through the longer cases."
                   : questionSet === "alternative"
@@ -533,8 +549,8 @@ export default function Quiz(props: Props) {
             <div className={`qz-modes n${shownSizes.length}`} role="radiogroup" aria-label="Test length">
               {shownSizes.map((l) => (
                 <button key={l.key} className="qz-mode" role="radio" aria-checked={size.key === l.key} onClick={() => setLength(l.key)} disabled={!l.questions}>
-                  <b>{l.key === "quick" ? l.label : `${l.key === "long" && questionSet === "scenarios" ? "All scenarios" : l.label} · ${l.pts} pts`}</b>
-                  <span>{l.questions} questions{midterm && timed ? "" : ` · about ${isLongCaseSet ? 2 * l.questions : estMinutes(l.pts)} min`}</span>
+                  <b>{finalExam ? l.label : l.key === "quick" ? l.label : `${l.key === "long" && questionSet === "scenarios" ? "All scenarios" : l.label} · ${l.pts} pts`}</b>
+                  <span>{l.questions} questions{combinedExam && timed ? "" : ` · about ${isLongCaseSet ? 2 * l.questions : finalExam ? l.questions : estMinutes(l.pts)} min`}</span>
                 </button>
               ))}
             </div>
@@ -571,11 +587,11 @@ export default function Quiz(props: Props) {
             </ul>
           )}
 
-          {midterm && (
+          {combinedExam && (
             <div className="qz-modes" role="radiogroup" aria-label="Timer">
               <button className="qz-mode" role="radio" aria-checked={timed} onClick={() => setTimed(true)}>
                 <b>Timed · {minutes} min</b>
-                <span>{size.key === "long" && questionSet === "scenarios" ? "A one-hour scenario target." : size.key === "long" ? "Like the real exam." : questionSet === "scenarios" ? "Scaled from the one-hour scenario target." : "Scaled to this length."} Submits when time runs out.</span>
+                <span>{finalExam ? "Practice pacing only; the official exam duration is not specified." : size.key === "long" && questionSet === "scenarios" ? "A one-hour scenario target." : size.key === "long" ? "Like the real exam." : questionSet === "scenarios" ? "Scaled from the one-hour scenario target." : "Scaled to this length."} Submits when time runs out.</span>
               </button>
               <button className="qz-mode" role="radio" aria-checked={!timed} onClick={() => setTimed(false)}>
                 <b>Untimed</b>
@@ -586,7 +602,7 @@ export default function Quiz(props: Props) {
 
           {activeTypes.length > 0 ? (
             <p className="qz-note">
-              Every round prioritizes fresh questions{questionSet === "essentials" ? ", from the eight-essential-artifacts set" : questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? (longCases ? ", from these company cases" : ", from this alternative set") : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
+              Every round prioritizes fresh questions{finalExam ? ", balanced across Modules 4–6" : questionSet === "essentials" ? ", from the eight-essential-artifacts set" : questionSet === "scenarios" ? ", balanced across Modules 1–3" : midterm ? ", from every module" : questionSet === "alternative" ? (longCases ? ", from these company cases" : ", from this alternative set") : ", from all of this module's question sets"}. Once those run out, the least recently practiced questions return first. Matching rows rotate too.
               {seenCount > 0 ? ` You've practiced ${seenCount} of ${bank} questions.` : ` ${bank} questions to rotate through.`}
             </p>
           ) : (
@@ -596,7 +612,7 @@ export default function Quiz(props: Props) {
           <button className="btn primary qz-start" onClick={start} disabled={!size.questions}>Start test</button>
         </div>
         <div style={{ marginTop: 12 }}>
-          <RecordStrip subject={subject} kind={midterm ? "midterm" : "practice"} module={props.module} />
+          <RecordStrip subject={subject} kind={finalExam ? "finals" : midterm ? "midterm" : "practice"} module={props.module} />
         </div>
       </div>
     );
@@ -614,8 +630,8 @@ export default function Quiz(props: Props) {
       const ix = items.filter((x) => typeLabel(x.q) === s);
       return { s, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.reduce((a, x) => a + x.g.max, 0) };
     });
-    const mods = [...new Set(run.qs.flatMap((q) => (q.kind !== "match" && q.mod ? [q.mod] : [])))].sort().map((m) => {
-      const ix = items.filter((x) => x.q.kind !== "match" && x.q.mod === m);
+    const mods = [...new Set(run.qs.flatMap((q) => (q.mod ? [q.mod] : [])))].sort().map((m) => {
+      const ix = items.filter((x) => x.q.mod === m);
       return { m, c: ix.reduce((a, x) => a + x.g.points, 0), t: ix.reduce((a, x) => a + x.g.max, 0) };
     });
     const msg =
@@ -630,7 +646,7 @@ export default function Quiz(props: Props) {
       const t = Date.now();
       setRun({
         v: 3, qs, answers: qs.map(() => ({})), idx: 0, startedAt: t,
-        deadline: null, timed: midterm ? false : undefined,
+        deadline: null, timed: combinedExam ? false : undefined,
         label: `Retry wrong answers · ${qs.length} question${qs.length === 1 ? "" : "s"}`,
         feedback: run.feedback, revealed: false,
         questionSet: run.questionSet,
@@ -652,12 +668,13 @@ export default function Quiz(props: Props) {
             <span>{fmtPts(score)} of {max} points</span>
           </div>
           <p className="qz-msg">{msg}</p>
+          {scoreSaved === false && <p role="alert" className="qz-note">This browser could not save your score. Keep this page open to review your answers.</p>}
           <p className="qz-note">
             {restarted
               ? `Some questions needed to repeat. Future rounds prioritize fresh questions, then the ones you practiced longest ago.${hasAlternative && questionSet !== "alternative" ? (longCases ? " Try Long company cases for a different bank." : " Try the Alternative set for a different bank.") : ""}`
               : `You've practiced ${seenCount} of ${bank} questions. The next round prioritizes fresh questions, then the least recently practiced ones.`}
           </p>
-          {midterm && mods.length > 0 && (
+          {combinedExam && mods.length > 0 && (
             <div className="qz-breakdown">
               {mods.map(({ m, c, t }) => (
                 <div key={m}><span>Module {m.slice(1)}</span><b>{pct(c, t)}%</b><em>{fmtPts(c)}/{t}</em></div>
@@ -839,6 +856,7 @@ export default function Quiz(props: Props) {
           <span className="qz-section">
             {typeLabel(q)}
             {longCases && run.questionSet === "alternative" ? " · Long company cases" : q.section.toLowerCase() !== typeLabel(q).toLowerCase() ? ` · ${q.section}` : ""}
+            {finalExam && q.mod ? ` · Module ${q.mod.slice(1)}` : ""}
           </span>
           {q.kind === "tf" && (
             <>

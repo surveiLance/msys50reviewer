@@ -16,6 +16,9 @@ export default function NextStep({ subject, module, view }: { subject: SubjectMe
           <b>Take the Module {m.num} test →</b>
           <span>Only this module</span>
         </Link>
+        {subject.finals?.modules?.includes(m.slug) && <Link href={`${base}/test/finals`} className="next-opt">
+          <b>Try finals practice →</b><span>Modules 4–6 · long company cases</span>
+        </Link>}
         {subject.exam && (!subject.exam.modules || subject.exam.modules.includes(m.slug)) && (
           <Link href={`${base}/test/midterm`} className="next-opt">
             <b>Take the {subject.exam.title.toLowerCase()} test →</b>

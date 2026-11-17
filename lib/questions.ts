@@ -10,7 +10,7 @@ import { norm, sample, shuffle } from "./quiz";
 export type Question =
   | { kind: "tf"; id: string; section: string; prompt: string; isTrue: boolean; accept: string[]; answer: string; source?: string; mod?: string; why?: string }
   | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string }
-  | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[] }
+  | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[]; mod?: string }
   // Mixed style (Canvas "classic" quiz types):
   | { kind: "tf2"; id: string; section: string; prompt: string; isTrue: boolean; underlined?: string; fix?: string; why?: string; source?: string; mod?: string }
   | { kind: "multi"; id: string; section: string; prompt: string; options: string[]; correct: string[]; why?: string; source?: string; mod?: string }

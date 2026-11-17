@@ -29,7 +29,7 @@ export const SUBJECTS: SubjectMeta[] = [
       minutes: 75,
       modules: ["module-1", "module-2", "module-3"],
     },
-    finals: { when: "Late November · exact date to be confirmed", description: "Study the later modules here. Module 6 has long company cases for exam-style practice. Finals coverage will be confirmed separately." },
+    finals: { when: "Late November · exact date to be confirmed", description: "Modules 4–6 · long company cases, statement combinations, and checkbox questions.", modules: ["module-4", "module-5", "module-6"] },
   },
 ];
 

@@ -139,3 +139,8 @@ Everything is committed and pushed; `npm run build` passes.
 
 ## Ideas the owner may want next (ask first)
 - Deploy to Vercel and enable Analytics, then share the link with classmates.
+
+**Nov 18 — Finals coverage confirmed:** the owner confirmed **Modules 4–6**. A combined finals practice exam is now authorized, with the long case formats described above. Keep its identity and saved progress separate from the archived Modules 1–3 midterm. Official exam duration and question count are unconfirmed; label practice pacing accordingly.
+
+
+**Finals practice implementation:** `/msys-50/test/finals` uses 60 long cases (20/module) and a separately scoped concept bank, with 10/20/30-question rounds. The full round balances 10 questions/module. See `docs/content/finals-source-audit.md`. `lib/finals.ts` scopes and balances the pool; `content/msys-50/finals.ts` assembles cases. Scores have a distinct `finals` kind. Do not use the 85-point midterm timer to pace finals. Long answer snapshots are trimmed by both count and size to preserve score saving in browser storage.

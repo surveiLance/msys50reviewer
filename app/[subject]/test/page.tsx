@@ -34,6 +34,14 @@ export default async function TestsPage({ params }: P) {
         <h1 className="study-page-title">Practice tests</h1>
         <p>Choose a module below, then pick your question types and length. Finished tests appear in Scores &amp; history above.</p>
       </div>
+      {tests.filter(t => t.kind === "finals").map(t => <section className="study-section" key={t.slug} aria-labelledby="finals-practice-heading">
+        <h2 id="finals-practice-heading">Prepare for finals</h2>
+        <div className="test-list"><Link href={`/${subject.slug}/test/finals`} className="test-item exam">
+          <b>{t.title}</b><span className="meta">{t.subtitle}</span>
+          <span className="meta">{t.alternativeBank} long company cases · statement combinations and select-all · 10, 20, or 30 questions</span>
+          <RecordStrip subject={subject.slug} kind="finals" compact /><span className="go">Start →</span>
+        </Link></div>
+      </section>)}
       {studyGroups(subject).map(group => {
         const items = tests.filter(t => t.kind === "module" && group.modules.some(m => m.slug === t.slug));
         if (!items.length) return null;

@@ -45,6 +45,8 @@ export type SubjectData = {
   alternative?: Record<string, AlternativeQuestion[]>;
   /** Optional, independent practice focused on essential CSVLOD artifacts. */
   essentials?: Record<string, AlternativeQuestion[]>;
+  /** Long case practice for an explicitly scoped finals exam. */
+  finalCases?: Record<string, AlternativeQuestion[]>;
 };
 
 export type ModuleMeta = { slug: string; num: number; title: string; parts: string[]; period?: "midterm" | "finals" };
@@ -65,5 +67,5 @@ export type SubjectMeta = {
   blurb: string;
   modules: ModuleMeta[];
   exam?: ExamMeta;
-  finals?: { when: string; description: string };
+  finals?: { when: string; description: string; modules?: string[] };
 };

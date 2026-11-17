@@ -36,6 +36,10 @@ export default async function SubjectPage({ params }: P) {
         <Link href={`${base}/test`}><b>Practice tests</b><span>Choose a module or review exam →</span></Link>
         <Link href={`${base}/test/scores`}><b>Scores &amp; history</b><span>Review your completed attempts →</span></Link>
       </nav>
+      {subject.finals?.modules?.length && <aside className="study-exam">
+        <div><span className="eyebrow">Confirmed coverage · Modules 4–6</span><h2>Ready for a full practice round?</h2><p className="inst">Long company cases, statement combinations, and select-all questions. Review each answer as you go or after submitting.</p></div>
+        <Link href={`${base}/test/finals`} className="btn primary">Finals practice →</Link>
+      </aside>}
       <div id="available-modules" className="study-modules">
       {studyGroups(subject).filter(group => group.modules.length).map(group => <section className="study-section" key={group.id} aria-labelledby={`group-${group.id}`}>
         <div className="study-section-heading"><div><span className="eyebrow">{group.id === "midterm" ? "Foundation · still available" : "Next chapter"}</span><h2 id={`group-${group.id}`}>{group.title}</h2></div><span className="study-badge">{group.modules.length} modules available</span></div>

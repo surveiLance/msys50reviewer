@@ -31,15 +31,21 @@ export function peekTarget(q: Question, fallbackModule: string | undefined, allM
   return { modules: allModules, partId: undefined };
 }
 
-// Section numbers for the Module 6 slide audit, indexed by slide number.
-const MODULE_6_SLIDES: Record<string, number[]> = {
+// Notes section numbers from the Module 4–6 slide audits, indexed by slide number.
+const LESSON_SLIDES: Record<string, number[]> = {
+  "4.1": [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 3, 3, 3, 4, 4],
+  "4.2": [0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 4, 4, 4],
+  "4.3": [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9],
+  "5.1": [0, 0, 0, 0, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 8, 9, 9, 10, 11, 11, 11],
+  "5.2": [0, 0, 0, 0, 1, 2, 1, 3, 3, 4, 3, 6, 6, 5, 6],
+  "5.3": [0, 0, 0, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 7],
   "6.1": [0, 0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7],
   "6.2": [0, 0, 0, 0, 1, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 8, 9],
 };
 
 function citedLessonSections(q: Question, part: string) {
-  const mapping = MODULE_6_SLIDES[part];
-  const slideList = q.kind === "match" ? undefined : q.source?.split(";").map(ref => ref.trim()).find(ref => ref.startsWith(`${part} slide`))?.replace(/^6\.[12] slides?\s+/, "");
+  const mapping = LESSON_SLIDES[part];
+  const slideList = q.kind === "match" ? undefined : q.source?.split(";").map(ref => ref.trim()).find(ref => ref.startsWith(`${part} slide`))?.replace(/^\d+\.\d+ slides?\s+/, "");
   const sections = new Set<number>();
   if (mapping && slideList) {
     for (const range of slideList.matchAll(/(\d+)(?:\s*[–-]\s*(\d+))?/g)) {

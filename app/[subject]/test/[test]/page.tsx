@@ -4,6 +4,7 @@ import SubjectNav from "@/components/SubjectNav";
 import Quiz from "@/components/Quiz";
 import { SUBJECTS, getSubject, getSubjectData } from "@/lib/subjects";
 import { readContent } from "@/lib/content";
+import { finalsPool } from "@/lib/finals";
 import { listTests } from "@/lib/tests";
 import { examData, examModules } from "@/lib/studyStructure";
 
@@ -32,6 +33,23 @@ export default async function TestPage({ params }: P) {
   if (!subject || !data) notFound();
   const info = listTests(subject, data).find((t) => t.slug === test);
   if (!info) notFound();
+
+  if (info.kind === "finals") {
+    const modules = subject.finals?.modules ?? [];
+    return <>
+      <SubjectNav subject={subject} active={{ test: true }} />
+      <div className="mod-head">
+        <div className="eyebrow">{subject.code} · Modules 4–6</div>
+        <h2>{info.title}</h2>
+        <p>Choose long company cases or a concept review. Every round balances Modules 4–6. This is original practice grounded in your lessons.</p>
+      </div>
+      <div className="sub">
+        <Quiz kind="finals" title={info.title} subject={subject.slug}
+          storageKey={`finals-${subject.slug}`} modules={modules} longCases
+          finals={{ concepts: finalsPool(data, modules, false), cases: finalsPool(data, modules, true) }} />
+      </div>
+    </>;
+  }
 
   if (info.kind === "midterm") {
     const exam = examData(subject, data);
