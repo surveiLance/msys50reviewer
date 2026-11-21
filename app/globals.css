@@ -842,7 +842,8 @@ mark.peek-hl{background:var(--accent-soft);color:var(--ink);box-shadow:0 0 0 2px
 .case-reason{color:var(--muted)}
 .case-links{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 16px;font-size:13px;color:var(--muted)}
 .case-links details span{display:block;margin-top:4px}
-.case-context summary,.case-links summary{cursor:pointer}
+.case-context summary,.case-links summary,.case-other-options summary{cursor:pointer}
+.case-other-options[open] summary{margin-bottom:8px}
 .case-context .qz-rv-prompt{margin-top:8px}
 .qz-rv>li.case-result{padding:0}
 .case-result>details>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none}

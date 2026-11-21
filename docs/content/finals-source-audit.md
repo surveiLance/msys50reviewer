@@ -12,13 +12,15 @@ Use the supplied lesson decks and class notes, with the existing Module 4, 5, an
 - **Module 5:** 20 new cases (10 combinations, 10 select-all); part coverage 7/7/6. Covers independent analysis axes, activities vs actions, Grice, model selection and communication, stakeholder viewpoints and independent purpose/content coverage, validation vs commitment, layered services, core concepts, relation symbols, and language selection. Contexts are 133–148 words, 148–163 including title and task. Excludes ambiguous figure connectors, unseen reading contents and unverified extension definitions.
 - **Module 6:** the existing 20 long cases (10 combinations, 10 select-all), evenly split between 6.1 and 6.2. Reused with its audited sources rather than paraphrasing the same questions to inflate the bank. Benchmark/status discrepancies excluded from grading as recorded in `module6-source-audit.md`.
 
-All 60 passages meet 120–170 words before the statements. Each single-choice item has three Roman-numbered statements and four distinct combination choices; answer categories include only one, subsets, none, and all. Select-all items have four choices with nonempty correct sets. Every statement is explained separately. Option order rotates, but the underlying answer does not change.
+The original 60 passages meet 120–170 words before the statements. Each statement-combination item has three Roman-numbered statements and four distinct choices covering only one, subsets, none, or all. Select-all items have four choices with nonempty correct sets. Every statement is explained separately.
+
+The November 21 expansion added 54 original cases across the three modules, each with two paragraphs of company context, a specific decision, and one explanation per option. The bank now has 114 cases, including 36 single best answers, 30 statement combinations, and 48 select-all questions. The original case IDs remain stable for saved rounds and question history.
 
 ## Delivery
 
 - Default: long cases, both supported formats, untimed. Choose 10, 20, or 30 questions.
 - A full 30-question round has 10 from each module when the selected formats have enough items. Shorter rounds differ by at most one question per module. If a bank is too small, redistribute unused places.
-- Prioritize module balance, then unseen questions within the selected types. Question history is separate for concept and long-case practice; once exhausted, oldest items return first.
+- Prioritize module balance, then unseen questions within the selected types. Multiple-choice draws mix best-answer cases and statement combinations when available. Correct answer positions rotate. Question history is separate for concept and long-case practice. Once exhausted, oldest items return first.
 - Suggested pacing is two minutes per case (or one per concept question), explicitly labelled practice pacing. The timer is optional and not represented as the official exam duration.
 - Existing forward-only answers, on-demand feedback, resume, wrong-answer retry, per-module breakdown, and history use the shared quiz engine.
 - Source review now uses the Module 4–6 slide-to-section mapping before keyword overlap so long company context does not drown out the actual citation.

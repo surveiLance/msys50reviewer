@@ -502,7 +502,7 @@ export default function Quiz(props: Props) {
                 </button>
                 <button role="tab" aria-selected={questionSet === "alternative"} onClick={() => chooseQuestionSet("alternative")}>
                   <b>{longCases ? "Long company cases" : "Alternative set"}</b>
-                  <span>{longCases ? "Read a case, then judge the statements" : "New past-quiz-style questions"}</span>
+                  <span>{finalExam ? "Make decisions in realistic company scenarios" : longCases ? "Read a case, then judge the statements" : "New past-quiz-style questions"}</span>
                 </button>
                 {hasScenarios && (
                   <button role="tab" aria-selected={questionSet === "scenarios"} onClick={() => chooseQuestionSet("scenarios")}>
@@ -518,7 +518,9 @@ export default function Quiz(props: Props) {
                   : questionSet === "scenarios"
                   ? `${poolSize(scenarioPool, ALL_TYPES)} lesson-validated scenarios. Each round balances Modules 1–3 when possible.`
                   : isLongCaseSet
-                  ? `${poolSize(alternativePool, ALL_TYPES)} fictional company cases ${finalExam ? "across Modules 4–6" : "across both parts"}. Pick the correct combination of statements (including none or all), or select every correct statement using checkboxes.`
+                  ? `${poolSize(alternativePool, ALL_TYPES)} fictional company cases ${finalExam
+                    ? "across Modules 4–6. Choose the best answer, pick the correct combination of statements, or check every correct option."
+                    : "across both parts. Pick the correct combination of statements (including none or all), or check every correct option."}`
                   : longCases
                   ? "Review definitions, distinctions, and short applications before working through the longer cases."
                   : questionSet === "alternative"
@@ -530,8 +532,8 @@ export default function Quiz(props: Props) {
           <div>
             <div className="qz-h-row">
               <h4 className="qz-h">Question types</h4>
-              {types.length < ALL_TYPES.length && (
-                <button className="qz-peek" onClick={() => { setTypes(ALL_TYPES); save(`types-${subject}`, ALL_TYPES); }}>Select all</button>
+              {activeTypes.length < availableTypes.length && (
+                <button className="qz-peek" onClick={() => { setTypes(ALL_TYPES); save(finalExam ? `${storageKey}-types` : `types-${subject}`, ALL_TYPES); }}>Select all</button>
               )}
             </div>
             <div className="qz-types">
@@ -540,7 +542,7 @@ export default function Quiz(props: Props) {
                 return (
                   <label key={t.key} className={"qz-type" + (n ? "" : " off")}>
                     <input type="checkbox" checked={has(t.key) && n > 0} disabled={!n} onChange={() => toggleType(t.key)} />
-                    <span><b>{t.label}</b><small>{n ? t.hint : "None for this test yet"}</small></span>
+                    <span><b>{t.label}</b><small>{n ? finalExam && isLongCaseSet && t.key === "mc" ? "Best answer and statement combinations" : t.hint : "None for this test yet"}</small></span>
                   </label>
                 );
               })}

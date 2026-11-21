@@ -37,7 +37,7 @@ export default async function SubjectPage({ params }: P) {
         <Link href={`${base}/test/scores`}><b>Scores &amp; history</b><span>Review your completed attempts →</span></Link>
       </nav>
       {subject.finals?.modules?.length && <aside className="study-exam">
-        <div><span className="eyebrow">Confirmed coverage · Modules 4–6</span><h2>Ready for a full practice round?</h2><p className="inst">Long company cases, statement combinations, and select-all questions. Review each answer as you go or after submitting.</p></div>
+        <div><span className="eyebrow">Confirmed coverage · Modules 4–6</span><h2>Ready for a full practice round?</h2><p className="inst">Long company cases with best-answer, statement combination, and select-all questions. Review each answer as you go or after submitting.</p></div>
         <Link href={`${base}/test/finals`} className="btn primary">Finals practice →</Link>
       </aside>}
       <div id="available-modules" className="study-modules">

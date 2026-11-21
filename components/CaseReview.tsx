@@ -49,11 +49,30 @@ export default function CaseReview({ item, showContext, onReview }: {
   }
 
   const combo = statementHtml.length > 0;
+  const best = item.type === "Best answer";
   const rows = parsed.filter(row => row !== undefined);
-  // Put selected mistakes and missed correct options first in checkbox feedback.
   const chosen = (option?: string) => !!option && !!item.your?.includes(option);
   const priority = (row: typeof rows[number]) => row.right !== chosen(row.text) ? 0 : row.right ? 1 : 2;
-  const ordered = combo ? rows : [...rows].sort((a, b) => priority(a) - priority(b));
+  const main = best
+    ? rows.filter(row => row.right || chosen(row.text)).sort((a, b) => Number(b.right) - Number(a.right))
+    : combo ? rows : [...rows].sort((a, b) => priority(a) - priority(b));
+  const other = best ? rows.filter(row => !row.right && !chosen(row.text)) : [];
+  const renderRow = (row: typeof rows[number]) => {
+    let result: ReactNode = row.right ? "Correct" : "Incorrect";
+    if (best) {
+      result = row.right ? "Best answer" : chosen(row.text) ? "Your answer" : "Other option";
+    } else if (!combo) {
+      if (row.right) result = chosen(row.text) ? "Correct · selected" : "Correct · missed";
+      else if (chosen(row.text)) result = "Incorrect · selected";
+    }
+    return <li key={row.label ?? row.text}>
+      <span className={"case-verdict " + (row.right ? "right" : "wrong")}>
+        {row.label && `${row.label} · `}{result}
+      </span>
+      {row.html ? <p dangerouslySetInnerHTML={{ __html: row.html }} /> : <p>{row.text}</p>}
+      <p className="case-reason">{row.why}</p>
+    </li>;
+  };
 
   return <div className="case-review">
     {combo && <div className="case-answer">
@@ -64,20 +83,11 @@ export default function CaseReview({ item, showContext, onReview }: {
       <summary>Read the case</summary>
       <div className="qz-rv-prompt" dangerouslySetInnerHTML={{ __html: context }} />
     </details>}
-    <ul className="case-statements">
-      {ordered.map(row => {
-        let result: ReactNode = row.right ? "Correct" : "Incorrect";
-        if (!combo) {
-          if (row.right) result = chosen(row.text) ? "Correct · selected" : "Correct · missed";
-          else if (chosen(row.text)) result = "Incorrect · selected";
-        }
-        return <li key={row.label ?? row.text}>
-          <span className={"case-verdict " + (row.right ? "right" : "wrong")}>{row.label && `${row.label} · `}{result}</span>
-          {row.html ? <p dangerouslySetInnerHTML={{ __html: row.html }} /> : <p>{row.text}</p>}
-          <p className="case-reason">{row.why}</p>
-        </li>;
-      })}
-    </ul>
+    <ul className="case-statements">{main.map(renderRow)}</ul>
+    {other.length > 0 && <details className="case-other-options">
+      <summary>Why the other options fall short</summary>
+      <ul className="case-statements">{other.map(renderRow)}</ul>
+    </details>}
     <ReviewNotes source={item.source} onReview={onReview} />
   </div>;
 }

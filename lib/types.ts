@@ -12,7 +12,7 @@ export type BlankItem = { s: string; bank: string[]; a: string; w?: string; r?: 
 /** A separately authored question for the alternative, past-quiz-style bank. */
 export type AlternativeQuestion =
   | { kind: "tf2"; prompt: string; isTrue: boolean; underlined?: string; fix?: string; why: string; source: string }
-  | { kind: "mc"; prompt: string; options: string[]; answer: string; why: string; source: string }
+  | { kind: "mc"; prompt: string; options: string[]; answer: string; why: string; source: string; caseFormat?: "best" }
   | { kind: "multi"; prompt: string; options: string[]; correct: string[]; why: string; source: string }
   | { kind: "blank"; prompt: string; bank: string[]; answer: string; why: string; source: string };
 

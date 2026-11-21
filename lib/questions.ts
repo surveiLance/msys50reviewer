@@ -9,7 +9,7 @@ import { norm, sample, shuffle } from "./quiz";
  */
 export type Question =
   | { kind: "tf"; id: string; section: string; prompt: string; isTrue: boolean; accept: string[]; answer: string; source?: string; mod?: string; why?: string }
-  | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string }
+  | { kind: "mc"; id: string; section: string; prompt: string; options: string[]; answer: string; why?: string; source?: string; mod?: string; caseFormat?: "best" }
   | { kind: "match"; id: string; section: string; inst: string; rows: { prompt: string; answer: string }[]; options: string[]; mod?: string }
   // Mixed style (Canvas "classic" quiz types):
   | { kind: "tf2"; id: string; section: string; prompt: string; isTrue: boolean; underlined?: string; fix?: string; why?: string; source?: string; mod?: string }
@@ -34,6 +34,7 @@ export const points = (q: Question) => (q.kind === "match" ? q.rows.length : q.k
 
 /** The Canvas-style type name shown in each question's header. */
 export const typeLabel = (q: Question) =>
+  q.kind === "mc" && q.caseFormat === "best" ? "Best answer" :
   ({ tf: "Modified True or False", tf2: "True or False", mc: "Multiple Choice", multi: "Multiple Answer", blank: "Fill in the Blank", match: "Matching" })[q.kind];
 
 // Presentation-only corrections: keep the authored statement/ID unchanged so
@@ -402,7 +403,27 @@ function variedTruthPick(qs: Question[], n: number): Question[] {
 
 function variedPick(qs: Question[], n: number, type: QType): Question[] {
   if (type === "tf" || type === "tf2") return variedTruthPick(qs, n);
+  if (type === "mc" && qs.some(q => q.kind === "mc" && q.caseFormat === "best")) {
+    return pickVariedCaseChoices(qs, n);
+  }
   return variedScenarioPick(qs, n);
+}
+
+/** Mix both radio-button formats while there are fresh cases in each. */
+function pickVariedCaseChoices(qs: Question[], n: number): Question[] {
+  const best: Question[] = [];
+  const combinations: Question[] = [];
+  for (const q of shuffle(qs)) {
+    (q.kind === "mc" && q.caseFormat === "best" ? best : combinations).push(q);
+  }
+  const chosen: Question[] = [];
+  while (chosen.length < n && (best.length || combinations.length)) {
+    const first = best.pop();
+    if (first) chosen.push(first);
+    const second = chosen.length < n ? combinations.pop() : undefined;
+    if (second) chosen.push(second);
+  }
+  return chosen;
 }
 
 /** Rotate correct MC choices through the available positions, then shuffle distractors. */

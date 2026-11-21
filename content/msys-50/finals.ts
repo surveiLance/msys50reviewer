@@ -1,6 +1,10 @@
 import type { AlternativeQuestion, McItem, MultiItem, SubjectData } from "../../lib/types";
+import { buildFinalsCases } from "./finalsCaseBuilder";
 import { module4FinalsCombinations, module4FinalsCheckboxes } from "./finalsModule4Cases";
+import { module4FinalsVariety } from "./finalsModule4Variety";
 import { module5FinalsCombinations, module5FinalsCheckboxes } from "./finalsModule5Cases";
+import { module5FinalsVariety } from "./finalsModule5Variety";
+import { module6FinalsVariety } from "./finalsModule6Variety";
 import { module6CombinationCases, module6CheckboxCases } from "./module6Cases";
 
 function caseBank(combinations: (McItem & { w: string; r: string })[], checkboxes: (MultiItem & { w: string; r: string })[]): AlternativeQuestion[] {
@@ -14,8 +18,17 @@ function caseBank(combinations: (McItem & { w: string; r: string })[], checkboxe
 export function withFinals(data: SubjectData): SubjectData {
   return { ...data, finalCases: {
     ...data.finalCases,
-    "module-4": caseBank(module4FinalsCombinations, module4FinalsCheckboxes),
-    "module-5": caseBank(module5FinalsCombinations, module5FinalsCheckboxes),
-    "module-6": caseBank(module6CombinationCases, module6CheckboxCases),
+    "module-4": [
+      ...caseBank(module4FinalsCombinations, module4FinalsCheckboxes),
+      ...buildFinalsCases(module4FinalsVariety),
+    ],
+    "module-5": [
+      ...caseBank(module5FinalsCombinations, module5FinalsCheckboxes),
+      ...buildFinalsCases(module5FinalsVariety),
+    ],
+    "module-6": [
+      ...caseBank(module6CombinationCases, module6CheckboxCases),
+      ...buildFinalsCases(module6FinalsVariety),
+    ],
   } };
 }
