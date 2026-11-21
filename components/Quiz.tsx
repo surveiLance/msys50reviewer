@@ -11,6 +11,7 @@ import {
 } from "@/lib/questions";
 import { finalsRoundCounts, pickFinalsRound } from "@/lib/finals";
 import { pct, recordAttempt, type AttemptReviewItem } from "@/lib/scores";
+import CaseReview, { caseTitle } from "./CaseReview";
 import RecordStrip from "./RecordStrip";
 import NotesPeek from "./NotesPeek";
 
@@ -72,10 +73,12 @@ const baseId = (id: string) => id.replace(/^(tf|t2):/, "st:");
 function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Graded; onReview: () => void }) {
   const full = g.points === g.max;
   const result = full ? "Correct" : g.points > 0 ? "Partly correct" : "Not quite";
+  const snapshot = reviewSnapshot(q, a, g);
+  const isCase = !!caseTitle(snapshot);
   return (
     <div className={"qz-feedback " + (full ? "ok" : g.points > 0 ? "partial" : "bad")} role="status" aria-live="polite">
       <h4>{result} · {fmtPts(g.points)} / {g.max} pt{g.max === 1 ? "" : "s"}</h4>
-      {q.kind === "match" ? (
+      {isCase ? <CaseReview item={snapshot} onReview={onReview} /> : q.kind === "match" ? (
         <ul className="qz-rv-rows">
           {q.rows.map((row, i) => {
             const pick = a.picks?.[i] || "No answer";
@@ -134,7 +137,7 @@ function QuestionFeedback({ q, a, g, onReview }: { q: Question; a: Answer; g: Gr
           {q.kind === "mc" && <p className="qz-why">{q.why || "This is the best answer based on the related lesson. Use Review in notes below for the full context."}</p>}
         </>
       )}
-      {q.kind !== "match" && (
+      {!isCase && q.kind !== "match" && (
         <p className="qz-src">
           {q.source && <span>Source: {q.source}</span>}
           <button className="qz-peek" onClick={onReview}>Review in notes</button>
@@ -714,6 +717,19 @@ export default function Quiz(props: Props) {
             <ol className="qz-rv">
               {shown.map(({ q, g, a, i }) => {
                 const full = g.points === g.max;
+                if (finalExam) {
+                  const item = reviewSnapshot(q, a, g);
+                  const title = caseTitle(item);
+                  if (title) return (
+                    <li key={i} className={`case-result${full ? " ok" : ""}`}>
+                      <details>
+                        <summary><span><small>Question {i + 1} · Module {q.mod?.slice(1)}</small><strong>{title}</strong></span>
+                          <b>{fmtPts(g.points)} / {g.max} pts</b></summary>
+                        <CaseReview item={item} showContext onReview={() => setPeek({ q, a })} />
+                      </details>
+                    </li>
+                  );
+                }
                 return (
                   <li key={i} className={full ? "ok" : ""}>
                     <div className="qz-rv-top">

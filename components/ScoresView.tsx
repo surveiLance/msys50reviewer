@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import CaseReview, { caseTitle } from "./CaseReview";
 import type { SubjectMeta } from "@/lib/types";
 import {
   SCORES_EVENT, clearAttempts, deleteAttempt, fmtDate, fmtDuration, loadAttempts, moduleAccuracy, pct, type Attempt,
@@ -252,6 +253,16 @@ export default function ScoresView({ subject }: { subject: SubjectMeta }) {
               <ol className="qz-rv hist-answers">
                 {reviewing.review!.map((item, i) => {
                   const full = item.points === item.max;
+                  const title = reviewing.kind === "finals" && caseTitle(item);
+                  if (title) return (
+                    <li key={i} className={`case-result${full ? " ok" : ""}`}>
+                      <details>
+                        <summary><span><small>Question {i + 1}{item.module && ` · Module ${item.module.slice(1)}`}</small><strong>{title}</strong></span>
+                          <b>{item.points} / {item.max} pts</b></summary>
+                        <CaseReview item={item} showContext />
+                      </details>
+                    </li>
+                  );
                   return (
                     <li key={i} className={full ? "ok" : ""}>
                       <div className="qz-rv-top">
