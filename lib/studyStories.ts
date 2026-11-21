@@ -43,7 +43,7 @@ export function studyLocation(moduleNum: number, parts: { id: string; num: strin
   const all = storiesForModule(moduleNum);
   const direct = all.findIndex(s => id === `explore-${s.id}`);
   if (direct >= 0) return { mode: "explore", index: direct };
-  if (!id) return { mode: "explore", index: 0 };
+  if (!id) return { mode: "notes", index: 0 };
   const part = parts.find(p => id === p.id || id.startsWith(`${p.id}-s`) || (p.intro + p.sections.map(s => s.html).join("")).includes(`id="${id}"`));
   const anchorSection = part?.sections.findIndex(s => s.html.includes(`id="${id}"`)) ?? -1;
   const story = part && storyForSection(moduleNum, part.num, anchorSection >= 0 ? `${part.id}-s${anchorSection + 1}` : id);

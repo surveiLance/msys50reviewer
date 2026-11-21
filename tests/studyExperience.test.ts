@@ -44,6 +44,7 @@ test("source deep links remember the right visual example for returning from ful
   const location = studyLocation(5, notes, "#p-5-3-s5");
   expect(location.mode).toBe("notes");
   expect(storiesForModule(5)[location.index].id).toBe("service-trace");
+  expect(studyLocation(5, notes, "")).toEqual({ mode: "notes", index: 0 });
   expect(studyLocation(5, notes, "#explore-analysis")).toEqual({ mode: "explore", index: 0 });
   expect(studyLocation(5, notes, "#bad%encoding").mode).toBe("notes");
 });
@@ -62,7 +63,13 @@ test("the functional explanation follows the chosen applicant rather than assumi
   expect(analysisResult("functional", "simulation", false).result).toBe("Run an ineligible applicant through the modeled steps; observe whether the eligibility rule prevents confirmation.");
 });
 
-test("a direct link to the first visual example has a real scroll target on the initial page", () => {
-  const html = renderToStaticMarkup(createElement(StudyExperience, { parts: readNotes("msys-50", "module-5"), moduleNum: 5 }));
-  expect(html.includes('id="explore-analysis"')).toBe(true);
+test("modules initially render the full notes with interactive examples available as an option", () => {
+  for (let n = 1; n <= 6; n++) {
+    const parts = readNotes("msys-50", `module-${n}`);
+    const html = renderToStaticMarkup(createElement(StudyExperience, { parts, moduleNum: n }));
+    expect(html).toContain(`id="${parts[0].id}"`);
+    expect(html).toContain(`aria-label="Module ${n} outline"`);
+    expect(html).not.toContain("Make the idea click.");
+    expect(html).toContain("Interactive examples");
+  }
 });

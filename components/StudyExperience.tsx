@@ -18,7 +18,7 @@ function Scene({ kind }: { kind: SceneKind }) {
 export default function StudyExperience({ moduleNum, parts, children }: { moduleNum: number; parts: NotePart[]; children?: React.ReactNode }) {
   const stories = storiesForModule(moduleNum);
   const [index, setIndex] = useState(0);
-  const [mode, setMode] = useState<"explore" | "notes" | "guided">("explore");
+  const [mode, setMode] = useState<"explore" | "notes" | "guided">("notes");
   const title = useRef<HTMLHeadingElement>(null);
   const initial = useRef(true);
   const story = stories[index];
@@ -52,7 +52,7 @@ export default function StudyExperience({ moduleNum, parts, children }: { module
   const choose = (i: number) => { setIndex(i); setMode("explore"); history.pushState(null, "", `#explore-${stories[i].id}`); };
   const openNotes = () => { history.pushState(null, "", `#p-${story.part.replace(".", "-")}-s${story.section}`); setMode("notes"); };
 
-  if (mode === "notes") return <><div className="xp-return"><button className="btn primary" onClick={() => choose(studyLocation(moduleNum, parts, location.hash).index)}>← Learn by doing</button><span>Full notes · use “Explore this idea” beside any section</span></div><NotesReader parts={parts} moduleNum={moduleNum} onExplore={explore}>{children}</NotesReader></>;
+  if (mode === "notes") return <><div className="xp-return"><span>Full notes</span><button className="btn" onClick={() => choose(studyLocation(moduleNum, parts, location.hash).index)}>Interactive examples</button></div><NotesReader parts={parts} moduleNum={moduleNum} onExplore={explore}>{children}</NotesReader></>;
   if (mode === "guided") return <><div className="xp-return"><button className="btn" onClick={() => choose(index)}>← Interactive examples</button></div><Module5Learning parts={parts} focusOnMount>{children}</Module5Learning></>;
   const localStories = stories.filter(s => s.part === story.part);
   return <section className="experience" aria-label={`Module ${moduleNum} learn by doing`}>

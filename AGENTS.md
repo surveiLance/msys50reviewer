@@ -144,3 +144,5 @@ Everything is committed and pushed; `npm run build` passes.
 
 
 **Finals practice implementation:** `/msys-50/test/finals` uses 60 long cases (20/module) and a separately scoped concept bank, with 10/20/30-question rounds. The full round balances 10 questions/module. See `docs/content/finals-source-audit.md`. `lib/finals.ts` scopes and balances the pool; `content/msys-50/finals.ts` assembles cases. Scores have a distinct `finals` kind. Do not use the 85-point midterm timer to pace finals. Long answer snapshots are trimmed by both count and size to preserve score saving in browser storage.
+
+**Nov 21 — Notes default:** The owner wants the full notes to open immediately in every module. Interactive examples are optional. Keep both the initial render and hash-free navigation in notes mode; explicit `#explore-...` links may still open examples.
